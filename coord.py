@@ -401,3 +401,7 @@ st.download_button(
 if st.sidebar.button("🧹 Limpiar caché de datos"):
     st.cache_data.clear()
     st.experimental_rerun()  # Para refrescar la app y ver los cambios
+# -------------------
+# Información de la versión
+st.sidebar.subheader("Version 1.0.0")
+# Fin del script
