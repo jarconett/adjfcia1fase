@@ -9,9 +9,8 @@ from geopy.extra.rate_limiter import RateLimiter
 import unicodedata
 import re
 from math import radians, cos, sin, asin, sqrt
-from io import BytesIO
 
-st.title("Mapa Interactivo de las Farmacias de la Primera fase de Adjudicaciones de Andalucía")
+st.title("Mapa Interactivo de Pueblos de Andalucía")
 
 # --------------------
 # Slider para radio de búsqueda (nuevo)
@@ -160,23 +159,13 @@ pesos = {}
 medidas_originales = {}
 for archivo in nombres_archivos:
     with st.sidebar.expander(f"⚙️ {archivo}", expanded=False):
-        df_archivo = df_original[df_original['__archivo__'] == archivo]
-        columnas_basicas = {'Territorio', 'Medida', 'Valor', '__archivo__'}
-        columnas_extra = [col for col in df_archivo.columns if col not in columnas_basicas]
-        
-        indicadores_combinados = df_archivo.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1).unique()
-        
-        for indicador_completo in sorted(indicadores_combinados):
-            clave_norm = normaliza_nombre_indicador(indicador_completo)
-            peso = st.slider(f"{indicador_completo}", -5.0, 5.0, 1.0, 0.1, key=f"{archivo}-{clave_norm}")
+        indicadores_archivo = df_original[df_original['__archivo__'] == archivo]['Medida'].unique()
+        for Medida in indicadores_archivo:
+            clave_norm = normaliza_nombre_indicador(Medida)
+            peso = st.slider(f"{Medida}", -5.0, 5.0, 1.0, 0.1, key=f"{archivo}-{Medida}")
             pesos[clave_norm] = peso
-            medidas_originales[clave_norm] = indicador_completo
-# Determinar columnas extra (fuera del bucle)
-columnas_basicas = {'Territorio', 'Medida', 'Valor'}
-columnas_extra = [col for col in df_original.columns if col not in columnas_basicas and col != '__archivo__']
+            medidas_originales[clave_norm] = Medida
 
-# Generar medida combinada para cada fila (como se hace luego en preparar_datos)
-df_original['Medida'] = df_original.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1)
 # Al preparar los datos, normaliza también las columnas del pivot
 def normalizar_nombre_municipio(nombre):
     nombre = str(nombre)
@@ -189,7 +178,8 @@ def normalizar_nombre_municipio(nombre):
 @st.cache_data
 def preparar_datos(df_original, pesos, df_coords_existentes, df_farmacias, radio_km):
     columnas_basicas = {'Territorio', 'Medida', 'Valor'}
-    columnas_extra = [col for col in df_original.columns if col not in columnas_basicas and col != '__archivo__' ]#and col != '__archivo__'
+    columnas_extra = [col for col in df_original.columns if col not in columnas_basicas and col != '__archivo__']
+    df_original['Medida'] = df_original.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1)
     df_pivot = df_original.pivot_table(
         index="Territorio",
         columns="Medida",
@@ -258,58 +248,12 @@ df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascend
 st.subheader("Ranking de municipios con farmacia ordenados por puntuación total (incluye suma municipios sin farmacia cercanos)")
 territorio_seleccionado = st.selectbox(
     "Selecciona un municipio del ranking para centrar el mapa:",
-    options= df_ordenado['Territorio'].tolist()
+    options=["(Ninguno)"] + df_ordenado['Territorio'].tolist()
 )
 st.dataframe(df_ordenado[[
     'Territorio', 'Puntuación', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida'
 ]].round(2))
 
-if territorio_seleccionado:
-    st.subheader(f"Detalle de puntuación para: {territorio_seleccionado}")
-
-    # Filtrar df_original para el territorio seleccionado
-    df_territorio = df_original[df_original["Territorio"] == territorio_seleccionado]
-
-    if df_territorio.empty:
-        st.warning("No hay datos para este territorio.")
-    else:
-        st.write(f"Número de filas originales para {territorio_seleccionado}: ", len(df_original[df_original["Territorio"] == territorio_seleccionado]))
-        desglose = []
-
-        columnas_extra = [col for col in df_original.columns if col not in ["Territorio", "Medida", "Valor", "__archivo__"]]
-
-        # Para cada fila, generar el nombre normalizado del indicador
-        for _, row in df_territorio.iterrows():
-            indicador_completo = combinar_medida_y_extras(row, columnas_extra)
-            clave_norm = normaliza_nombre_indicador(indicador_completo)
-
-            valor = row["Valor"]
-            peso = pesos.get(clave_norm, 1.0)  # Usar peso por defecto de 1.0 si no se encuentra
-            contribucion = valor * peso if pd.notna(valor) else None
-
-            desglose.append({
-                "Indicador": indicador_completo,
-                "Valor": round(valor, 2) if pd.notna(valor) else "N/A",
-                "Peso": round(peso, 2),
-                "Contribución": round(contribucion, 2) if contribucion is not None else "—"
-            })
-
-        df_desglose = pd.DataFrame(desglose)
-        st.dataframe(df_desglose, use_container_width=True, height=600)
-
-st.write(f"Nº de indicadores en el desglose: {len(df_desglose)}")
-
-# Descargar CSV completo
-csv_buffer = BytesIO()
-df_desglose.to_csv(csv_buffer, index=False)
-csv_buffer.seek(0)
-
-st.download_button(
-    label="📥 Descargar desglose completo en CSV",
-    data=csv_buffer,
-    file_name=f"desglose_{territorio_seleccionado}.csv",
-    mime="text/csv"
-    )
 # -------------------
 # Mapa con folium
 # Coordenadas por defecto
@@ -356,10 +300,7 @@ for idx, row in df_ordenado.iterrows():
     ).add_to(marker_cluster)
 
 Fullscreen().add_to(m)
-st_data = st_folium(m, width=1200, height=700, returned_objects=["last_clicked"])
-
-
-
+st_data = st_folium(m, width=700, height=500)
 
 # -------------------
 # Gráfico Plotly
@@ -375,29 +316,3 @@ fig = px.bar(
 )
 fig.update_layout(xaxis_tickangle=-45)
 st.plotly_chart(fig, use_container_width=True)
-
-# -------------------
-# Exportar los datos completos
-st.subheader("📥 Descargar datos procesados")
-
-# Unimos municipios con y sin farmacia en un único dataframe
-df_export = pd.concat([df_municipios_farmacias, df_municipios_sin], ignore_index=True)
-
-# Reordenamos columnas si es necesario (opcional)
-cols_first = ["Territorio"]
-cols_otros = [col for col in df_export.columns if col not in cols_first]
-df_export = df_export[cols_first + cols_otros]
-
-# Convertimos a CSV
-csv_data = df_export.to_csv(index=False, sep=";", encoding="utf-8").encode("utf-8")
-
-# Botón de descarga
-st.download_button(
-    label="📥 Descargar CSV con todos los municipios",
-    data=csv_data,
-    file_name="todos_los_municipios.csv",
-    mime="text/csv"
-)
-if st.sidebar.button("🧹 Limpiar caché de datos"):
-    st.cache_data.clear()
-    st.experimental_rerun()  # Para refrescar la app y ver los cambios
