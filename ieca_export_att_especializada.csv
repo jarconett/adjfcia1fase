@@ -1,0 +1,453 @@
+Territorio;Medida;Tipo de centro;Valor;
+Andalucía;Centros;Hospitales públicos;35;
+Andalucía;Centros;Hospitales privados;60;
+Almería;Centros;Hospitales públicos;3;
+Almería;Centros;Hospitales privados;2;
+Almería (capital);Centros;Hospitales públicos;1;
+Almería (capital);Centros;Hospitales privados;2;
+El Ejido;Centros;Hospitales públicos;1;
+El Ejido;Centros;Hospitales privados;0;
+Huércal-Overa;Centros;Hospitales públicos;1;
+Huércal-Overa;Centros;Hospitales privados;0;
+Cádiz;Centros;Hospitales públicos;5;
+Cádiz;Centros;Hospitales privados;12;
+Algeciras;Centros;Hospitales públicos;1;
+Algeciras;Centros;Hospitales privados;0;
+Cádiz (capital);Centros;Hospitales públicos;1;
+Cádiz (capital);Centros;Hospitales privados;3;
+Chiclana de la Frontera;Centros;Hospitales públicos;0;
+Chiclana de la Frontera;Centros;Hospitales privados;2;
+El Puerto de Santa María;Centros;Hospitales públicos;0;
+El Puerto de Santa María;Centros;Hospitales privados;1;
+Jerez de la Frontera;Centros;Hospitales públicos;1;
+Jerez de la Frontera;Centros;Hospitales privados;3;
+La Línea de la Concepción;Centros;Hospitales públicos;1;
+La Línea de la Concepción;Centros;Hospitales privados;0;
+Los Barrios;Centros;Hospitales públicos;0;
+Los Barrios;Centros;Hospitales privados;1;
+Puerto Real;Centros;Hospitales públicos;1;
+Puerto Real;Centros;Hospitales privados;0;
+Sanlúcar de Barrameda;Centros;Hospitales públicos;0;
+Sanlúcar de Barrameda;Centros;Hospitales privados;1;
+Villamartín;Centros;Hospitales públicos;0;
+Villamartín;Centros;Hospitales privados;1;
+Córdoba;Centros;Hospitales públicos;3;
+Córdoba;Centros;Hospitales privados;5;
+Cabra;Centros;Hospitales públicos;1;
+Cabra;Centros;Hospitales privados;0;
+Córdoba (capital);Centros;Hospitales públicos;1;
+Córdoba (capital);Centros;Hospitales privados;4;
+Lucena;Centros;Hospitales públicos;0;
+Lucena;Centros;Hospitales privados;1;
+Pozoblanco;Centros;Hospitales públicos;1;
+Pozoblanco;Centros;Hospitales privados;0;
+Granada;Centros;Hospitales públicos;4;
+Granada;Centros;Hospitales privados;3;
+Baza;Centros;Hospitales públicos;1;
+Baza;Centros;Hospitales privados;0;
+Granada (capital);Centros;Hospitales públicos;2;
+Granada (capital);Centros;Hospitales privados;3;
+Motril;Centros;Hospitales públicos;1;
+Motril;Centros;Hospitales privados;0;
+Huelva;Centros;Hospitales públicos;3;
+Huelva;Centros;Hospitales privados;3;
+Huelva (capital);Centros;Hospitales públicos;2;
+Huelva (capital);Centros;Hospitales privados;2;
+Lepe;Centros;Hospitales públicos;0;
+Lepe;Centros;Hospitales privados;1;
+Minas de Riotinto;Centros;Hospitales públicos;1;
+Minas de Riotinto;Centros;Hospitales privados;0;
+Jaén;Centros;Hospitales públicos;4;
+Jaén;Centros;Hospitales privados;1;
+Andújar;Centros;Hospitales públicos;1;
+Andújar;Centros;Hospitales privados;0;
+Jaén (capital);Centros;Hospitales públicos;1;
+Jaén (capital);Centros;Hospitales privados;1;
+Linares;Centros;Hospitales públicos;1;
+Linares;Centros;Hospitales privados;0;
+Úbeda;Centros;Hospitales públicos;1;
+Úbeda;Centros;Hospitales privados;0;
+Málaga;Centros;Hospitales públicos;6;
+Málaga;Centros;Hospitales privados;20;
+Antequera;Centros;Hospitales públicos;1;
+Antequera;Centros;Hospitales privados;0;
+Benalmádena;Centros;Hospitales públicos;0;
+Benalmádena;Centros;Hospitales privados;2;
+Estepona;Centros;Hospitales públicos;0;
+Estepona;Centros;Hospitales privados;2;
+Málaga (capital);Centros;Hospitales públicos;2;
+Málaga (capital);Centros;Hospitales privados;9;
+Marbella;Centros;Hospitales públicos;1;
+Marbella;Centros;Hospitales privados;5;
+Ronda;Centros;Hospitales públicos;1;
+Ronda;Centros;Hospitales privados;0;
+Torremolinos;Centros;Hospitales públicos;0;
+Torremolinos;Centros;Hospitales privados;1;
+Vélez-Málaga;Centros;Hospitales públicos;1;
+Vélez-Málaga;Centros;Hospitales privados;1;
+Sevilla;Centros;Hospitales públicos;7;
+Sevilla;Centros;Hospitales privados;14;
+Bormujos;Centros;Hospitales públicos;1;
+Bormujos;Centros;Hospitales privados;1;
+Castilleja de la Cuesta;Centros;Hospitales públicos;0;
+Castilleja de la Cuesta;Centros;Hospitales privados;1;
+Coria del Río;Centros;Hospitales públicos;0;
+Coria del Río;Centros;Hospitales privados;1;
+Dos Hermanas;Centros;Hospitales públicos;0;
+Dos Hermanas;Centros;Hospitales privados;2;
+Osuna;Centros;Hospitales públicos;1;
+Osuna;Centros;Hospitales privados;0;
+Sevilla (capital);Centros;Hospitales públicos;5;
+Sevilla (capital);Centros;Hospitales privados;9;
+
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+          
+               
+                    
+               
+               
+               
+          
+     
