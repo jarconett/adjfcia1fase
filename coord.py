@@ -291,9 +291,9 @@ def preparar_datos(df_original, pesos, df_coords_existentes, df_farmacias, radio
     and extending scores based on nearby municipalities.
     """
     # DEBUG: Show initial df_original columns
-    st.write(f"DEBUG: df_original columns: {df_original.columns.tolist()}")
+    #st.write(f"DEBUG: df_original columns: {df_original.columns.tolist()}")
     # DEBUG: Show sample of df_original['Medida'] after global combination
-    st.write(f"DEBUG: Sample of df_original['Medida'] (combined indicator names): {df_original['Medida'].head().tolist()}")
+    #st.write(f"DEBUG: Sample of df_original['Medida'] (combined indicator names): {df_original['Medida'].head().tolist()}")
 
     columnas_basicas = {'Territorio', 'Medida', 'Valor'}
     columnas_extra_preparar = [col for col in df_original.columns if col not in columnas_basicas and col != '__archivo__']
@@ -307,7 +307,7 @@ def preparar_datos(df_original, pesos, df_coords_existentes, df_farmacias, radio
     ).reset_index()
 
     # DEBUG: Show df_pivot columns before renaming
-    st.write(f"DEBUG: df_pivot columns BEFORE normalizing: {df_pivot.columns.tolist()}")
+    #st.write(f"DEBUG: df_pivot columns BEFORE normalizing: {df_pivot.columns.tolist()}")
 
     # Normalizar nombres de columnas para que coincidan con las claves de 'pesos'
     col_map = {col: normaliza_nombre_indicador(col) if col != 'Territorio' else col for col in df_pivot.columns}
