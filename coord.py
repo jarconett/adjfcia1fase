@@ -313,10 +313,10 @@ def preparar_datos(df_original, pesos, df_coords_existentes, df_farmacias, radio
     col_map = {col: normaliza_nombre_indicador(col) if col != 'Territorio' else col for col in df_pivot.columns}
     df_pivot = df_pivot.rename(columns=col_map)
     # DEBUG: Show df_pivot columns after renaming
-    st.write(f"DEBUG: df_pivot columns AFTER normalizing: {df_pivot.columns.tolist()}")
+    #st.write(f"DEBUG: df_pivot columns AFTER normalizing: {df_pivot.columns.tolist()}")
 
     # DEBUG: Show keys in 'pesos' dictionary
-    st.write(f"DEBUG: Keys in 'pesos' dictionary (from sliders): {list(pesos.keys())}")
+    #st.write(f"DEBUG: Keys in 'pesos' dictionary (from sliders): {list(pesos.keys())}")
 
     # Add a normalized territory name column for matching with pharmacy data
     df_pivot["Territorio_normalizado"] = df_pivot["Territorio"].apply(normalizar_nombre_municipio)
