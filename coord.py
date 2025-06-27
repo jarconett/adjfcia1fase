@@ -344,23 +344,23 @@ def preparar_datos(df_original, pesos, df_coords_existentes, df_farmacias, radio
     # Sum of (indicator value * its weight)
     # DEBUG: Check columns actually being used for scoring
     cols_for_scoring_con = [col for col in pesos if col in df_con_farmacia.columns]
-    st.write(f"DEBUG: Columns in df_con_farmacia being used for scoring: {cols_for_scoring_con}")
+    #st.write(f"DEBUG: Columns in df_con_farmacia being used for scoring: {cols_for_scoring_con}")
 
     df_con_farmacia['Puntuación'] = sum(
         df_con_farmacia[col].fillna(0) * pesos.get(col, 0)
         for col in pesos if col in df_con_farmacia.columns
     )
     # DEBUG: Show sample of 'Puntuación' column
-    st.write(f"DEBUG: Sample of 'Puntuación' column (first 5 rows, municipalities with pharmacy): {df_con_farmacia['Puntuación'].head().tolist()}")
+    #st.write(f"DEBUG: Sample of 'Puntuación' column (first 5 rows, municipalities with pharmacy): {df_con_farmacia['Puntuación'].head().tolist()}")
 
     # Calculate the base score for municipalities without pharmacies
     cols_for_scoring_sin = [col for col in pesos if col in df_sin_farmacia.columns]
-    st.write(f"DEBUG: Columns in df_sin_farmacia being used for scoring: {cols_for_scoring_sin}")
+    #st.write(f"DEBUG: Columns in df_sin_farmacia being used for scoring: {cols_for_scoring_sin}")
     df_sin_farmacia['Puntuación'] = sum(
         df_sin_farmacia[col].fillna(0) * pesos.get(col, 0)
         for col in pesos if col in df_sin_farmacia.columns
     )
-    st.write(f"DEBUG: Sample of 'Puntuación' column (first 5 rows, municipalities without pharmacy): {df_sin_farmacia['Puntuación'].head().tolist()}")
+    #st.write(f"DEBUG: Sample of 'Puntuación' column (first 5 rows, municipalities without pharmacy): {df_sin_farmacia['Puntuación'].head().tolist()}")
 
 
     # Initialize extended score and nearby municipalities sum
@@ -386,7 +386,7 @@ def preparar_datos(df_original, pesos, df_coords_existentes, df_farmacias, radio
             df_con_farmacia.at[idx, 'SumaMunicipiosCercanos'] = suma_extra
             df_con_farmacia.at[idx, 'PuntuaciónExtendida'] = row['Puntuación'] + suma_extra
 
-    st.write(f"DEBUG: Sample of 'PuntuaciónExtendida' column (first 5 rows): {df_con_farmacia['PuntuaciónExtendida'].head().tolist()}")
+    #st.write(f"DEBUG: Sample of 'PuntuaciónExtendida' column (first 5 rows): {df_con_farmacia['PuntuaciónExtendida'].head().tolist()}")
 
     return df_con_farmacia, df_sin_farmacia
 
