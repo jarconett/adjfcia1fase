@@ -1,3 +1,6 @@
+streamlit run C:\Users\Javier\Desktop\adjfcia1fase\coord.py 
+
+
 TO-DO:
 falta incluir los siguientes municipios: probablemente no funciona la limpieza de los nombres o no hay uniformidad en los datos del instituto andaluz de estadistica.
 Villares de Andújar
