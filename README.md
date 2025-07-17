@@ -1,3 +1,6 @@
+pip install streamlit pandas streamlit_folium folium geopy plotly
+
+
 streamlit run C:\Users\Javier\Desktop\adjfcia1fase\coord.py 
 
 
