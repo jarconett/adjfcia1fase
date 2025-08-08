@@ -71,6 +71,16 @@ if territorios_file:
     try:
         df_farmacias = pd.read_csv(territorios_file, sep=";", na_values=["-", "", "NA"])
         df_farmacias.columns = df_farmacias.columns.str.strip()
+        # Asegurarse de que Factor es numérico
+        if 'Factor' in df_farmacias.columns:
+            df_farmacias['Factor'] = pd.to_numeric(df_farmacias['Factor'], errors='coerce').fillna(1.0)
+        else:
+            df_farmacias['Factor'] = 1.0
+        # Limpiar columna Singular (rellenar vacíos con None)
+        if 'Singular' in df_farmacias.columns:
+            df_farmacias['Singular'] = df_farmacias['Singular'].fillna('').astype(str)
+        else:
+            df_farmacias['Singular'] = ''
         st.sidebar.success("Farmacias cargadas desde Territorios.csv")
     except Exception as e:
         st.sidebar.error(f"Error al leer Territorios.csv: {e}")
@@ -322,10 +332,18 @@ def preparar_datos(df_original, pesos, df_coords_existentes, df_farmacias, radio
     df_pivot["Territorio_normalizado"] = df_pivot["Territorio"].apply(normalizar_nombre_municipio)
 
     municipios_con_farmacia = set()
+    factor_dict = {}
+    singular_dict = {}
     if not df_farmacias.empty:
         if 'Territorio' in df_farmacias.columns:
             df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
             municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
+            # Crear diccionario de Factor y Singular por territorio normalizado
+            for _, row in df_farmacias.iterrows():
+                tnorm = row["Territorio_normalizado"]
+                factor_dict[tnorm] = row.get("Factor", 1.0)
+                singular = row.get("Singular", "")
+                singular_dict[tnorm] = singular if singular and singular.strip() else None
 
     # Separate dataframes for municipalities with and without pharmacies
     df_con_farmacia = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
@@ -341,27 +359,26 @@ def preparar_datos(df_original, pesos, df_coords_existentes, df_farmacias, radio
     df_sin_farmacia = df_sin_farmacia.merge(df_coordenadas_sin, on="Territorio", how="left")
 
     # Calculate the base score for municipalities with pharmacies
-    # Sum of (indicator value * its weight)
-    # DEBUG: Check columns actually being used for scoring
     cols_for_scoring_con = [col for col in pesos if col in df_con_farmacia.columns]
-    #st.write(f"DEBUG: Columns in df_con_farmacia being used for scoring: {cols_for_scoring_con}")
-
     df_con_farmacia['Puntuación'] = sum(
         df_con_farmacia[col].fillna(0) * pesos.get(col, 0)
         for col in pesos if col in df_con_farmacia.columns
     )
-    # DEBUG: Show sample of 'Puntuación' column
-    #st.write(f"DEBUG: Sample of 'Puntuación' column (first 5 rows, municipalities with pharmacy): {df_con_farmacia['Puntuación'].head().tolist()}")
+    # Multiplicar por Factor si existe (usando el territorio normalizado)
+    df_con_farmacia['Factor'] = df_con_farmacia['Territorio_normalizado'].map(factor_dict).fillna(1.0)
+    df_con_farmacia['Puntuación'] = df_con_farmacia['Puntuación'] * df_con_farmacia['Factor']
+    # Nombre a mostrar: usar Singular si existe y no está vacío, si no, Territorio
+    df_con_farmacia['NombreMostrar'] = df_con_farmacia['Territorio_normalizado'].map(singular_dict)
+    df_con_farmacia['NombreMostrar'] = df_con_farmacia.apply(lambda r: r['NombreMostrar'] if r['NombreMostrar'] else r['Territorio'], axis=1)
 
     # Calculate the base score for municipalities without pharmacies
     cols_for_scoring_sin = [col for col in pesos if col in df_sin_farmacia.columns]
-    #st.write(f"DEBUG: Columns in df_sin_farmacia being used for scoring: {cols_for_scoring_sin}")
     df_sin_farmacia['Puntuación'] = sum(
         df_sin_farmacia[col].fillna(0) * pesos.get(col, 0)
         for col in pesos if col in df_sin_farmacia.columns
     )
-    #st.write(f"DEBUG: Sample of 'Puntuación' column (first 5 rows, municipalities without pharmacy): {df_sin_farmacia['Puntuación'].head().tolist()}")
-
+    # No factor ni singular para municipios sin farmacia
+    df_sin_farmacia['NombreMostrar'] = df_sin_farmacia['Territorio']
 
     # Initialize extended score and nearby municipalities sum
     df_con_farmacia['PuntuaciónExtendida'] = df_con_farmacia['Puntuación']
@@ -369,24 +386,20 @@ def preparar_datos(df_original, pesos, df_coords_existentes, df_farmacias, radio
 
     # If a search radius is set, calculate extended scores
     if radio_km > 0:
-        # For each municipality with a pharmacy, sum the scores of nearby municipalities without pharmacies
         for idx, row in df_con_farmacia.iterrows():
             lat1, lon1 = row['Latitud'], row['Longitud']
             if pd.isna(lat1) or pd.isna(lon1):
                 continue
             suma_extra = 0
-            # Iterate through municipalities without pharmacies
             for _, r2 in df_sin_farmacia.iterrows():
                 lat2, lon2 = r2['Latitud'], r2['Longitud']
                 if pd.isna(lat2) or pd.isna(lon2):
                     continue
                 distancia = haversine(lat1, lon1, lat2, lon2)
                 if distancia <= radio_km:
-                    suma_extra += r2['Puntuación'] # Add the score of the nearby municipality
+                    suma_extra += r2['Puntuación']
             df_con_farmacia.at[idx, 'SumaMunicipiosCercanos'] = suma_extra
             df_con_farmacia.at[idx, 'PuntuaciónExtendida'] = row['Puntuación'] + suma_extra
-
-    #st.write(f"DEBUG: Sample of 'PuntuaciónExtendida' column (first 5 rows): {df_con_farmacia['PuntuaciónExtendida'].head().tolist()}")
 
     return df_con_farmacia, df_sin_farmacia
 
@@ -395,7 +408,8 @@ df_municipios_farmacias, df_municipios_sin = preparar_datos(
     df_original, pesos, df_coords_existentes, df_farmacias, radio_km
 )
 
-# -------------------
+
+
 # Display ranking table and allow selection
 df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False)
 st.subheader("Ranking de municipios con farmacia ordenados por puntuación total (incluye suma municipios sin farmacia cercanos)")
@@ -404,29 +418,39 @@ st.subheader("Ranking de municipios con farmacia ordenados por puntuación total
 if not df_ordenado.empty:
     territorio_seleccionado = st.selectbox(
         "Selecciona un municipio del ranking para centrar el mapa:",
-        options=df_ordenado['Territorio'].tolist()
+        options=df_ordenado['NombreMostrar'].tolist()
     )
 else:
     territorio_seleccionado = None
     st.info("No hay municipios con farmacia para mostrar en el ranking.")
 
+st.dataframe(
+    df_ordenado[['NombreMostrar', 'Puntuación', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida']]
+    .rename(columns={'NombreMostrar': 'Territorio'})
+    .round(2),
+    use_container_width=True
+)
 
-st.dataframe(df_ordenado[[
-    'Territorio', 'Puntuación', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida'
-]].round(2), use_container_width=True)
 
 # Display detailed breakdown for the selected territory
 if territorio_seleccionado:
     st.subheader(f"Detalle de puntuación para: {territorio_seleccionado}")
 
+    # Buscar el territorio real correspondiente al nombre mostrado
+    fila_sel = df_ordenado[df_ordenado['NombreMostrar'] == territorio_seleccionado]
+    if not fila_sel.empty:
+        territorio_real = fila_sel.iloc[0]['Territorio']
+    else:
+        territorio_real = territorio_seleccionado
+
     # Filter original dataframe for the selected territory
-    df_territorio = df_original[df_original["Territorio"] == territorio_seleccionado]
+    df_territorio = df_original[df_original["Territorio"] == territorio_real]
 
     if df_territorio.empty:
         st.warning("No hay datos detallados para este territorio.")
         df_desglose = pd.DataFrame() # Initialize an empty dataframe
     else:
-        st.write(f"Número de filas originales para {territorio_seleccionado}: ", len(df_original[df_original["Territorio"] == territorio_seleccionado]))
+        st.write(f"Número de filas originales para {territorio_real}: ", len(df_original[df_original["Territorio"] == territorio_real]))
         desglose = []
 
         for _, row in df_territorio.iterrows():
@@ -501,9 +525,12 @@ for idx, row in df_ordenado.iterrows():
     if puntuacion >= rango_colores[-1][1]:
         color = rango_colores[-1][2]
 
+    # Usar NombreMostrar para el popup
+    nombre_popup = row['NombreMostrar'] if 'NombreMostrar' in row else row['Territorio']
+
     # Create HTML content for the popup
     popup_html = f"""
-    <b>{row['Territorio']}</b><br>
+    <b>{nombre_popup}</b><br>
     Puntuación propia: {row['Puntuación']:.2f}<br>
     Suma municipios cercanos sin farmacia (≤ {radio_km} km): {row['SumaMunicipiosCercanos']:.2f}<br>
     <b>Total combinado:</b> {row['PuntuaciónExtendida']:.2f}
@@ -531,11 +558,11 @@ st_data = st_folium(m, width=1200, height=700, returned_objects=["last_clicked"]
 st.subheader("Gráfico de puntuación total combinada")
 fig = px.bar(
     df_ordenado,
-    x='Territorio',
+    x='NombreMostrar',
     y='PuntuaciónExtendida',
     color='PuntuaciónExtendida', # Color bars based on their score
     color_continuous_scale='Viridis', # Color scale
-    labels={'PuntuaciónExtendida': 'Puntuación Total'}, # Axis label
+    labels={'PuntuaciónExtendida': 'Puntuación Total', 'NombreMostrar': 'Territorio'}, # Axis label
     height=400
 )
 fig.update_layout(xaxis_tickangle=-45) # Rotate x-axis labels for readability
@@ -549,7 +576,7 @@ st.subheader("📥 Descargar datos procesados")
 df_export = pd.concat([df_municipios_farmacias, df_municipios_sin], ignore_index=True)
 
 # Reorder columns if necessary (optional, for better readability in CSV)
-cols_first = ["Territorio", "Latitud", "Longitud", "Puntuación", "SumaMunicipiosCercanos", "PuntuaciónExtendida"]
+cols_first = ["NombreMostrar", "Territorio", "Latitud", "Longitud", "Puntuación", "SumaMunicipiosCercanos", "PuntuaciónExtendida"]
 # Ensure all columns from original df_export are included, with desired ones first
 cols_others = [col for col in df_export.columns if col not in cols_first and col != "Territorio_normalizado"]
 df_export = df_export[cols_first + sorted(cols_others)] # Sort other columns alphabetically
@@ -600,5 +627,5 @@ if st.sidebar.button("💾 Guardar Pesos a CSV"):
 
 
 # -------------------
-# Version information in the sidebar
-st.sidebar.subheader("Version 1.1.0")
+# Version singulares 
+st.sidebar.subheader("Version 1.2.0")
