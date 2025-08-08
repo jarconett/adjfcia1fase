@@ -1,45 +1,45 @@
-Territorio;Latitud;Longitud
-El Guijo;38.495977;-4.7831015
-Albox;37.3880282;-2.1455544
-Los Villares;38.021343;-3.9965328
-Los Blázquez;38.4073597;-5.4401208
-Lucainena de las Torres;37.040325;-2.20112
-Turrillas;37.0296546;-2.2649013
-Aldeaquemada;38.4125181;-3.3716744
-Canillas de Albaida;36.8461773;-3.9878112
-Higuera de Calatrava;37.7983906;-4.1574696
-Lora del Río;37.6574267;-5.5275818
-Sanlúcar de Guadiana;37.4726294;-7.4664775
-Aldeire;37.160375;-3.0715949
-Cabezas Rubias;37.7259134;-7.0867842
-Villaluenga del Rosario;36.6965773;-5.3860094
-Domingo Pérez de Granada;37.4964059;-3.5088958
-E. singular Las Infantas;37.9146333;-3.7857241
-Loja;37.1664839;-4.1496374
-Cútar;36.8310343;-4.2287632
-Paterna del Río;37.0216846;-2.9526235
-Terque;36.9834887;-2.5970792
-Benataé;38.3528099;-2.6517296
-Pujerra;36.6128751;-5.1493344
-E. singular Benamahoma;36.7634575;-5.4653727
-E. singular Algallarín;38.0001337;-4.4557302
+Territorio;Latitud;Longitud;Factor;Singular
+El Guijo;38.495977;-4.7831015;1
+Albox;37.3880282;-2.1455544;1
+Los Villares;38.021343;-3.9965328;1
+Los Blázquez;38.4073597;-5.4401208;1
+Lucainena de las Torres;37.040325;-2.20112;1
+Turrillas;37.0296546;-2.2649013;1
+Aldeaquemada;38.4125181;-3.3716744;1
+Canillas de Albaida;36.8461773;-3.9878112;1
+Higuera de Calatrava;37.7983906;-4.1574696;1
+Lora del Río;37.6574267;-5.5275818;1
+Sanlúcar de Guadiana;37.4726294;-7.4664775;1
+Aldeire;37.160375;-3.0715949;1
+Cabezas Rubias;37.7259134;-7.0867842;1
+Villaluenga del Rosario;36.6965773;-5.3860094;1
+Domingo Pérez de Granada;37.4964059;-3.5088958;1
+Jaén;37.9146333;-3.7857241;0.0037737259004633;E. singular Las Infantas
+Loja;37.1664839;-4.1496374;1
+Cútar;36.8310343;-4.2287632;1
+Paterna del Río;37.0216846;-2.9526235;1
+Terque;36.9834887;-2.5970792;1
+Benataé;38.3528099;-2.6517296;1
+Pujerra;36.6128751;-5.1493344;1
+Grazalema;36.7634575;-5.4653727;0.2047832585949178;E. singular Benamahoma
+Adamuz;38.0001337;-4.4557302;0.1409001956947162;E. singular Algallarín
 Gorafe;37.4795473;-3.0432238
 Vícar;36.8316986;-2.6430297
 Velefique;37.1939294;-2.4029018
-E. singular Las Casillas;37.6410382;-4.0014193
+Martos;37.6410382;-4.0014193;0.0189238110909988;E. singular Las Casillas
 Tahal;37.2279746;-2.2854744
 Ragol;36.9949542;-2.681227
-E. singular San Ignacio del Viar;37.5449541;-5.9957405
-E. singular Chercos Nuevo;37.2667517;-2.258213
+Alcalá del Río;37.5449541;-5.9957405;0.0546652566501261;E. singular San Ignacio del Viar
+Chercos;37.2667517;-2.258213;0.7967741935483871;E. singular Chercos Nuevo
 Cóbdar;37.2615745;-2.2100178
-E. singular Mesas de Asta;36.7877112;-6.1707607
+Jerez de la Frontera;36.7877112;-6.1707607;0.0017501070544209;E. singular Mesas de Asta
 Sierro;37.321446;-2.398643
 Medina Sidonia;36.4576714;-5.9272725
-E. singular Burunchel;37.9463546;-2.9543017
+La Iruela;37.9463546;-2.9543017;0.3148844707146695;E. singular Burunchel
 Cazalilla;37.9843429;-3.8816451
-E. singular Coto-Rios;38.0464364;-2.848951;Cazorla
+Santiago-Pontones;38.0464364;-2.848951;0.0751851851851852;E. singular Coto-Rios
 Berrocal;37.6087962;-6.5422243
-E. singular Las Tablas;36.7057331;-6.2165176
+Jerez de la Frontera;36.7057331;-6.2165176;0.0006888719;E. singular Las Tablas
 Sufli;37.3388282;-2.3888744
 Padules;36.9978333;-2.7732375
 Villanueva del Río y Minas;37.6551394;-5.7112257
@@ -48,27 +48,27 @@ Salares;36.8544153;-4.0241592
 Gor;37.3696052;-2.9690113
 Ohanes;37.0381353;-2.7453429
 Alcolea;37.9324259;-4.6699076
-E. singular Villarrubia;37.8505809;-4.928739
+Córdoba;37.8505809;-4.928739;0.0211915976209303;E. singular Villarrubia
 Lanteira;37.1687458;-3.1382211
 Albondón;36.8281395;-3.2110576
-E. singular Gibalbín;36.829816;-5.92206
-Núcleo Villafranco del Guadalhorce;36.701283;-4.6979098
+Jerez de la Frontera;36.829816;-5.92206;0.0029975237846996;E. singular Gibalbín
+Alhaurín el Grande;36.701283;-4.6979098;0.0281045751633987;Núcleo Villafranco del Guadalhorce
 Alquife;37.1799558;-3.1159215
 Obejo;38.1325555;-4.8000174
-El Higueral;37.3174443;-4.2552068
-Saleres;36.9296617;-3.5965077
-Llano de los Olleres;37.4242617;-2.1645891
+Iznájar;37.3174443;-4.2552068;0.0742918225547835;E. singular El Higueral
+El Valle;36.9296617;-3.5965077;0.1784582893347413;E. singular Saleres
+Albox;37.4242617;-2.1645891;0.0183852917665867;E. singular Llano de los Olleres
 Lúcar;37.4009313;-2.4241485
-Llano del Espinar;37.5638251;-4.5248072
+Castro del Río;37.5638251;-4.5248072;0.0568689256632519;E. singular Llano del Espinar
 Marchal;37.2963627;-3.2021995
 Taberno;37.4683539;-2.0779837
-San José de La Rinconada;37.4865155;-5.9416528
+La Rinconada;37.4865155;-5.9416528;0.0120499851234752;Núcleo Urbanización Nueva Jarilla;
 Serrato;36.8849238;-4.9810084
-Torre-Alháquime;36.9156897;-5.2347672
+Torre Alháquime;36.9156897;-5.2347672
 Trevélez;37.0023983;-3.2665989
-El Lentiscal;36.0850115;-5.7642442
-Ventas del Carrizal;37.5406086;-3.9944282
-Maro;36.7586855;-3.8432581
+Tarifa;36.0850115;-5.7642442;0.0240124350109878;E. singular El Lentiscal
+Castillo de Locubín;37.5406086;-3.9944282;0.0931741500129769;E. singular Ventas del Carrizal
+Nerja;36.7586855;-3.8432581;0.0388622157804149;E. singular Maro
 Arroyomolinos de León;38.0235708;-6.4224907
 Alfarnatejo;36.9790622;-4.2724898
 Castaño del Robledo;37.8954194;-6.7053982
@@ -82,11 +82,11 @@ San Silvestre de Guzmán;37.3894253;-7.3478655
 Lentegí;36.8342309;-3.6745581
 Cogollos de Guadix;37.2241755;-3.1610634
 Conquista;38.4080934;-4.5006552
-Cajiz;36.7586844;-4.1857403
+Vélez-Málaga;36.7586844;-4.1857403;0.0095761741122566;E. singular Cajiz
 Almócita;37.003137;-2.7904479
 Enix;36.8769467;-2.6019386
 Faraján;36.6162231;-5.1882209
-La Caleta de Salobreña;36.7472489;-3.6008619
+Salobreña;36.7472489;-3.6008619;0.0543305837563452;E. singular La Caleta-Guardia
 Ferreira;37.1723754;-3.0362531
 Albánchez;37.2868617;-2.1813585
 La Calahorra;37.1814745;-3.0640503
@@ -94,13 +94,13 @@ Hinojales;38.0079199;-6.5882245
 Alhabía;36.9896696;-2.5872342
 Turón;36.8637375;-3.0575117
 Almegíjar;36.903015;-3.300126
-Valdearcos;37.95;-6.6833
-Villarodrigo;38.4870974;-2.6361123
-Castillejos del Campo;37.3861783;-6.3346299
-Mencina Bombarón;36.980833333333;-3.1558333333333
-Poblado de Doña Blanca;36.615944;-6.166282
+Valdelarco;37.95;-6.6833
+Villarrodrigo;38.4870974;-2.6361123
+Castilleja del Campo;37.3861783;-6.3346299
+Alpujarra de la Sierra;36.980833333333;-3.1558333333333;0.577962577962578;E. singular Mecina Bombarón
+El Puerto de Santa María;36.615944;-6.166282;0.0067571303761211;Núcleo Doña Blanca-Poblado
 Villanueva de las Torres;37.556666666667;-3.0897222222222
-La Granada de Riotinto;37.766666666667;-6.5
+La Granada de Río-tinto;37.766666666667;-6.5
 Lugros;37.229;-3.241
-Cantarranas;36.7063;-6.1842
+El Puerto de Santa María;36.7063;-6.1842;0.0044457715404267;Núcleo Cantarranas
 Bentarique;36.9865695;-2.6195624
