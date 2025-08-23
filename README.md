@@ -5,5 +5,8 @@ streamlit run C:\Users\Javier\Desktop\adjfcia1fase\coord.py
 
 
 TO-DO:
-visualización del radio en el mapa
+
 separar la carga de archivos para que seleccione automaticamente las long latitudes
+cambiar radio a digitos simples
+enlaces idealista compra alquiler
+cercania playa
