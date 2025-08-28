@@ -10,3 +10,4 @@ separar la carga de archivos para que seleccione automaticamente las long latitu
 cambiar radio a digitos simples
 enlaces idealista compra alquiler
 cercania playa
+factores de correlación con renta o archivo det
