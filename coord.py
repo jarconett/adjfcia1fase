@@ -199,7 +199,7 @@ with st.sidebar.form("config_form"):
     st.subheader("Ajuste de Pesos y Parámetros")
     
     radio_km = st.slider(
-        "Radio (km) para sumar puntuación de municipios cercanos sin farmacia", 0, 100, 0, step=5
+        "Radio (km) para sumar puntuación de municipios cercanos sin farmacia", 0, 100, 0, step=1
     )
 
     pesos = {}
