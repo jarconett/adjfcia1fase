@@ -11,6 +11,7 @@ cambiar radio a digitos simples
 enlaces idealista compra alquiler
 cercania playa
 factores de correlación con renta o archivo det
+.reset_index()en la creacion de df a visualizar
 
 
 
