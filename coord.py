@@ -21,15 +21,36 @@ st.sidebar.header("Configuración de Datos y Puntuación")
 
 # --------------------
 # Main file upload section
-st.sidebar.subheader("Carga de Archivos de Datos")
-uploaded_files = st.sidebar.file_uploader(
-    "Sube uno o más archivos CSV con medidas", type="csv", accept_multiple_files=True
-)
+#st.sidebar.subheader("Carga de Archivos de Datos")
+#uploaded_files = st.sidebar.file_uploader(
+#    "Sube uno o más archivos CSV con medidas", type="csv", accept_multiple_files=True
+#)
 
-if not uploaded_files:
-    st.warning("Por favor, sube al menos un archivo CSV para comenzar.")
-    st.stop()
-
+#if not uploaded_files:
+    #st.warning("Por favor, sube al menos un archivo CSV para comenzar.")
+    #st.stop()
+uploaded_files = ["Territorios.csv",
+"ieca_export_alquileres.csv",
+"ieca_export_att_especializada.csv",
+"ieca_export_att_primaria.csv",
+"ieca_export_bancos.csv",
+"ieca_export_centro_educativos.csv",
+"ieca_export_centros_asistenciales.csv",
+"ieca_export_centros_sociales.csv",
+"ieca_export_contratos_registrados.csv",
+"ieca_export_corbertura.csv",
+"ieca_export_emigraciones_edad_sexo.csv",
+"ieca_export_establec_turisticos.csv",
+"ieca_export_establecimientos.csv",
+"ieca_export_explot_ganaderas.csv",
+"ieca_export_fcia_poblacion.csv",
+"ieca_export_inmigraciones_edad_sexo.csv",
+"ieca_export_inmigración_extranjeros.csv",
+"ieca_export_instalaciones_deportivas.csv",
+"ieca_export_latitud_longuitud.csv",
+"ieca_export_poblacion_edad_nac.csv",
+"ieca_export_renta.csv",
+"singular_pob_sexo.csv"]
 lista_df = []
 nombres_archivos = []
 territorios_file = None
