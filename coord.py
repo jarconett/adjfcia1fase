@@ -51,6 +51,7 @@ uploaded_files = ["Territorios.csv",
 "ieca_export_poblacion_edad_nac.csv",
 "ieca_export_renta.csv",
 "singular_pob_sexo.csv"]
+uploaded_files = objetos = [SimpleNamespace(name=item) for item in uploaded_files]
 lista_df = []
 nombres_archivos = []
 territorios_file = None
