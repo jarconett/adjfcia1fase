@@ -11,7 +11,7 @@ import re
 from math import radians, cos, sin, asin, sqrt
 from io import BytesIO
 import numpy as np
-
+from types import SimpleNamespace
 # Set the title of the Streamlit application
 st.title("Mapa Interactivo de las Farmacias de la Primera fase de Adjudicaciones de Andalucía")
 
