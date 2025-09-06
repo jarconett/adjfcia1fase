@@ -57,8 +57,7 @@ nombres_archivos = []
 territorios_file = None
 
 for archivo in uploaded_files:
-    #if archivo.name.lower() == "territorios.csv":
-    if archivo.lower() == "territorios.csv":
+    if archivo.name.lower() == "territorios.csv":
         territorios_file = archivo
         continue
     try:
