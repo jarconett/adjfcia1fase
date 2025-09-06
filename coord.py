@@ -61,7 +61,7 @@ for archivo in uploaded_files:
         territorios_file = archivo
         continue
     try:
-        df_temp = pd.read_csv(archivo, sep=";", na_values=["-", "", "NA"])
+        df_temp = pd.read_csv(archivo.name, sep=";", na_values=["-", "", "NA"])
         df_temp.columns = df_temp.columns.str.strip()
         if 'Valor' in df_temp.columns:
             df_temp['Valor'] = pd.to_numeric(df_temp['Valor'], errors='coerce')
@@ -74,11 +74,11 @@ for archivo in uploaded_files:
 
 df_original = pd.concat(lista_df, ignore_index=True)
 st.success("Archivos cargados correctamente.")
-
+#quitar territorios_file.name y archivo.name
 df_farmacias = pd.DataFrame()
 if territorios_file:
     try:
-        df_farmacias = pd.read_csv(territorios_file, sep=";", na_values=["-", "", "NA"])
+        df_farmacias = pd.read_csv(territorios_file.name, sep=";", na_values=["-", "", "NA"])
         df_farmacias.columns = df_farmacias.columns.str.strip()
         if 'Singular' in df_farmacias.columns:
             df_farmacias['Nombre_Mostrar'] = df_farmacias['Singular'].fillna(df_farmacias['Territorio'])
