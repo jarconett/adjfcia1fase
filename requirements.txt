@@ -1,3 +1,7 @@
 pandas
 folium
 streamlit
+streamlit_folium
+geopy
+plotly
+numpy
