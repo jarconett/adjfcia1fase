@@ -12,6 +12,7 @@ from math import radians, cos, sin, asin, sqrt
 from io import BytesIO
 import numpy as np
 from types import SimpleNamespace
+
 # Set the title of the Streamlit application
 st.title("Mapa Interactivo de las Farmacias de la Primera fase de Adjudicaciones de Andalucía")
 
@@ -20,47 +21,69 @@ st.title("Mapa Interactivo de las Farmacias de la Primera fase de Adjudicaciones
 st.sidebar.header("Configuración de Datos y Puntuación")
 
 # --------------------
-# Main file upload section
-#st.sidebar.subheader("Carga de Archivos de Datos")
-#uploaded_files = st.sidebar.file_uploader(
-#    "Sube uno o más archivos CSV con medidas", type="csv", accept_multiple_files=True
-#)
+# Lista de archivos CSV en GitHub
+uploaded_files = [
+    "Territorios.csv",
+    "ieca_export_alquileres.csv",
+    "ieca_export_att_especializada.csv",
+    "ieca_export_att_primaria.csv",
+    "ieca_export_bancos.csv",
+    "ieca_export_centro_educativos.csv",
+    "ieca_export_centros_asistenciales.csv",
+    "ieca_export_centros_sociales.csv",
+    "ieca_export_contratos_registrados.csv",
+    "ieca_export_corbertura.csv",
+    "ieca_export_emigraciones_edad_sexo.csv",
+    "ieca_export_establec_turisticos.csv",
+    "ieca_export_establecimientos.csv",
+    "ieca_export_explot_ganaderas.csv",
+    "ieca_export_fcia_poblacion.csv",
+    "ieca_export_inmigraciones_edad_sexo.csv",
+    "ieca_export_inmigración_extranjeros.csv",
+    "ieca_export_instalaciones_deportivas.csv",
+    "ieca_export_latitud_longuitud.csv",
+    "ieca_export_poblacion_edad_nac.csv",
+    "ieca_export_renta.csv",
+    "singular_pob_sexo.csv"
+]
 
-#if not uploaded_files:
-    #st.warning("Por favor, sube al menos un archivo CSV para comenzar.")
-    #st.stop()
-uploaded_files = ["Territorios.csv",
-"ieca_export_alquileres.csv",
-"ieca_export_att_especializada.csv",
-"ieca_export_att_primaria.csv",
-"ieca_export_bancos.csv",
-"ieca_export_centro_educativos.csv",
-"ieca_export_centros_asistenciales.csv",
-"ieca_export_centros_sociales.csv",
-"ieca_export_contratos_registrados.csv",
-"ieca_export_corbertura.csv",
-"ieca_export_emigraciones_edad_sexo.csv",
-"ieca_export_establec_turisticos.csv",
-"ieca_export_establecimientos.csv",
-"ieca_export_explot_ganaderas.csv",
-"ieca_export_fcia_poblacion.csv",
-"ieca_export_inmigraciones_edad_sexo.csv",
-"ieca_export_inmigración_extranjeros.csv",
-"ieca_export_instalaciones_deportivas.csv",
-"ieca_export_latitud_longuitud.csv",
-"ieca_export_poblacion_edad_nac.csv",
-"ieca_export_renta.csv",
-"singular_pob_sexo.csv"]
-uploaded_files = objetos = [SimpleNamespace(name=item) for item in uploaded_files]
+# Convertimos a objetos con atributo .name
+uploaded_files = [SimpleNamespace(name=item) for item in uploaded_files]
+
 lista_df = []
 nombres_archivos = []
 territorios_file = None
+df_coords_existentes = pd.DataFrame()
 
 for archivo in uploaded_files:
     if archivo.name.lower() == "territorios.csv":
         territorios_file = archivo
         continue
+    if archivo.name.lower() == "ieca_export_latitud_longuitud.csv":
+        # --------------------
+        # Nuevo código: cargar automáticamente desde GitHub
+        try:
+            df_coords_raw = pd.read_csv(archivo.name, sep=';', decimal=',', usecols=['Territorio', 'Medida', 'Valor'])
+            df_coords_existentes = df_coords_raw.pivot(index='Territorio', columns='Medida', values='Valor').reset_index()
+            df_coords_existentes['Latitud'] = pd.to_numeric(df_coords_existentes['Latitud'], errors='coerce')
+            df_coords_existentes['Longitud'] = pd.to_numeric(df_coords_existentes['Longitud'], errors='coerce')
+            st.sidebar.success("Coordenadas cargadas automáticamente desde ieca_export_latitud_longuitud.csv")
+        except Exception as e:
+            st.sidebar.error(f"Error cargando ieca_export_latitud_longuitud.csv: {e}")
+        continue
+        
+        # --------------------
+        # Código antiguo (comentado): pedía subir el CSV manualmente
+        # uploaded_file = st.file_uploader("Sube ieca_export_latitud_longuitud.csv", type="csv")
+        # if uploaded_file is not None:
+        #     df_coords_raw = pd.read_csv(uploaded_file, sep=';', decimal=',', usecols=['Territorio', 'Medida', 'Valor'])
+        #     df_coords_existentes = df_coords_raw.pivot(index='Territorio', columns='Medida', values='Valor').reset_index()
+        #     df_coords_existentes['Latitud'] = pd.to_numeric(df_coords_existentes['Latitud'], errors='coerce')
+        #     df_coords_existentes['Longitud'] = pd.to_numeric(df_coords_existentes['Longitud'], errors='coerce')
+        #     st.sidebar.success("Coordenadas cargadas desde archivo subido")
+
     try:
+        # Nuevo: usamos archivo.name
         df_temp = pd.read_csv(archivo.name, sep=";", na_values=["-", "", "NA"])
         df_temp.columns = df_temp.columns.str.strip()
         if 'Valor' in df_temp.columns:
@@ -72,12 +95,17 @@ for archivo in uploaded_files:
         st.error(f"Error al leer el archivo {archivo.name}: {e}")
         st.stop()
 
+# Concatenamos todo en un único DataFrame
 df_original = pd.concat(lista_df, ignore_index=True)
 st.success("Archivos cargados correctamente.")
-#quitar territorios_file.name y archivo.name
+
+# --------------------
+# Territorios.csv
+
 df_farmacias = pd.DataFrame()
 if territorios_file:
     try:
+        # Nuevo: usamos territorios_file.name
         df_farmacias = pd.read_csv(territorios_file.name, sep=";", na_values=["-", "", "NA"])
         df_farmacias.columns = df_farmacias.columns.str.strip()
         if 'Singular' in df_farmacias.columns:
@@ -88,29 +116,15 @@ if territorios_file:
     except Exception as e:
         st.sidebar.error(f"Error al leer Territorios.csv: {e}")
 
+    # --------------------
+    # Código antiguo (comentado)
+    # df_farmacias = pd.read_csv(territorios_file, sep=";", na_values=["-", "", "NA"])
+
 # --------------------
-# Coordenadas: Carga de archivo y botón de geocodificación
-st.sidebar.subheader("Carga y Geolocalización")
-#archivo_coords = st.sidebar.file_uploader(
-#    "Sube el archivo CSV con coordenadas (ej. ieca_export_latitud_longuitud.csv)", type='csv'
-#)
-archivo_coords = pd.read_csv("ieca_export_latitud_longuitud.csv")
+# Guardamos coordenadas en sesión
 if 'df_coords' not in st.session_state:
-    st.session_state.df_coords = pd.DataFrame()
-    st.session_state.df_coords_original = pd.DataFrame()
-
-if archivo_coords is not None and st.session_state.df_coords_original.empty:
-    try:
-        df_coords_raw = pd.read_csv(archivo_coords, sep=';', decimal=',', usecols=['Territorio', 'Medida', 'Valor'])
-        df_coords_existentes = df_coords_raw.pivot(index='Territorio', columns='Medida', values='Valor').reset_index()
-        df_coords_existentes['Latitud'] = pd.to_numeric(df_coords_existentes['Latitud'], errors='coerce')
-        df_coords_existentes['Longitud'] = pd.to_numeric(df_coords_existentes['Longitud'], errors='coerce')
-        st.session_state.df_coords = df_coords_existentes
-        st.session_state.df_coords_original = df_coords_existentes
-        st.sidebar.success("Coordenadas precargadas desde el archivo.")
-    except Exception as e:
-        st.sidebar.error(f"Error cargando archivo de coordenadas: {e}")
-
+    st.session_state.df_coords = df_coords_existentes
+    st.session_state.df_coords_original = df_coords_existentes.copy()
 def obtener_coordenadas(territorios, df_coords_existentes):
     geolocator = Nominatim(user_agent="andalucia-mapa")
     geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=3, error_wait_seconds=2)
