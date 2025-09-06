@@ -94,7 +94,7 @@ st.sidebar.subheader("Carga y Geolocalización")
 #archivo_coords = st.sidebar.file_uploader(
 #    "Sube el archivo CSV con coordenadas (ej. ieca_export_latitud_longuitud.csv)", type='csv'
 #)
-archivo_coords = pd.read("ieca_export_latitud_longuitud.csv")
+archivo_coords = pd.read_csv("ieca_export_latitud_longuitud.csv")
 if 'df_coords' not in st.session_state:
     st.session_state.df_coords = pd.DataFrame()
     st.session_state.df_coords_original = pd.DataFrame()
