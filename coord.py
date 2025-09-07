@@ -97,7 +97,7 @@ for archivo in uploaded_files:
 
 # Concatenamos todo en un único DataFrame
 df_original = pd.concat(lista_df, ignore_index=True)
-st.success("Archivos cargados correctamente.")
+st.success("Archivos cargados correctamente.Espere")
 
 # --------------------
 # Territorios.csv
