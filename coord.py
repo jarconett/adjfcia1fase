@@ -231,42 +231,46 @@ if uploaded_weights_file is not None:
         st.sidebar.error(f"Error al cargar el archivo de pesos: {e}")
 
 # --- INICIO DEL FORMULARIO ---
-with st.sidebar.form("config_form"):
-    st.subheader("Ajuste de Pesos y Parámetros")
-    
-    radio_km = st.slider(
-        "Radio (km) para sumar puntuación de municipios cercanos sin farmacia", 0, 100, 0, step=1
-    )
+st.subheader("Ajuste de Pesos y Parámetros")
 
-    pesos = {}
-    medidas_originales = {}
+radio_km = st.sidebar.slider(
+    "Radio (km) para sumar puntuación de municipios cercanos sin farmacia", 0, 100, 0, step=1
+)
 
-    for archivo in nombres_archivos:
-        with st.expander(f"⚙️ {archivo}", expanded=False):
-            df_archivo = df_original[df_original['__archivo__'] == archivo]
-            columnas_basicas = {'Territorio', 'Medida', 'Valor', '__archivo__'}
-            columnas_extra = [col for col in df_archivo.columns if col not in columnas_basicas]
-            indicadores_combinados = df_archivo.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1).unique()
+pesos = {}
+medidas_originales = {}
 
-            # Input y botón para aplicar un valor global a todos los indicadores del archivo
-            col1, col2 = st.columns([0.7, 0.3])
-            valor_global = col1.number_input(f"Valor global para {archivo}", -5.0, 5.0, 1.0, 0.1, key=f"global_val_{archivo}")
-            aplicar_btn = col2.button("Aplicar", key=f"aplicar_{archivo}")
+# --- Primero renderizamos los expansores con sliders y botones fuera del form ---
+st.sidebar.markdown("### Configuración de pesos por archivo")
 
+for archivo in nombres_archivos:
+    with st.sidebar.expander(f"⚙️ {archivo}", expanded=False):
+        df_archivo = df_original[df_original['__archivo__'] == archivo]
+        columnas_basicas = {'Territorio', 'Medida', 'Valor', '__archivo__'}
+        columnas_extra = [col for col in df_archivo.columns if col not in columnas_basicas]
+        indicadores_combinados = df_archivo.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1).unique()
+
+        # Campo para valor global y botón fuera del form (permitido)
+        col1, col2 = st.columns([0.7, 0.3])
+        valor_global = col1.number_input(
+            f"Valor global para {archivo}", -5.0, 5.0, 1.0, 0.1, key=f"global_val_{archivo}"
+        )
+        if col2.button("Aplicar", key=f"aplicar_{archivo}"):
             for indicador_completo in sorted(indicadores_combinados):
                 clave_norm = normaliza_nombre_indicador(indicador_completo)
-                initial_peso = st.session_state.get(f"{archivo}-{clave_norm}", loaded_pesos_dict.get(clave_norm, 1.0))
-                peso = st.slider(f"{indicador_completo}", -5.0, 5.0, initial_peso, 0.1, key=f"{archivo}-{clave_norm}")
-                pesos[clave_norm] = peso
-                medidas_originales[clave_norm] = indicador_completo
+                st.session_state[f"{archivo}-{clave_norm}"] = valor_global
+            st.experimental_rerun()
 
-            # Si se pulsa el botón, actualizamos todos los sliders de este archivo
-            if aplicar_btn:
-                for indicador_completo in sorted(indicadores_combinados):
-                    clave_norm = normaliza_nombre_indicador(indicador_completo)
-                    st.session_state[f"{archivo}-{clave_norm}"] = valor_global
-                st.experimental_rerun()
+        # Sliders individuales
+        for indicador_completo in sorted(indicadores_combinados):
+            clave_norm = normaliza_nombre_indicador(indicador_completo)
+            initial_peso = st.session_state.get(f"{archivo}-{clave_norm}", loaded_pesos_dict.get(clave_norm, 1.0))
+            peso = st.slider(f"{indicador_completo}", -5.0, 5.0, initial_peso, 0.1, key=f"{archivo}-{clave_norm}")
+            pesos[clave_norm] = peso
+            medidas_originales[clave_norm] = indicador_completo
 
+# --- Formulario solo para recalcular ---
+with st.sidebar.form("config_form"):
     recalcular_button = st.form_submit_button("Aplicar Cambios y Recalcular")
 # --- FIN DEL FORMULARIO ---
 
