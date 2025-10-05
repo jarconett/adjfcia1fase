@@ -259,7 +259,7 @@ for archivo in nombres_archivos:
             for indicador_completo in sorted(indicadores_combinados):
                 clave_norm = normaliza_nombre_indicador(indicador_completo)
                 st.session_state[f"{archivo}-{clave_norm}"] = valor_global
-            st.experimental_rerun()
+            st.rerun()
 
         # Sliders individuales
         for indicador_completo in sorted(indicadores_combinados):
