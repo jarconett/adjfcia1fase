@@ -6,6 +6,7 @@ streamlit run C:\Users\Javier\Desktop\adjfcia1fase\coord.py
 
 TO-DO:
 
+comparardor de pueblos
 cargar pesos anteriores en csv
 enlaces idealista compra alquiler
 cercania playa
