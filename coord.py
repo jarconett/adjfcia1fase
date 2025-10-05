@@ -240,21 +240,33 @@ with st.sidebar.form("config_form"):
 
     pesos = {}
     medidas_originales = {}
+
     for archivo in nombres_archivos:
         with st.expander(f"⚙️ {archivo}", expanded=False):
             df_archivo = df_original[df_original['__archivo__'] == archivo]
             columnas_basicas = {'Territorio', 'Medida', 'Valor', '__archivo__'}
             columnas_extra = [col for col in df_archivo.columns if col not in columnas_basicas]
             indicadores_combinados = df_archivo.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1).unique()
-            
+
+            # Input y botón para aplicar un valor global a todos los indicadores del archivo
+            col1, col2 = st.columns([0.7, 0.3])
+            valor_global = col1.number_input(f"Valor global para {archivo}", -5.0, 5.0, 1.0, 0.1, key=f"global_val_{archivo}")
+            aplicar_btn = col2.button("Aplicar", key=f"aplicar_{archivo}")
+
             for indicador_completo in sorted(indicadores_combinados):
                 clave_norm = normaliza_nombre_indicador(indicador_completo)
-                initial_peso = loaded_pesos_dict.get(clave_norm, 1.0)
+                initial_peso = st.session_state.get(f"{archivo}-{clave_norm}", loaded_pesos_dict.get(clave_norm, 1.0))
                 peso = st.slider(f"{indicador_completo}", -5.0, 5.0, initial_peso, 0.1, key=f"{archivo}-{clave_norm}")
                 pesos[clave_norm] = peso
                 medidas_originales[clave_norm] = indicador_completo
 
-    # Botón para enviar el formulario y recalcular
+            # Si se pulsa el botón, actualizamos todos los sliders de este archivo
+            if aplicar_btn:
+                for indicador_completo in sorted(indicadores_combinados):
+                    clave_norm = normaliza_nombre_indicador(indicador_completo)
+                    st.session_state[f"{archivo}-{clave_norm}"] = valor_global
+                st.experimental_rerun()
+
     recalcular_button = st.form_submit_button("Aplicar Cambios y Recalcular")
 # --- FIN DEL FORMULARIO ---
 
@@ -343,7 +355,9 @@ df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
 
 # -------------------
 # Display ranking table and allow selection
-df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False)
+df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
+df_ordenado.index += 1  # Índice 1-based
+
 st.subheader("Ranking de municipios con farmacia ordenados por puntuación total")
 
 if not df_ordenado.empty:
@@ -355,9 +369,13 @@ else:
     territorio_seleccionado = None
     st.info("No hay municipios con farmacia para mostrar en el ranking.")
 
-st.dataframe(df_ordenado[[
-    'Nombre_Mostrar', 'Puntuación', 'Factor', 'PuntuaciónFinal', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida'
-]].round(2), use_container_width=True)
+st.dataframe(
+    df_ordenado.reset_index().rename(columns={"index": "Ranking"})[
+        ['Ranking', 'Nombre_Mostrar', 'Puntuación', 'Factor', 'PuntuaciónFinal', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida']
+    ].round(2),
+    use_container_width=True
+)
+
 
 # Display detailed breakdown for the selected territory
 if territorio_seleccionado:
@@ -503,27 +521,26 @@ if st.sidebar.button("🧹 Limpiar caché de datos"):
     st.experimental_rerun()
 
 # --------------------
-# Save Weights to CSV
+# --------------------
+# Guardar Pesos Actuales
 st.sidebar.subheader("Guardar Pesos Actuales")
-if st.sidebar.button("💾 Guardar Pesos a CSV"):
-    if pesos:
-        df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
-        df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
-        df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
-        csv_buffer_pesos = BytesIO()
-        df_pesos_guardar.to_csv(csv_buffer_pesos, index=False, sep=';', encoding='utf-8')
-        csv_buffer_pesos.seek(0)
-        st.sidebar.download_button(
-            label="Descargar pesos_guardados.csv",
-            data=csv_buffer_pesos,
-            file_name="pesos_guardados.csv",
-            mime="text/csv",
-            key="download_weights_button"
-        )
-        st.sidebar.success("Pesos listos para descargar.")
-    else:
-        st.sidebar.warning("No hay pesos para guardar. Carga archivos de datos primero.")
+if pesos:
+    df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
+    df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
+    df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
+    csv_buffer_pesos = BytesIO()
+    df_pesos_guardar.to_csv(csv_buffer_pesos, index=False, sep=';', encoding='utf-8')
+    csv_buffer_pesos.seek(0)
+    st.sidebar.download_button(
+        label="💾 Descargar configuración actual de pesos",
+        data=csv_buffer_pesos,
+        file_name="pesos_guardados.csv",
+        mime="text/csv",
+        key="download_weights_button"
+    )
+else:
+    st.sidebar.warning("No hay pesos para guardar. Carga archivos de datos primero.")
 
 # --------------------
 # Version information in the sidebar
-st.sidebar.subheader("Version 1.6.0")
+st.sidebar.subheader("Version 1.7.0")
