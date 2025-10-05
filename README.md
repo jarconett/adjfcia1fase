@@ -5,11 +5,12 @@ streamlit run C:\Users\Javier\Desktop\adjfcia1fase\coord.py
 
 
 TO-DO:
-set all sliders to value 
+
 comparardor de pueblos
-cargar pesos anteriores en csv
+
 enlaces idealista compra alquiler
 cercania playa
+
 factores de correlación con renta o archivo det
 .reset_index()en la creacion de df a visualizar
 
