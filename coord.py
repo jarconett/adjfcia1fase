@@ -589,18 +589,20 @@ with tab2:
         df_ranking = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
         
         # Detectar cambios en el ranking para actualizar selección automáticamente
-        ranking_actual = df_ranking['Nombre_Mostrar'].head(2).tolist() if len(df_ranking) >= 2 else []
-        ranking_anterior = st.session_state.get('ranking_anterior', [])
-        
-        # Si el ranking cambió, actualizar la selección por defecto
-        if ranking_actual != ranking_anterior and len(ranking_actual) >= 2:
-            st.session_state['ranking_anterior'] = ranking_actual
-            # Limpiar selecciones anteriores para forzar actualización
-            if 'municipio1_selector' in st.session_state:
-                del st.session_state['municipio1_selector']
-            if 'municipio2_selector' in st.session_state:
-                del st.session_state['municipio2_selector']
-            st.rerun()
+        if len(df_ranking) >= 2:
+            # Crear un hash del top 2 del ranking para detectar cambios
+            ranking_hash = hash(tuple(df_ranking['Nombre_Mostrar'].head(2).tolist()))
+            ranking_hash_anterior = st.session_state.get('ranking_hash_anterior', None)
+            
+            # Si el ranking cambió, actualizar la selección por defecto
+            if ranking_hash != ranking_hash_anterior:
+                st.session_state['ranking_hash_anterior'] = ranking_hash
+                # Limpiar selecciones anteriores para forzar actualización
+                if 'municipio1_selector' in st.session_state:
+                    del st.session_state['municipio1_selector']
+                if 'municipio2_selector' in st.session_state:
+                    del st.session_state['municipio2_selector']
+                st.rerun()
         
         # Mostrar información sobre la selección por defecto
         if len(df_ranking) >= 2:
