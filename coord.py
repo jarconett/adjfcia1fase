@@ -542,23 +542,23 @@ with tab1:
 # --------------------
 # --------------------
 # Guardar Pesos Actuales
-    st.sidebar.subheader("Guardar Pesos Actuales")
-    if pesos:
-        df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
-        df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
-        df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
-        csv_buffer_pesos = BytesIO()
-        df_pesos_guardar.to_csv(csv_buffer_pesos, index=False, sep=';', encoding='utf-8')
-        csv_buffer_pesos.seek(0)
-        st.sidebar.download_button(
-            label="💾 Descargar configuración actual de pesos",
-            data=csv_buffer_pesos,
-            file_name="pesos_guardados.csv",
-            mime="text/csv",
-            key="download_weights_button"
-        )
-    else:
-        st.sidebar.warning("No hay pesos para guardar. Carga archivos de datos primero.")
+st.sidebar.subheader("Guardar Pesos Actuales")
+if pesos:
+    df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
+    df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
+    df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
+    csv_buffer_pesos = BytesIO()
+    df_pesos_guardar.to_csv(csv_buffer_pesos, index=False, sep=';', encoding='utf-8')
+    csv_buffer_pesos.seek(0)
+    st.sidebar.download_button(
+        label="💾 Descargar configuración actual de pesos",
+        data=csv_buffer_pesos,
+        file_name="pesos_guardados.csv",
+        mime="text/csv",
+        key="download_weights_button"
+    )
+else:
+    st.sidebar.warning("No hay pesos para guardar. Carga archivos de datos primero.")
 
 # --------------------
 # TAB 2: Comparación de Municipios
@@ -842,6 +842,7 @@ else:
 # --------------------
 # Version information in the sidebar
 st.sidebar.subheader("Version 1.8.0")
+
 
 
 
