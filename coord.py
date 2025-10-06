@@ -25,48 +25,45 @@ tab1, tab2 = st.tabs(["🗺️ Mapa y Ranking", "📊 Comparación de Municipios
 st.sidebar.header("Configuración de Datos y Puntuación")
 
 # --------------------
-# TAB 1: Mapa y Ranking
-with tab1:
-    # --------------------
-    # Lista de archivos CSV en GitHub
-    uploaded_files = [
-        "Territorios.csv",
-        "ieca_export_alquileres.csv",
-        "ieca_export_att_especializada.csv",
-        "ieca_export_att_primaria.csv",
-        "ieca_export_bancos.csv",
-        "ieca_export_centro_educativos.csv",
-        "ieca_export_centros_asistenciales.csv",
-        "ieca_export_centros_sociales.csv",
-        "ieca_export_contratos_registrados.csv",
-        "ieca_export_corbertura.csv",
-        "ieca_export_emigraciones_edad_sexo.csv",
-        "ieca_export_establec_turisticos.csv",
-        "ieca_export_establecimientos.csv",
-        "ieca_export_explot_ganaderas.csv",
-        "ieca_export_fcia_poblacion.csv",
-        "ieca_export_inmigraciones_edad_sexo.csv",
-        "ieca_export_inmigración_extranjeros.csv",
-        "ieca_export_instalaciones_deportivas.csv",
-        "ieca_export_latitud_longuitud.csv",
-        "ieca_export_poblacion_edad_nac.csv",
-        "ieca_export_renta.csv",
-        "singular_pob_sexo.csv"
-    ]
+# Lista de archivos CSV en GitHub
+uploaded_files = [
+"Territorios.csv",
+"ieca_export_alquileres.csv",
+"ieca_export_att_especializada.csv",
+"ieca_export_att_primaria.csv",
+"ieca_export_bancos.csv",
+"ieca_export_centro_educativos.csv",
+"ieca_export_centros_asistenciales.csv",
+"ieca_export_centros_sociales.csv",
+"ieca_export_contratos_registrados.csv",
+"ieca_export_corbertura.csv",
+"ieca_export_emigraciones_edad_sexo.csv",
+"ieca_export_establec_turisticos.csv",
+"ieca_export_establecimientos.csv",
+"ieca_export_explot_ganaderas.csv",
+"ieca_export_fcia_poblacion.csv",
+"ieca_export_inmigraciones_edad_sexo.csv",
+"ieca_export_inmigración_extranjeros.csv",
+"ieca_export_instalaciones_deportivas.csv",
+"ieca_export_latitud_longuitud.csv",
+"ieca_export_poblacion_edad_nac.csv",
+"ieca_export_renta.csv",
+"singular_pob_sexo.csv"
+]
 
-    # Convertimos a objetos con atributo .name
-    uploaded_files = [SimpleNamespace(name=item) for item in uploaded_files]
+# Convertimos a objetos con atributo .name
+uploaded_files = [SimpleNamespace(name=item) for item in uploaded_files]
 
-    lista_df = []
-    nombres_archivos = []
-    territorios_file = None
-    df_coords_existentes = pd.DataFrame()
+lista_df = []
+nombres_archivos = []
+territorios_file = None
+df_coords_existentes = pd.DataFrame()
 
-    for archivo in uploaded_files:
-        if archivo.name.lower() == "territorios.csv":
+for archivo in uploaded_files:
+    if archivo.name.lower() == "territorios.csv":
             territorios_file = archivo
             continue
-        if archivo.name.lower() == "ieca_export_latitud_longuitud.csv":
+    if archivo.name.lower() == "ieca_export_latitud_longuitud.csv":
             # --------------------
             # Nuevo código: cargar automáticamente desde GitHub
             try:
@@ -78,7 +75,7 @@ with tab1:
             except Exception as e:
                 st.sidebar.error(f"Error cargando ieca_export_latitud_longuitud.csv: {e}")
             continue
-        
+    
             # --------------------
             # Código antiguo (comentado): pedía subir el CSV manualmente
             # uploaded_file = st.file_uploader("Sube ieca_export_latitud_longuitud.csv", type="csv")
@@ -89,7 +86,7 @@ with tab1:
             #     df_coords_existentes['Longitud'] = pd.to_numeric(df_coords_existentes['Longitud'], errors='coerce')
             #     st.sidebar.success("Coordenadas cargadas desde archivo subido")
 
-        try:
+    try:
             # Nuevo: usamos archivo.name
             df_temp = pd.read_csv(archivo.name, sep=";", na_values=["-", "", "NA"])
             df_temp.columns = df_temp.columns.str.strip()
@@ -98,20 +95,20 @@ with tab1:
             df_temp['__archivo__'] = archivo.name
             lista_df.append(df_temp)
             nombres_archivos.append(archivo.name)
-        except Exception as e:
+    except Exception as e:
             st.error(f"Error al leer el archivo {archivo.name}: {e}")
             st.stop()
 
-    # Concatenamos todo en un único DataFrame
-    df_original = pd.concat(lista_df, ignore_index=True)
-    st.success("Archivos cargados correctamente.Espere")
+# Concatenamos todo en un único DataFrame
+df_original = pd.concat(lista_df, ignore_index=True)
+st.success("Archivos cargados correctamente.Espere")
 
-    # --------------------
-    # Territorios.csv
+# --------------------
+# Territorios.csv
 
-    df_farmacias = pd.DataFrame()
-    if territorios_file:
-        try:
+df_farmacias = pd.DataFrame()
+if territorios_file:
+    try:
             # Nuevo: usamos territorios_file.name
             df_farmacias = pd.read_csv(territorios_file.name, sep=";", na_values=["-", "", "NA"])
             df_farmacias.columns = df_farmacias.columns.str.strip()
@@ -120,25 +117,25 @@ with tab1:
             else:
                 df_farmacias['Nombre_Mostrar'] = df_farmacias['Territorio']
             st.sidebar.success("Farmacias cargadas desde Territorios.csv")
-        except Exception as e:
+    except Exception as e:
             st.sidebar.error(f"Error al leer Territorios.csv: {e}")
 
-        # --------------------
-        # Código antiguo (comentado)
-        # df_farmacias = pd.read_csv(territorios_file, sep=";", na_values=["-", "", "NA"])
-
     # --------------------
-    # Guardamos coordenadas en sesión
-    if 'df_coords' not in st.session_state:
-        st.session_state.df_coords = df_coords_existentes
-        st.session_state.df_coords_original = df_coords_existentes.copy()
-    def obtener_coordenadas(territorios, df_coords_existentes):
-        geolocator = Nominatim(user_agent="andalucia-mapa")
-        geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=3, error_wait_seconds=2)
-    
-        resultados = []
-        coords_dict = {}
-        if not df_coords_existentes.empty:
+    # Código antiguo (comentado)
+    # df_farmacias = pd.read_csv(territorios_file, sep=";", na_values=["-", "", "NA"])
+
+# --------------------
+# Guardamos coordenadas en sesión
+if 'df_coords' not in st.session_state:
+    st.session_state.df_coords = df_coords_existentes
+    st.session_state.df_coords_original = df_coords_existentes.copy()
+def obtener_coordenadas(territorios, df_coords_existentes):
+    geolocator = Nominatim(user_agent="andalucia-mapa")
+    geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=3, error_wait_seconds=2)
+
+    resultados = []
+    coords_dict = {}
+    if not df_coords_existentes.empty:
             for _, row in df_coords_existentes.iterrows():
                 t = row['Territorio'].strip()
                 lat = row['Latitud']
@@ -146,11 +143,11 @@ with tab1:
                 if pd.notna(lat) and pd.notna(lon):
                     coords_dict[t] = (lat, lon)
 
-        nuevos_territorios = [t for t in territorios if t.strip() not in coords_dict]
-        progress_bar = st.sidebar.progress(0, text="Geocodificando...")
-        total_to_geocode = len(nuevos_territorios)
+    nuevos_territorios = [t for t in territorios if t.strip() not in coords_dict]
+    progress_bar = st.sidebar.progress(0, text="Geocodificando...")
+    total_to_geocode = len(nuevos_territorios)
 
-        for i, lugar in enumerate(nuevos_territorios):
+    for i, lugar in enumerate(nuevos_territorios):
             lugar_clean = lugar.strip()
             try:
                 location = geocode(f"{lugar_clean}, Andalucía, España", timeout=10)
@@ -162,86 +159,86 @@ with tab1:
                 st.sidebar.warning(f"No se pudieron obtener coordenadas para {lugar_clean}: {e}")
                 resultados.append((lugar_clean, None, None))
             progress_bar.progress((i + 1) / total_to_geocode, text=f"Geocodificando {lugar_clean}...")
-    
-        progress_bar.empty()
-        df_nuevas_coords = pd.DataFrame(resultados, columns=["Territorio", "Latitud", "Longitud"])
-        return pd.concat([df_coords_existentes, df_nuevas_coords], ignore_index=True)
 
-    if st.sidebar.button("Geolocalizar Municipios Faltantes"):
-        municipios_unicos = df_original["Territorio"].unique()
-        with st.spinner("Geolocalizando... esto puede tardar un poco la primera vez."):
+    progress_bar.empty()
+    df_nuevas_coords = pd.DataFrame(resultados, columns=["Territorio", "Latitud", "Longitud"])
+    return pd.concat([df_coords_existentes, df_nuevas_coords], ignore_index=True)
+
+if st.sidebar.button("Geolocalizar Municipios Faltantes"):
+    municipios_unicos = df_original["Territorio"].unique()
+    with st.spinner("Geolocalizando... esto puede tardar un poco la primera vez."):
             st.session_state.df_coords = obtener_coordenadas(municipios_unicos, st.session_state.df_coords_original)
-        st.sidebar.success("Geolocalización completada.")
+    st.sidebar.success("Geolocalización completada.")
 
-    if st.session_state.df_coords.empty:
-        st.info("Carga un archivo de coordenadas o usa el botón 'Geolocalizar Municipios Faltantes' para continuar.")
-        st.stop()
+if st.session_state.df_coords.empty:
+    st.info("Carga un archivo de coordenadas o usa el botón 'Geolocalizar Municipios Faltantes' para continuar.")
+    st.stop()
 
-    # --------------------
-    # Helper Functions (unmodified)
-    rango_colores = [
-        (0, 20, "#d73027"), (20, 40, "#fc8d59"), (40, 60, "#fee08b"),
-        (60, 80, "#d9ef8b"), (80, 100, "#91cf60")
-    ]
+# --------------------
+# Helper Functions (unmodified)
+rango_colores = [
+    (0, 20, "#d73027"), (20, 40, "#fc8d59"), (40, 60, "#fee08b"),
+    (60, 80, "#d9ef8b"), (80, 100, "#91cf60")
+]
 
-    def limpiar_texto(texto):
-        texto = str(texto)
-        texto = unicodedata.normalize('NFKD', texto)
-        texto = ''.join([c for c in texto if not unicodedata.combining(c)])
-        texto = texto.title()
-        texto = re.sub(r'\W+', '_', texto)
-        texto = texto.strip('_')
-        return texto
+def limpiar_texto(texto):
+    texto = str(texto)
+    texto = unicodedata.normalize('NFKD', texto)
+    texto = ''.join([c for c in texto if not unicodedata.combining(c)])
+    texto = texto.title()
+    texto = re.sub(r'\W+', '_', texto)
+    texto = texto.strip('_')
+    return texto
 
-    def combinar_medida_y_extras(row, extras):
-        parts = [str(row['Medida']).strip()]
-        for col in extras:
+def combinar_medida_y_extras(row, extras):
+    parts = [str(row['Medida']).strip()]
+    for col in extras:
             val = str(row[col]).strip()
             if val and val.lower() not in ['nan', 'none', 'na', '']:
                 parts.append(val)
-        clean_parts = [limpiar_texto(p) for p in parts]
-        return "_".join(clean_parts)
+    clean_parts = [limpiar_texto(p) for p in parts]
+    return "_".join(clean_parts)
 
-    def normaliza_nombre_indicador(nombre):
-        nombre = str(nombre)
-        nombre = unicodedata.normalize('NFKD', nombre)
-        nombre = ''.join([c for c in nombre if not unicodedata.combining(c)])
-        nombre = nombre.lower()
-        nombre = re.sub(r'[^a-z0-9_]', '_', nombre)
-        nombre = re.sub(r'_+', '_', nombre)
-        return nombre.strip('_')
+def normaliza_nombre_indicador(nombre):
+    nombre = str(nombre)
+    nombre = unicodedata.normalize('NFKD', nombre)
+    nombre = ''.join([c for c in nombre if not unicodedata.combining(c)])
+    nombre = nombre.lower()
+    nombre = re.sub(r'[^a-z0-9_]', '_', nombre)
+    nombre = re.sub(r'_+', '_', nombre)
+    return nombre.strip('_')
 
-    def normalizar_nombre_municipio(nombre):
-        nombre = str(nombre)
-        nombre = unicodedata.normalize('NFKD', nombre)
-        nombre = ''.join([c for c in nombre if not unicodedata.combining(c)])
-        nombre = nombre.lower()
-        nombre = re.sub(r'[^a-z0-9 ]', '', nombre)
-        return nombre.strip()
+def normalizar_nombre_municipio(nombre):
+    nombre = str(nombre)
+    nombre = unicodedata.normalize('NFKD', nombre)
+    nombre = ''.join([c for c in nombre if not unicodedata.combining(c)])
+    nombre = nombre.lower()
+    nombre = re.sub(r'[^a-z0-9 ]', '', nombre)
+    return nombre.strip()
 
 # --------------------
 # Load Weights from CSV
 st.sidebar.subheader("Cargar/Guardar Pesos")
 uploaded_weights_file = st.sidebar.file_uploader(
-    "Sube un archivo CSV con pesos guardados", type="csv", key="weights_uploader"
+"Sube un archivo CSV con pesos guardados", type="csv", key="weights_uploader"
 )
 loaded_pesos_dict = {}
 if uploaded_weights_file is not None:
-        try:
-            df_loaded_pesos = pd.read_csv(uploaded_weights_file, sep=';')
-            if 'Indicador' in df_loaded_pesos.columns and 'Peso' in df_loaded_pesos.columns:
-                loaded_pesos_dict = pd.Series(df_loaded_pesos.Peso.values, index=df_loaded_pesos.Indicador).to_dict()
-                st.sidebar.success("Pesos cargados correctamente.")
-            else:
-                st.sidebar.error("El archivo de pesos debe contener las columnas 'Indicador' y 'Peso'.")
-        except Exception as e:
-            st.sidebar.error(f"Error al cargar el archivo de pesos: {e}")
+    try:
+        df_loaded_pesos = pd.read_csv(uploaded_weights_file, sep=';')
+        if 'Indicador' in df_loaded_pesos.columns and 'Peso' in df_loaded_pesos.columns:
+            loaded_pesos_dict = pd.Series(df_loaded_pesos.Peso.values, index=df_loaded_pesos.Indicador).to_dict()
+            st.sidebar.success("Pesos cargados correctamente.")
+        else:
+            st.sidebar.error("El archivo de pesos debe contener las columnas 'Indicador' y 'Peso'.")
+    except Exception as e:
+        st.sidebar.error(f"Error al cargar el archivo de pesos: {e}")
 
 # --- INICIO DEL FORMULARIO ---
 st.sidebar.subheader("Ajuste de Pesos y Parámetros")
 
 radio_km = st.sidebar.slider(
-    "Radio (km) para sumar puntuación de municipios cercanos sin farmacia", 0, 100, 0, step=1
+"Radio (km) para sumar puntuación de municipios cercanos sin farmacia", 0, 100, 0, step=1
 )
 
 pesos = {}
@@ -280,14 +277,17 @@ for archivo in nombres_archivos:
             pesos[clave_norm] = peso
             medidas_originales[clave_norm] = indicador_completo
 
-    # --- Formulario solo para recalcular ---
-    with st.sidebar.form("config_form"):
-        recalcular_button = st.form_submit_button("Aplicar Cambios y Recalcular")
-    # --- FIN DEL FORMULARIO ---
+# --- Formulario solo para recalcular ---
+with st.sidebar.form("config_form"):
+    recalcular_button = st.form_submit_button("Aplicar Cambios y Recalcular")
+# --- FIN DEL FORMULARIO ---
 
-    # El resto del código solo se ejecuta si se envía el formulario
-    # o si se carga la página por primera vez.
+# El resto del código solo se ejecuta si se envía el formulario
+# o si se carga la página por primera vez.
 
+# --------------------
+# TAB 1: Mapa y Ranking
+with tab1:
     columnas_basicas = {'Territorio', 'Medida', 'Valor'}
     columnas_extra = [col for col in df_original.columns if col not in columnas_basicas and col != '__archivo__']
     df_original['Medida'] = df_original.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1)
@@ -310,7 +310,7 @@ for archivo in nombres_archivos:
 
         df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
         df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
-    
+
         if not df_farmacias_factores.empty:
             df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_farmacias_factores, on="Territorio_normalizado", how="left")
             df_con_farmacia_base['Factor'] = df_con_farmacia_base['Factor'].fillna(1.0)
@@ -359,55 +359,55 @@ for archivo in nombres_archivos:
                 df_con_farmacia['PuntuaciónExtendida'] = df_con_farmacia['PuntuaciónFinal'] + df_con_farmacia['SumaMunicipiosCercanos']
         return df_con_farmacia, df_sin_farmacia
 
-    # --- FLUJO PRINCIPAL ---
+# --- FLUJO PRINCIPAL ---
     df_con_farmacia_base, df_sin_farmacia_base = preparar_datos_base(
-        df_original, st.session_state.df_coords, df_farmacias
+    df_original, st.session_state.df_coords, df_farmacias
     )
 
     df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
-        df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km
+    df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km
     )
 
-    # -------------------
-    # Display ranking table and allow selection
+# -------------------
+# Display ranking table and allow selection
     df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
     df_ordenado.index += 1  # Índice 1-based
 
     st.subheader("Ranking de municipios con farmacia ordenados por puntuación total")
 
     if not df_ordenado.empty:
-        territorio_seleccionado = st.selectbox(
+    territorio_seleccionado = st.selectbox(
             "Selecciona un municipio del ranking para centrar el mapa:",
             options=df_ordenado['Nombre_Mostrar'].tolist()
-        )
+    )
     else:
-        territorio_seleccionado = None
-        st.info("No hay municipios con farmacia para mostrar en el ranking.")
+    territorio_seleccionado = None
+    st.info("No hay municipios con farmacia para mostrar en el ranking.")
 
     st.dataframe(
-        df_ordenado.reset_index().rename(columns={"index": "Ranking"})[
+    df_ordenado.reset_index().rename(columns={"index": "Ranking"})[
             ['Ranking', 'Nombre_Mostrar', 'Puntuación', 'Factor', 'PuntuaciónFinal', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida']
-        ].round(2),
-        use_container_width=True
+    ].round(2),
+    use_container_width=True
     )
 
 
-    # Display detailed breakdown for the selected territory
+# Display detailed breakdown for the selected territory
     if territorio_seleccionado:
-        st.subheader(f"Detalle de puntuación para: {territorio_seleccionado}")
-    
-        fila_farmacia = df_municipios_farmacias[df_municipios_farmacias["Nombre_Mostrar"] == territorio_seleccionado]
-        territorio_original_para_desglose = fila_farmacia.iloc[0]['Territorio'] if not fila_farmacia.empty else None
+    st.subheader(f"Detalle de puntuación para: {territorio_seleccionado}")
 
-        if territorio_original_para_desglose:
+    fila_farmacia = df_municipios_farmacias[df_municipios_farmacias["Nombre_Mostrar"] == territorio_seleccionado]
+    territorio_original_para_desglose = fila_farmacia.iloc[0]['Territorio'] if not fila_farmacia.empty else None
+
+    if territorio_original_para_desglose:
             df_territorio = df_original[df_original["Territorio"] == territorio_original_para_desglose]
-        else:
+    else:
             df_territorio = pd.DataFrame()
 
-        if df_territorio.empty:
+    if df_territorio.empty:
             st.warning("No hay datos detallados para este territorio.")
             df_desglose = pd.DataFrame()
-        else:
+    else:
             st.write(f"Número de indicadores para {territorio_seleccionado}: ", len(df_territorio))
             desglose = []
             puntuacion_base = 0
@@ -426,34 +426,34 @@ for archivo in nombres_archivos:
                 })
             df_desglose = pd.DataFrame(desglose)
             st.dataframe(df_desglose, use_container_width=True, height=600)
-    
-        if not fila_farmacia.empty:
+
+    if not fila_farmacia.empty:
             factor_valor = fila_farmacia.iloc[0]['Factor']
             puntuacion_final = fila_farmacia.iloc[0]['PuntuaciónFinal']
             st.write(f"**Puntuación base (suma de contribuciones):** {puntuacion_base:.2f}")
             st.write(f"**Factor aplicado:** {factor_valor:.2f}")
             st.write(f"**Puntuación con factor:** {puntuacion_final:.2f}")
 
-        csv_buffer_desglose = BytesIO()
-        df_desglose.to_csv(csv_buffer_desglose, index=False)
-        csv_buffer_desglose.seek(0)
-        st.download_button(
+    csv_buffer_desglose = BytesIO()
+    df_desglose.to_csv(csv_buffer_desglose, index=False)
+    csv_buffer_desglose.seek(0)
+    st.download_button(
             label="📥 Descargar desglose completo en CSV",
             file_name=f"desglose_{territorio_seleccionado}.csv",
             data=csv_buffer_desglose,
             mime="text/csv"
-        )
+    )
 
-    # -------------------
-    # Folium Map
+# -------------------
+# Folium Map
     st.subheader("Mapa Interactivo de Municipios")
 
     lat_centro, lon_centro = 37.4, -5.9
     zoom_nivel = 7
 
     if territorio_seleccionado and not df_ordenado.empty:
-        fila_sel = df_ordenado[df_ordenado['Nombre_Mostrar'] == territorio_seleccionado]
-        if not fila_sel.empty and pd.notna(fila_sel.iloc[0]['Latitud']) and pd.notna(fila_sel.iloc[0]['Longitud']):
+    fila_sel = df_ordenado[df_ordenado['Nombre_Mostrar'] == territorio_seleccionado]
+    if not fila_sel.empty and pd.notna(fila_sel.iloc[0]['Latitud']) and pd.notna(fila_sel.iloc[0]['Longitud']):
             lat_centro = fila_sel.iloc[0]['Latitud']
             lon_centro = fila_sel.iloc[0]['Longitud']
             zoom_nivel = 11
@@ -462,28 +462,28 @@ for archivo in nombres_archivos:
     marker_cluster = MarkerCluster().add_to(m)
 
     for idx, row in df_ordenado.iterrows():
-        lat, lon = row['Latitud'], row['Longitud']
-        if pd.isna(lat) or pd.isna(lon):
+    lat, lon = row['Latitud'], row['Longitud']
+    if pd.isna(lat) or pd.isna(lon):
             continue
 
-        color = "#777777"
-        puntuacion = row['PuntuaciónExtendida']
-        for (minv, maxv, col) in rango_colores:
+    color = "#777777"
+    puntuacion = row['PuntuaciónExtendida']
+    for (minv, maxv, col) in rango_colores:
             if minv <= puntuacion < maxv:
                 color = col
                 break
-        if puntuacion >= rango_colores[-1][1]:
+    if puntuacion >= rango_colores[-1][1]:
             color = rango_colores[-1][2]
 
-        popup_html = f"""
-        <b>{row['Nombre_Mostrar']}</b><br>
-        Puntuación base: {row['Puntuación']:.2f}<br>
-        Factor: {row['Factor']:.2f}<br>
-        Puntuación con factor: {row['PuntuaciónFinal']:.2f}<br>
-        Suma municipios cercanos sin farmacia (≤ {radio_km} km): {row['SumaMunicipiosCercanos']:.2f}<br>
-        <b>Total combinado:</b> {row['PuntuaciónExtendida']:.2f}
-        """
-        folium.CircleMarker(
+    popup_html = f"""
+    <b>{row['Nombre_Mostrar']}</b><br>
+    Puntuación base: {row['Puntuación']:.2f}<br>
+    Factor: {row['Factor']:.2f}<br>
+    Puntuación con factor: {row['PuntuaciónFinal']:.2f}<br>
+    Suma municipios cercanos sin farmacia (≤ {radio_km} km): {row['SumaMunicipiosCercanos']:.2f}<br>
+    <b>Total combinado:</b> {row['PuntuaciónExtendida']:.2f}
+    """
+    folium.CircleMarker(
             location=(lat, lon),
             radius=7,
             popup=folium.Popup(popup_html, max_width=300),
@@ -491,28 +491,28 @@ for archivo in nombres_archivos:
             fill=True,
             fill_color=color,
             fill_opacity=0.7,
-        ).add_to(marker_cluster)
+    ).add_to(marker_cluster)
 
     Fullscreen().add_to(m)
     st_data = st_folium(m, width=1200, height=700, returned_objects=["last_clicked"])
 
-    # -------------------
-    # Plotly Bar Chart
+# -------------------
+# Plotly Bar Chart
     st.subheader("Gráfico de puntuación total combinada")
     fig = px.bar(
-        df_ordenado,
-        x='Nombre_Mostrar',
-        y='PuntuaciónExtendida',
-        color='PuntuaciónExtendida',
-        color_continuous_scale='Viridis',
-        labels={'PuntuaciónExtendida': 'Puntuación Total', 'Nombre_Mostrar': 'Nombre Entidad'},
-        height=400
+    df_ordenado,
+    x='Nombre_Mostrar',
+    y='PuntuaciónExtendida',
+    color='PuntuaciónExtendida',
+    color_continuous_scale='Viridis',
+    labels={'PuntuaciónExtendida': 'Puntuación Total', 'Nombre_Mostrar': 'Nombre Entidad'},
+    height=400
     )
     fig.update_layout(xaxis_tickangle=-45)
     st.plotly_chart(fig, use_container_width=True)
 
-    # -------------------
-    # Export complete processed data
+# -------------------
+# Export complete processed data
     st.subheader("📥 Descargar datos procesados")
     df_export = pd.concat([df_municipios_farmacias, df_municipios_sin], ignore_index=True)
     cols_first = ["Nombre_Mostrar", "Territorio", "Latitud", "Longitud", "Puntuación", "Factor", "PuntuaciónFinal", "SumaMunicipiosCercanos", "PuntuaciónExtendida"]
@@ -520,66 +520,66 @@ for archivo in nombres_archivos:
     df_export = df_export[cols_first + sorted(cols_others)]
     csv_data = df_export.to_csv(index=False, sep=";", encoding="utf-8").encode("utf-8")
     st.download_button(
-        label="📥 Descargar CSV con todos los municipios",
-        data=csv_data,
-        file_name="todos_los_municipios.csv",
-        mime="text/csv"
+    label="📥 Descargar CSV con todos los municipios",
+    data=csv_data,
+    file_name="todos_los_municipios.csv",
+    mime="text/csv"
     )
 
-    # Sidebar button to clear Streamlit cache
+# Sidebar button to clear Streamlit cache
     if st.sidebar.button("🧹 Limpiar caché de datos"):
-        st.cache_data.clear()
-        if 'df_coords' in st.session_state:
+    st.cache_data.clear()
+    if 'df_coords' in st.session_state:
             del st.session_state.df_coords
-        if 'df_coords_original' in st.session_state:
+    if 'df_coords_original' in st.session_state:
             del st.session_state.df_coords_original
-        st.experimental_rerun()
+    st.experimental_rerun()
 
-    # --------------------
-    # --------------------
-    # Guardar Pesos Actuales
+# --------------------
+# --------------------
+# Guardar Pesos Actuales
     st.sidebar.subheader("Guardar Pesos Actuales")
     if pesos:
-        df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
-        df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
-        df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
-        csv_buffer_pesos = BytesIO()
-        df_pesos_guardar.to_csv(csv_buffer_pesos, index=False, sep=';', encoding='utf-8')
-        csv_buffer_pesos.seek(0)
-        st.sidebar.download_button(
+    df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
+    df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
+    df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
+    csv_buffer_pesos = BytesIO()
+    df_pesos_guardar.to_csv(csv_buffer_pesos, index=False, sep=';', encoding='utf-8')
+    csv_buffer_pesos.seek(0)
+    st.sidebar.download_button(
             label="💾 Descargar configuración actual de pesos",
             data=csv_buffer_pesos,
             file_name="pesos_guardados.csv",
             mime="text/csv",
             key="download_weights_button"
-        )
+    )
     else:
-        st.sidebar.warning("No hay pesos para guardar. Carga archivos de datos primero.")
+    st.sidebar.warning("No hay pesos para guardar. Carga archivos de datos primero.")
 
 # --------------------
 # TAB 2: Comparación de Municipios
 with tab2:
-    st.header("📊 Comparación de Municipios")
+st.header("📊 Comparación de Municipios")
+
+# Verificar que tenemos datos cargados
+if 'df_municipios_farmacias' not in locals() or df_municipios_farmacias.empty:
+    st.warning("⚠️ Primero debes cargar los datos y calcular las puntuaciones en la pestaña 'Mapa y Ranking'.")
+    st.info("Ve a la primera pestaña, configura los pesos y presiona 'Aplicar Cambios y Recalcular'.")
+else:
+    # Obtener lista de municipios disponibles
+    municipios_disponibles = df_municipios_farmacias['Nombre_Mostrar'].tolist()
     
-    # Verificar que tenemos datos cargados
-    if 'df_municipios_farmacias' not in locals() or df_municipios_farmacias.empty:
-        st.warning("⚠️ Primero debes cargar los datos y calcular las puntuaciones en la pestaña 'Mapa y Ranking'.")
-        st.info("Ve a la primera pestaña, configura los pesos y presiona 'Aplicar Cambios y Recalcular'.")
-    else:
-        # Obtener lista de municipios disponibles
-        municipios_disponibles = df_municipios_farmacias['Nombre_Mostrar'].tolist()
-        
-        # Obtener el ranking ordenado por puntuación
-        df_ranking = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
-        
-        # Mostrar información sobre la selección por defecto
-        if len(df_ranking) >= 2:
+    # Obtener el ranking ordenado por puntuación
+    df_ranking = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
+    
+    # Mostrar información sobre la selección por defecto
+    if len(df_ranking) >= 2:
             st.info(f"💡 **Selección automática**: Por defecto se comparan el **#{1} {df_ranking.iloc[0]['Nombre_Mostrar']}** (puntuación: {df_ranking.iloc[0]['PuntuaciónExtendida']:.2f}) y el **#{2} {df_ranking.iloc[1]['Nombre_Mostrar']}** (puntuación: {df_ranking.iloc[1]['PuntuaciónExtendida']:.2f}) del ranking.")
-        
-        # Selectores de municipios con valores por defecto del ranking
-        col1, col2 = st.columns(2)
-        
-        with col1:
+    
+    # Selectores de municipios con valores por defecto del ranking
+    col1, col2 = st.columns(2)
+    
+    with col1:
             # Por defecto seleccionar el primer municipio del ranking
             municipio1_default = df_ranking.iloc[0]['Nombre_Mostrar'] if len(df_ranking) > 0 else municipios_disponibles[0] if municipios_disponibles else None
             municipio1 = st.selectbox(
@@ -588,8 +588,8 @@ with tab2:
                 index=municipios_disponibles.index(municipio1_default) if municipio1_default in municipios_disponibles else 0,
                 key="municipio1_selector"
             )
-        
-        with col2:
+    
+    with col2:
             # Por defecto seleccionar el segundo municipio del ranking
             municipio2_default = df_ranking.iloc[1]['Nombre_Mostrar'] if len(df_ranking) > 1 else None
             municipios_disponibles_2 = [m for m in municipios_disponibles if m != municipio1]
@@ -603,8 +603,8 @@ with tab2:
                 index=municipio2_index,
                 key="municipio2_selector"
             )
-        
-        if municipio1 and municipio2:
+    
+    if municipio1 and municipio2:
             # Obtener datos de ambos municipios
             datos1 = df_municipios_farmacias[df_municipios_farmacias['Nombre_Mostrar'] == municipio1].iloc[0]
             datos2 = df_municipios_farmacias[df_municipios_farmacias['Nombre_Mostrar'] == municipio2].iloc[0]
@@ -826,4 +826,5 @@ with tab2:
 # --------------------
 # Version information in the sidebar
 st.sidebar.subheader("Version 1.8.0")
+
 
