@@ -219,14 +219,14 @@ with tab1:
         nombre = re.sub(r'[^a-z0-9 ]', '', nombre)
         return nombre.strip()
 
-    # --------------------
-    # Load Weights from CSV
-    st.sidebar.subheader("Cargar/Guardar Pesos")
-    uploaded_weights_file = st.sidebar.file_uploader(
-        "Sube un archivo CSV con pesos guardados", type="csv", key="weights_uploader"
-    )
-    loaded_pesos_dict = {}
-    if uploaded_weights_file is not None:
+# --------------------
+# Load Weights from CSV
+st.sidebar.subheader("Cargar/Guardar Pesos")
+uploaded_weights_file = st.sidebar.file_uploader(
+    "Sube un archivo CSV con pesos guardados", type="csv", key="weights_uploader"
+)
+loaded_pesos_dict = {}
+if uploaded_weights_file is not None:
         try:
             df_loaded_pesos = pd.read_csv(uploaded_weights_file, sep=';')
             if 'Indicador' in df_loaded_pesos.columns and 'Peso' in df_loaded_pesos.columns:
@@ -237,25 +237,25 @@ with tab1:
         except Exception as e:
             st.sidebar.error(f"Error al cargar el archivo de pesos: {e}")
 
-    # --- INICIO DEL FORMULARIO ---
-    st.subheader("Ajuste de Pesos y Parámetros")
+# --- INICIO DEL FORMULARIO ---
+st.sidebar.subheader("Ajuste de Pesos y Parámetros")
 
-    radio_km = st.sidebar.slider(
-        "Radio (km) para sumar puntuación de municipios cercanos sin farmacia", 0, 100, 0, step=1
-    )
+radio_km = st.sidebar.slider(
+    "Radio (km) para sumar puntuación de municipios cercanos sin farmacia", 0, 100, 0, step=1
+)
 
-    pesos = {}
-    medidas_originales = {}
+pesos = {}
+medidas_originales = {}
 
-    # --- Primero renderizamos los expansores con sliders y botones fuera del form ---
-    st.sidebar.markdown("### Configuración de pesos por archivo")
+# --- Primero renderizamos los expansores con sliders y botones fuera del form ---
+st.sidebar.markdown("### Configuración de pesos por archivo")
 
-    for archivo in nombres_archivos:
-        with st.sidebar.expander(f"⚙️ {archivo}", expanded=False):
-            df_archivo = df_original[df_original['__archivo__'] == archivo]
-            columnas_basicas = {'Territorio', 'Medida', 'Valor', '__archivo__'}
-            columnas_extra = [col for col in df_archivo.columns if col not in columnas_basicas]
-            indicadores_combinados = df_archivo.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1).unique()
+for archivo in nombres_archivos:
+    with st.sidebar.expander(f"⚙️ {archivo}", expanded=False):
+        df_archivo = df_original[df_original['__archivo__'] == archivo]
+        columnas_basicas = {'Territorio', 'Medida', 'Valor', '__archivo__'}
+        columnas_extra = [col for col in df_archivo.columns if col not in columnas_basicas]
+        indicadores_combinados = df_archivo.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1).unique()
 
         # Campo para valor global y botón fuera del form (permitido)
         col1, col2 = st.columns([0.7, 0.3])
@@ -826,5 +826,4 @@ with tab2:
 # --------------------
 # Version information in the sidebar
 st.sidebar.subheader("Version 1.8.0")
-
 
