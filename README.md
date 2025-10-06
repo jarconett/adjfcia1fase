@@ -6,7 +6,7 @@ streamlit run C:\Users\Javier\Desktop\adjfcia1fase\coord.py
 
 TO-DO:
 
-comparardor de pueblos
+actualice primero y segundo en comparardor de pueblos
 
 enlaces idealista compra alquiler
 cercania playa
