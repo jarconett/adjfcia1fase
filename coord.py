@@ -565,20 +565,38 @@ with tab2:
         # Obtener lista de municipios disponibles
         municipios_disponibles = df_municipios_farmacias['Nombre_Mostrar'].tolist()
         
-        # Selectores de municipios
+        # Obtener el ranking ordenado por puntuación
+        df_ranking = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
+        
+        # Mostrar información sobre la selección por defecto
+        if len(df_ranking) >= 2:
+            st.info(f"💡 **Selección automática**: Por defecto se comparan el **#{1} {df_ranking.iloc[0]['Nombre_Mostrar']}** (puntuación: {df_ranking.iloc[0]['PuntuaciónExtendida']:.2f}) y el **#{2} {df_ranking.iloc[1]['Nombre_Mostrar']}** (puntuación: {df_ranking.iloc[1]['PuntuaciónExtendida']:.2f}) del ranking.")
+        
+        # Selectores de municipios con valores por defecto del ranking
         col1, col2 = st.columns(2)
         
         with col1:
+            # Por defecto seleccionar el primer municipio del ranking
+            municipio1_default = df_ranking.iloc[0]['Nombre_Mostrar'] if len(df_ranking) > 0 else municipios_disponibles[0] if municipios_disponibles else None
             municipio1 = st.selectbox(
                 "Selecciona el primer municipio:",
                 options=municipios_disponibles,
+                index=municipios_disponibles.index(municipio1_default) if municipio1_default in municipios_disponibles else 0,
                 key="municipio1_selector"
             )
         
         with col2:
+            # Por defecto seleccionar el segundo municipio del ranking
+            municipio2_default = df_ranking.iloc[1]['Nombre_Mostrar'] if len(df_ranking) > 1 else None
+            municipios_disponibles_2 = [m for m in municipios_disponibles if m != municipio1]
+            municipio2_index = 0
+            if municipio2_default and municipio2_default in municipios_disponibles_2:
+                municipio2_index = municipios_disponibles_2.index(municipio2_default)
+            
             municipio2 = st.selectbox(
                 "Selecciona el segundo municipio:",
-                options=[m for m in municipios_disponibles if m != municipio1],
+                options=municipios_disponibles_2,
+                index=municipio2_index,
                 key="municipio2_selector"
             )
         
@@ -804,7 +822,6 @@ with tab2:
 # --------------------
 # Version information in the sidebar
 st.sidebar.subheader("Version 1.8.0")
-
 
 
 
