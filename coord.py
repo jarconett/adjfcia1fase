@@ -257,24 +257,28 @@ with tab1:
             columnas_extra = [col for col in df_archivo.columns if col not in columnas_basicas]
             indicadores_combinados = df_archivo.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1).unique()
 
-            # Campo para valor global y botón fuera del form (permitido)
-            col1, col2 = st.columns([0.7, 0.3])
-            valor_global = col1.number_input(
-                f"Valor global para {archivo}", -5.0, 5.0, 1.0, 0.1, key=f"global_val_{archivo}"
-            )
-            if col2.button("Aplicar", key=f"aplicar_{archivo}"):
-                for indicador_completo in sorted(indicadores_combinados):
-                    clave_norm = normaliza_nombre_indicador(indicador_completo)
-                    st.session_state[f"{archivo}-{clave_norm}"] = valor_global
-                st.rerun()
-
-            # Sliders individuales
+        # Campo para valor global y botón fuera del form (permitido)
+        col1, col2 = st.columns([0.7, 0.3])
+        # Establecer valor por defecto en 0 para explot_ganaderas, 1.0 para el resto
+        valor_por_defecto = 0.0 if "explot_ganaderas" in archivo else 1.0
+        valor_global = col1.number_input(
+            f"Valor global para {archivo}", -5.0, 5.0, valor_por_defecto, 0.1, key=f"global_val_{archivo}"
+        )
+        if col2.button("Aplicar", key=f"aplicar_{archivo}"):
             for indicador_completo in sorted(indicadores_combinados):
                 clave_norm = normaliza_nombre_indicador(indicador_completo)
-                initial_peso = st.session_state.get(f"{archivo}-{clave_norm}", loaded_pesos_dict.get(clave_norm, 1.0))
-                peso = st.slider(f"{indicador_completo}", -5.0, 5.0, initial_peso, 0.1, key=f"{archivo}-{clave_norm}")
-                pesos[clave_norm] = peso
-                medidas_originales[clave_norm] = indicador_completo
+                st.session_state[f"{archivo}-{clave_norm}"] = valor_global
+            st.rerun()
+
+        # Sliders individuales
+        for indicador_completo in sorted(indicadores_combinados):
+            clave_norm = normaliza_nombre_indicador(indicador_completo)
+            # Establecer peso por defecto en 0 para explot_ganaderas, 1.0 para el resto
+            peso_por_defecto = 0.0 if "explot_ganaderas" in archivo else 1.0
+            initial_peso = st.session_state.get(f"{archivo}-{clave_norm}", loaded_pesos_dict.get(clave_norm, peso_por_defecto))
+            peso = st.slider(f"{indicador_completo}", -5.0, 5.0, initial_peso, 0.1, key=f"{archivo}-{clave_norm}")
+            pesos[clave_norm] = peso
+            medidas_originales[clave_norm] = indicador_completo
 
     # --- Formulario solo para recalcular ---
     with st.sidebar.form("config_form"):
