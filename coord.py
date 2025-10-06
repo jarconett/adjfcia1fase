@@ -80,7 +80,7 @@ for archivo in uploaded_files:
             # Código antiguo (comentado): pedía subir el CSV manualmente
             # uploaded_file = st.file_uploader("Sube ieca_export_latitud_longuitud.csv", type="csv")
             # if uploaded_file is not None:
-            #     df_coords_raw = pd.read_csv(uploaded_file, sep=';', decimal=',', usecols=['Territorio', 'Medida', 'Valor'])
+                #     df_coords_raw = pd.read_csv(uploaded_file, sep=';', decimal=',', usecols=['Territorio', 'Medida', 'Valor'])
             #     df_coords_existentes = df_coords_raw.pivot(index='Territorio', columns='Medida', values='Valor').reset_index()
             #     df_coords_existentes['Latitud'] = pd.to_numeric(df_coords_existentes['Latitud'], errors='coerce')
             #     df_coords_existentes['Longitud'] = pd.to_numeric(df_coords_existentes['Longitud'], errors='coerce')
@@ -376,12 +376,12 @@ with tab1:
     st.subheader("Ranking de municipios con farmacia ordenados por puntuación total")
 
     if not df_ordenado.empty:
-    territorio_seleccionado = st.selectbox(
+        territorio_seleccionado = st.selectbox(
             "Selecciona un municipio del ranking para centrar el mapa:",
             options=df_ordenado['Nombre_Mostrar'].tolist()
-    )
+        )
     else:
-    territorio_seleccionado = None
+        territorio_seleccionado = None
     st.info("No hay municipios con farmacia para mostrar en el ranking.")
 
     st.dataframe(
@@ -394,7 +394,7 @@ with tab1:
 
 # Display detailed breakdown for the selected territory
     if territorio_seleccionado:
-    st.subheader(f"Detalle de puntuación para: {territorio_seleccionado}")
+        st.subheader(f"Detalle de puntuación para: {territorio_seleccionado}")
 
     fila_farmacia = df_municipios_farmacias[df_municipios_farmacias["Nombre_Mostrar"] == territorio_seleccionado]
     territorio_original_para_desglose = fila_farmacia.iloc[0]['Territorio'] if not fila_farmacia.empty else None
@@ -452,7 +452,7 @@ with tab1:
     zoom_nivel = 7
 
     if territorio_seleccionado and not df_ordenado.empty:
-    fila_sel = df_ordenado[df_ordenado['Nombre_Mostrar'] == territorio_seleccionado]
+        fila_sel = df_ordenado[df_ordenado['Nombre_Mostrar'] == territorio_seleccionado]
     if not fila_sel.empty and pd.notna(fila_sel.iloc[0]['Latitud']) and pd.notna(fila_sel.iloc[0]['Longitud']):
             lat_centro = fila_sel.iloc[0]['Latitud']
             lon_centro = fila_sel.iloc[0]['Longitud']
@@ -462,8 +462,8 @@ with tab1:
     marker_cluster = MarkerCluster().add_to(m)
 
     for idx, row in df_ordenado.iterrows():
-    lat, lon = row['Latitud'], row['Longitud']
-    if pd.isna(lat) or pd.isna(lon):
+        lat, lon = row['Latitud'], row['Longitud']
+        if pd.isna(lat) or pd.isna(lon):
             continue
 
     color = "#777777"
@@ -528,7 +528,7 @@ with tab1:
 
 # Sidebar button to clear Streamlit cache
     if st.sidebar.button("🧹 Limpiar caché de datos"):
-    st.cache_data.clear()
+        st.cache_data.clear()
     if 'df_coords' in st.session_state:
             del st.session_state.df_coords
     if 'df_coords_original' in st.session_state:
@@ -540,26 +540,26 @@ with tab1:
 # Guardar Pesos Actuales
     st.sidebar.subheader("Guardar Pesos Actuales")
     if pesos:
-    df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
-    df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
-    df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
-    csv_buffer_pesos = BytesIO()
-    df_pesos_guardar.to_csv(csv_buffer_pesos, index=False, sep=';', encoding='utf-8')
-    csv_buffer_pesos.seek(0)
-    st.sidebar.download_button(
+        df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
+        df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
+        df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
+        csv_buffer_pesos = BytesIO()
+        df_pesos_guardar.to_csv(csv_buffer_pesos, index=False, sep=';', encoding='utf-8')
+        csv_buffer_pesos.seek(0)
+        st.sidebar.download_button(
             label="💾 Descargar configuración actual de pesos",
             data=csv_buffer_pesos,
             file_name="pesos_guardados.csv",
             mime="text/csv",
             key="download_weights_button"
-    )
+        )
     else:
-    st.sidebar.warning("No hay pesos para guardar. Carga archivos de datos primero.")
+        st.sidebar.warning("No hay pesos para guardar. Carga archivos de datos primero.")
 
 # --------------------
 # TAB 2: Comparación de Municipios
 with tab2:
-st.header("📊 Comparación de Municipios")
+    st.header("📊 Comparación de Municipios")
 
 # Verificar que tenemos datos cargados
 if 'df_municipios_farmacias' not in locals() or df_municipios_farmacias.empty:
@@ -826,5 +826,6 @@ else:
 # --------------------
 # Version information in the sidebar
 st.sidebar.subheader("Version 1.8.0")
+
 
 
