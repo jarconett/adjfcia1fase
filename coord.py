@@ -463,7 +463,11 @@ with tab1:
 
     for idx, row in df_ordenado.iterrows():
         lat, lon = row['Latitud'], row['Longitud']
-        if pd.isna(lat) or pd.isna(lon):
+        # Validación más robusta para coordenadas
+        if (pd.isna(lat) or pd.isna(lon) or 
+            not isinstance(lat, (int, float)) or not isinstance(lon, (int, float)) or
+            lat == 0 or lon == 0 or
+            abs(lat) > 90 or abs(lon) > 180):
             continue
 
     color = "#777777"
@@ -778,7 +782,19 @@ else:
             st.subheader("🗺️ Ubicación de los Municipios")
             
             # Crear mapa centrado entre ambos municipios
-            if pd.notna(datos1['Latitud']) and pd.notna(datos1['Longitud']) and pd.notna(datos2['Latitud']) and pd.notna(datos2['Longitud']):
+            lat1, lon1 = datos1['Latitud'], datos1['Longitud']
+            lat2, lon2 = datos2['Latitud'], datos2['Longitud']
+            
+            # Validación robusta para coordenadas
+            coords_validas = (
+                pd.notna(lat1) and pd.notna(lon1) and pd.notna(lat2) and pd.notna(lon2) and
+                isinstance(lat1, (int, float)) and isinstance(lon1, (int, float)) and
+                isinstance(lat2, (int, float)) and isinstance(lon2, (int, float)) and
+                lat1 != 0 and lon1 != 0 and lat2 != 0 and lon2 != 0 and
+                abs(lat1) <= 90 and abs(lon1) <= 180 and abs(lat2) <= 90 and abs(lon2) <= 180
+            )
+            
+            if coords_validas:
                 lat_centro = (datos1['Latitud'] + datos2['Latitud']) / 2
                 lon_centro = (datos1['Longitud'] + datos2['Longitud']) / 2
                 
