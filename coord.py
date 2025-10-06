@@ -259,8 +259,16 @@ with tab1:
 
             # Campo para valor global y botón fuera del form (permitido)
             col1, col2 = st.columns([0.7, 0.3])
+            
+            # Determinar valor global por defecto según reglas específicas
+            valor_global_por_defecto = 1.0  # Valor por defecto general
+            
+            # Regla 1: Todos los indicadores de explot_ganaderas tienen peso 0 por defecto
+            if "explot_ganaderas" in archivo:
+                valor_global_por_defecto = 0.0
+            
             valor_global = col1.number_input(
-                f"Valor global para {archivo}", -5.0, 5.0, 1.0, 0.1, key=f"global_val_{archivo}"
+                f"Valor global para {archivo}", -5.0, 5.0, valor_global_por_defecto, 0.1, key=f"global_val_{archivo}"
             )
             if col2.button("Aplicar", key=f"aplicar_{archivo}"):
                 for indicador_completo in sorted(indicadores_combinados):
@@ -271,7 +279,19 @@ with tab1:
             # Sliders individuales
             for indicador_completo in sorted(indicadores_combinados):
                 clave_norm = normaliza_nombre_indicador(indicador_completo)
-                initial_peso = st.session_state.get(f"{archivo}-{clave_norm}", loaded_pesos_dict.get(clave_norm, 1.0))
+                
+                # Determinar peso por defecto según reglas específicas
+                peso_por_defecto = 1.0  # Valor por defecto general
+                
+                # Regla 1: Todos los indicadores de explot_ganaderas tienen peso 0 por defecto
+                if "explot_ganaderas" in archivo:
+                    peso_por_defecto = 0.0
+                
+                # Regla 2: Indicadores que empiecen por "Superficie" en centros_asistenciales tienen peso 0 por defecto
+                if "centros_asistenciales" in archivo and indicador_completo.startswith("Superficie"):
+                    peso_por_defecto = 0.0
+                
+                initial_peso = st.session_state.get(f"{archivo}-{clave_norm}", loaded_pesos_dict.get(clave_norm, peso_por_defecto))
                 peso = st.slider(f"{indicador_completo}", -5.0, 5.0, initial_peso, 0.1, key=f"{archivo}-{clave_norm}")
                 pesos[clave_norm] = peso
                 medidas_originales[clave_norm] = indicador_completo
@@ -567,6 +587,20 @@ with tab2:
         
         # Obtener el ranking ordenado por puntuación
         df_ranking = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
+        
+        # Detectar cambios en el ranking para actualizar selección automáticamente
+        ranking_actual = df_ranking['Nombre_Mostrar'].head(2).tolist() if len(df_ranking) >= 2 else []
+        ranking_anterior = st.session_state.get('ranking_anterior', [])
+        
+        # Si el ranking cambió, actualizar la selección por defecto
+        if ranking_actual != ranking_anterior and len(ranking_actual) >= 2:
+            st.session_state['ranking_anterior'] = ranking_actual
+            # Limpiar selecciones anteriores para forzar actualización
+            if 'municipio1_selector' in st.session_state:
+                del st.session_state['municipio1_selector']
+            if 'municipio2_selector' in st.session_state:
+                del st.session_state['municipio2_selector']
+            st.rerun()
         
         # Mostrar información sobre la selección por defecto
         if len(df_ranking) >= 2:
