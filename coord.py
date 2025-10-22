@@ -354,6 +354,21 @@ with tab1:
             ejemplos_pivot = list(df_pivot['Territorio_normalizado'].head(3))
             st.sidebar.write(f"Ejemplos nombres farmacias: {ejemplos_farmacias}")
             st.sidebar.write(f"Ejemplos nombres datos: {ejemplos_pivot}")
+            
+            # Debug específico: mostrar nombres originales vs normalizados
+            st.sidebar.write("--- DEBUG DETALLADO ---")
+            if not df_farmacias.empty:
+                st.sidebar.write("Nombres originales vs normalizados (farmacias):")
+                for i, row in df_farmacias.head(3).iterrows():
+                    original = row['Territorio']
+                    normalizado = row['Territorio_normalizado']
+                    st.sidebar.write(f"  '{original}' -> '{normalizado}'")
+            
+            st.sidebar.write("Nombres originales vs normalizados (datos):")
+            for i, row in df_pivot.head(3).iterrows():
+                original = row['Territorio']
+                normalizado = row['Territorio_normalizado']
+                st.sidebar.write(f"  '{original}' -> '{normalizado}'")
     
         if not df_farmacias_factores.empty:
             # Incluir todas las columnas necesarias del archivo de farmacias
@@ -931,7 +946,5 @@ with tab2:
 # --------------------
 # Version information in the sidebar
 st.sidebar.subheader("Version 1.8.0")
-
-
 
 
