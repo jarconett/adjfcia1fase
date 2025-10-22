@@ -322,12 +322,27 @@ with tab1:
             if 'Territorio' in df_farmacias.columns and 'Factor' in df_farmacias.columns:
                 df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
                 municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
-                df_farmacias_factores = df_farmacias[["Territorio_normalizado", "Factor", "Nombre_Mostrar"]].copy()
+                # Incluir todas las columnas necesarias del archivo de farmacias
+                columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
+                if 'Provincia' in df_farmacias.columns:
+                    columnas_farmacias.append('Provincia')
+                if 'Ldo' in df_farmacias.columns:
+                    columnas_farmacias.append('Ldo')
+                
+                df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
 
         df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
         df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
     
         if not df_farmacias_factores.empty:
+            # Incluir todas las columnas necesarias del archivo de farmacias
+            columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
+            if 'Provincia' in df_farmacias.columns:
+                columnas_farmacias.append('Provincia')
+            if 'Ldo' in df_farmacias.columns:
+                columnas_farmacias.append('Ldo')
+            
+            df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
             df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_farmacias_factores, on="Territorio_normalizado", how="left")
             df_con_farmacia_base['Factor'] = df_con_farmacia_base['Factor'].fillna(1.0)
         else:
@@ -391,19 +406,48 @@ with tab1:
 
     st.subheader("Ranking de municipios con farmacia ordenados por puntuación total")
 
-    if not df_ordenado.empty:
+    # Filtro por provincia
+    if 'Provincia' in df_ordenado.columns:
+        provincias_disponibles = ['Todas'] + sorted(df_ordenado['Provincia'].dropna().unique().tolist())
+        provincia_seleccionada = st.selectbox(
+            "Filtrar por provincia:",
+            options=provincias_disponibles,
+            index=0
+        )
+        
+        # Aplicar filtro si no se selecciona "Todas"
+        if provincia_seleccionada != 'Todas':
+            df_ordenado_filtrado = df_ordenado[df_ordenado['Provincia'] == provincia_seleccionada].copy()
+            st.info(f"Mostrando {len(df_ordenado_filtrado)} municipios de {provincia_seleccionada}")
+        else:
+            df_ordenado_filtrado = df_ordenado.copy()
+            st.info(f"Mostrando todos los {len(df_ordenado_filtrado)} municipios")
+    else:
+        df_ordenado_filtrado = df_ordenado.copy()
+
+    if not df_ordenado_filtrado.empty:
         territorio_seleccionado = st.selectbox(
             "Selecciona un municipio del ranking para centrar el mapa:",
-            options=df_ordenado['Nombre_Mostrar'].tolist()
+            options=df_ordenado_filtrado['Nombre_Mostrar'].tolist()
         )
     else:
         territorio_seleccionado = None
         st.info("No hay municipios con farmacia para mostrar en el ranking.")
 
+    # Preparar columnas para mostrar
+    columnas_mostrar = ['Ranking', 'Nombre_Mostrar', 'Puntuación', 'Factor', 'PuntuaciónFinal', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida']
+    
+    # Añadir Provincia y Ldo si están disponibles
+    if 'Provincia' in df_ordenado.columns:
+        columnas_mostrar.insert(2, 'Provincia')  # Insertar después de Nombre_Mostrar
+    if 'Ldo' in df_ordenado.columns:
+        columnas_mostrar.insert(3, 'Ldo')  # Insertar después de Provincia
+    
+    # Filtrar solo las columnas que existen
+    columnas_existentes = [col for col in columnas_mostrar if col in df_ordenado.columns]
+    
     st.dataframe(
-        df_ordenado.reset_index().rename(columns={"index": "Ranking"})[
-            ['Ranking', 'Nombre_Mostrar', 'Puntuación', 'Factor', 'PuntuaciónFinal', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida']
-        ].round(2),
+        df_ordenado_filtrado.reset_index().rename(columns={"index": "Ranking"})[columnas_existentes].round(2),
         use_container_width=True
     )
 
@@ -493,6 +537,15 @@ with tab1:
 
         popup_html = f"""
         <b>{row['Nombre_Mostrar']}</b><br>
+        """
+        
+        # Añadir Provincia y Ldo si están disponibles
+        if 'Provincia' in row and pd.notna(row['Provincia']):
+            popup_html += f"Provincia: {row['Provincia']}<br>"
+        if 'Ldo' in row and pd.notna(row['Ldo']):
+            popup_html += f"Ldo: {row['Ldo']}<br>"
+        
+        popup_html += f"""
         Puntuación base: {row['Puntuación']:.2f}<br>
         Factor: {row['Factor']:.2f}<br>
         Puntuación con factor: {row['PuntuaciónFinal']:.2f}<br>
@@ -559,12 +612,13 @@ with tab1:
         df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
         df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
         df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
-        csv_buffer_pesos = BytesIO()
-        df_pesos_guardar.to_csv(csv_buffer_pesos, index=False, sep=';', encoding='utf-8')
-        csv_buffer_pesos.seek(0)
+        
+        # Convertir a CSV string directamente
+        csv_string = df_pesos_guardar.to_csv(index=False, sep=';', encoding='utf-8')
+        
         st.sidebar.download_button(
             label="💾 Descargar configuración actual de pesos",
-            data=csv_buffer_pesos,
+            data=csv_string,
             file_name="pesos_guardados.csv",
             mime="text/csv",
             key="download_weights_button"
