@@ -352,6 +352,19 @@ with tab1:
         if len(municipios_con_farmacia) > 0:
             st.sidebar.write(f"Debug: Primeros municipios con farmacia del archivo: {list(municipios_con_farmacia)[:5]}")
             st.sidebar.write(f"Debug: Primeros municipios en df_pivot: {list(df_pivot['Territorio_normalizado'].head())}")
+            
+            # Verificar si hay coincidencias
+            coincidencias = municipios_con_farmacia.intersection(set(df_pivot['Territorio_normalizado']))
+            st.sidebar.write(f"Debug: Coincidencias encontradas: {len(coincidencias)}")
+            if len(coincidencias) > 0:
+                st.sidebar.write(f"Debug: Primeras coincidencias: {list(coincidencias)[:5]}")
+            else:
+                st.sidebar.write("Debug: NO HAY COINCIDENCIAS - Problema de normalización de nombres")
+                # Mostrar ejemplos de nombres que no coinciden
+                ejemplos_farmacias = list(municipios_con_farmacia)[:3]
+                ejemplos_pivot = list(df_pivot['Territorio_normalizado'].head(3))
+                st.sidebar.write(f"Debug: Ejemplos nombres farmacias: {ejemplos_farmacias}")
+                st.sidebar.write(f"Debug: Ejemplos nombres pivot: {ejemplos_pivot}")
     
         if not df_farmacias_factores.empty:
             # Incluir todas las columnas necesarias del archivo de farmacias
