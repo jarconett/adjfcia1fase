@@ -131,10 +131,10 @@ with tab1:
             df_farmacias['Factor'] = df_farmacias['Factor'].fillna(1.0)
             
             # Debug temporal: verificar que las columnas se leen correctamente
-            st.sidebar.write("Debug: Verificación de columnas:")
-            st.sidebar.write(f"Primera fila - Territorio: '{df_farmacias.iloc[0]['Territorio']}'")
-            st.sidebar.write(f"Primera fila - Latitud: '{df_farmacias.iloc[0]['Latitud']}'")
-            st.sidebar.write(f"Primera fila - Factor: '{df_farmacias.iloc[0]['Factor']}'")
+            #st.sidebar.write("Debug: Verificación de columnas:")
+            #st.sidebar.write(f"Primera fila - Territorio: '{df_farmacias.iloc[0]['Territorio']}'")
+            #st.sidebar.write(f"Primera fila - Latitud: '{df_farmacias.iloc[0]['Latitud']}'")
+            #st.sidebar.write(f"Primera fila - Factor: '{df_farmacias.iloc[0]['Factor']}'")
             
             # Información de carga exitosa
             st.sidebar.success(f"✅ Archivo Territorios.csv cargado correctamente")
