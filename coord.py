@@ -119,9 +119,12 @@ with tab1:
                 df_farmacias['Nombre_Mostrar'] = df_farmacias['Singular'].fillna(df_farmacias['Territorio'])
             else:
                 df_farmacias['Nombre_Mostrar'] = df_farmacias['Territorio']
-            st.sidebar.success("Farmacias cargadas desde Territorios.csv")
+            st.sidebar.success(f"Farmacias cargadas desde Territorios.csv: {len(df_farmacias)} registros")
+            st.sidebar.write(f"Columnas disponibles: {list(df_farmacias.columns)}")
         except Exception as e:
             st.sidebar.error(f"Error al leer Territorios.csv: {e}")
+    else:
+        st.sidebar.error("No se encontró el archivo Territorios.csv")
 
         # --------------------
         # Código antiguo (comentado)
@@ -319,9 +322,13 @@ with tab1:
         municipios_con_farmacia = set()
         df_farmacias_factores = pd.DataFrame()
         if not df_farmacias.empty:
+            st.sidebar.write(f"Debug: df_farmacias tiene {len(df_farmacias)} filas")
+            st.sidebar.write(f"Debug: Columnas en df_farmacias: {list(df_farmacias.columns)}")
             if 'Territorio' in df_farmacias.columns and 'Factor' in df_farmacias.columns:
                 df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
                 municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
+                st.sidebar.write(f"Debug: Municipios con farmacia encontrados: {len(municipios_con_farmacia)}")
+                st.sidebar.write(f"Debug: Primeros 5 municipios: {list(municipios_con_farmacia)[:5]}")
                 # Incluir todas las columnas necesarias del archivo de farmacias
                 columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
                 if 'Provincia' in df_farmacias.columns:
@@ -330,9 +337,21 @@ with tab1:
                     columnas_farmacias.append('Ldo')
                 
                 df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
+            else:
+                st.sidebar.error(f"Debug: Faltan columnas 'Territorio' o 'Factor' en df_farmacias. Columnas disponibles: {list(df_farmacias.columns)}")
+        else:
+            st.sidebar.error("Debug: df_farmacias está vacío")
 
         df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
         df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
+        
+        st.sidebar.write(f"Debug: Municipios con farmacia en df_pivot: {len(df_con_farmacia_base)}")
+        st.sidebar.write(f"Debug: Municipios sin farmacia en df_pivot: {len(df_sin_farmacia_base)}")
+        if len(df_con_farmacia_base) > 0:
+            st.sidebar.write(f"Debug: Primeros municipios con farmacia: {list(df_con_farmacia_base['Territorio_normalizado'].head())}")
+        if len(municipios_con_farmacia) > 0:
+            st.sidebar.write(f"Debug: Primeros municipios con farmacia del archivo: {list(municipios_con_farmacia)[:5]}")
+            st.sidebar.write(f"Debug: Primeros municipios en df_pivot: {list(df_pivot['Territorio_normalizado'].head())}")
     
         if not df_farmacias_factores.empty:
             # Incluir todas las columnas necesarias del archivo de farmacias
@@ -910,6 +929,5 @@ with tab2:
 # --------------------
 # Version information in the sidebar
 st.sidebar.subheader("Version 1.8.0")
-
 
 
