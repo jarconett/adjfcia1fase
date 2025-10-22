@@ -1,113 +1,954 @@
-Territorio;Latitud;Longitud;Factor;Singular;Provincia;Ldo
-El Guijo;38.495977;-4.7831015;1;;Cordoba;Francisca Maria Aguila Leon;
-Aldosux;37.001569;-2.594425;1;;Almeria;Maria Teresa Aparicio Martin;
-Andújar;38.021343;-3.9965328;0.017696730147323;E. singular Los Villares;Jaen;Maria Josefa Baeza;
-Los Blázquez;38.4073597;-5.4401208;1;;Cordoba;Maria Pilar Baeza-Rojano Pajeo;
-Lucainena de las Torres;37.040325;-2.20112;1;;Almeria;Jose Sebastian Bagur Gonzalez;
-Turrillas;37.0296546;-2.2649013;1;;Almeria;Maria Josefa Barranco Torres;
-Aldeaquemada;38.4125181;-3.3716744;1;;Jaen;Angel Luis Barrionuevo Funes;
-Canillas de Albaida;36.8461773;-3.9878112;1;;Malaga;Ana Asuncion Becerra Cabrera;
-Higuera de Calatrava;37.7983906;-4.1574696;1;;Jaen;Ana Isabel Belizon Espinosa;
-Lora del Río;37.6574267;-5.5275818;0.0280010937927263;E. singular Setefilla;Sevilla;Emilio Alejandro Cabral Troncoso;
-Sanlúcar de Guadiana;37.4726294;-7.4664775;1;;Huelva;Cristobal Cabrera Villegas;
-Aldeire;37.160375;-3.0715949;;1;Granada;Emilio Calatayud Ortega;
-Cabezas Rubias;37.7259134;-7.0867842;1;;Huelva;Maria Jose Carrero Palanco;
-Villaluenga del Rosario;36.6965773;-5.3860094;1;;Cadiz;Jose Ignacio Casas De Leon;
-Domingo Pérez de Granada;37.4964059;-3.5088958;1;;Granada;Jose Castillo Alarcon;
-Jaén;37.9146333;-3.7857241;0.0037737259004633;E. singular Las Infantas;Jaen;Maria Jesus Chavez Sanchez-Rico;
-Loja;37.1664839;-4.1496374;0.0556430086920813;E. singular Ventorros de San José;Granada;Ana Maria Cobos Morales;
-Cútar;36.8310343;-4.2287632;1;;Malaga;Jose Antonio Colino Escribano;
-Paterna del Río;37.0216846;-2.9526235;1;;Almeria;Maria Ester Cortes Fernandez;
-Terque;36.9834887;-2.5970792;1;;Almeria;Andres Francisco Costa Cervantes;
-Benatae;38.3528099;-2.6517296;1;;Jaen;Antonio Francisco Crespillo Gil;
-Pujerra;36.6128751;-5.1493344;1;;Malaga;Leopoldo Gabriel Cuadrado Borrego;
-Grazalema;36.7634575;-5.4653727;0.2047832585949178;E. singular Benamahoma;Cadiz;Juan Pedro Diaz Lopez;
-Adamuz;38.0001337;-4.4557302;0.1409001956947162;E. singular Algallarín;Malaga;Maria Salud Dueñas Molina;
-Gorafe;37.4795473;-3.0432238;1;;Granada;Eva Escanez Leon;
-Vícar;36.8316986;-2.6430297;0.0267672338186283;E. singular Barrio de Archilla;Almeria;Maria Soledad Esteban Villegas;
-Velefique;37.1939294;-2.4029018;1;;Almeria;Antonia Maria Fernandez Corredor Carretero;
-Martos;37.6410382;-4.0014193;0.0189238110909988;E. singular Las Casillas;Jaen;Mateo Gamez Guerrero;
-Tahal;37.2279746;-2.2854744;1;;Almeria;Sonia Garcia Garcia;
-Ragol;36.9949542;-2.681227;1;;Almeria;Francisco Jesus Garcia Herrero;
-Alcalá del Río;37.5449541;-5.9957405;0.0546652566501261;E. singular San Ignacio del Viar;Sevilla;Fernando Garcia Miguez;
-Chercos;37.2667517;-2.258213;0.7967741935483871;E. singular Chercos Nuevo;Almeria;Maria Teresa Garcia Navarro;
-Cóbdar;37.2615745;-2.2100178;1;;Almeria;Francisco Garcia Reche;
-Jerez de la Frontera;36.7877112;-6.1707607;0.0017501070544209;E. singular Mesas de Asta;Cadiz;Miguel Angel Garcia Reynaldo;
-Sierro;37.321446;-2.398643;1;;Almeria;Cesar Javier Gnecco Carmona;
-Medina Sidonia;36.4576714;-5.9272725;0.0452312383533796;E. singular Malcocinado;Cadiz;Josefa Luisa Gomez Ruiz;
-La Iruela;37.9463546;-2.9543017;0.3148844707146695;E. singular Burunchel;Jaen;Jose Antonio Gonzalez Escobar;
-Cazalilla;37.9843429;-3.8816451;1;;Jaen;Raquel Gonzalez Olmo;
-Santiago-Pontones;38.0464364;-2.848951;0.0751851851851852;E. singular Coto-Rios;Jaen;Lourdes Gonzalez Zuñiga;
-Berrocal;37.6087962;-6.5422243;1;;Huelva;Cristina Guerra-Librero Mota;
-Jerez de la Frontera;36.7057331;-6.2165176;0.0006888719;E. singular Las Tablas;Cadiz;Encarnacion Guerrero Luque;
-Sufli;37.3388282;-2.3888744;1;;Almeria;Nuria Haro Gonzalez;
-Padules;36.9978333;-2.7732375;1;;Almeria;Rosa Maria Hernandez Garcia;
-Villanueva del Río y Minas;37.6551394;-5.7112257;0.1044097290883923;E. singular Villanueva del Río;Sevilla;Antonio Herrero Cilla;
-Puerto Moral;37.8917393;-6.4795963;1;;Huelva;Antonio Hormigo Gamero;
-Salares;36.8544153;-4.0241592;1;;Malaga;Fatima Jimenez Alcala;
-Gor;37.3696052;-2.9690113;1;;Granada;Jose Antonio Jimenez;
-Ohanes;37.0381353;-2.7453429;1;;Almeria;Cristobal Jimenez Fernandez;
-Alcolea;37.9324259;-4.6699076;1;;Cordoba;Carmen Jimenez Jimenez;
-Córdoba;37.8505809;-4.928739;0.0012992162084325;Núcleo Los Mochos;Cordoba;Antonio Juan Jimenez;
-Lanteira;37.1687458;-3.1382211;1;;Granada;Pedro Jordan Fernandez;
-Albondón;36.8281395;-3.2110576;1;;Granada;Angel Javier Lopez Echevaria;
-Jerez de la Frontera;36.829816;-5.92206;0.0029975237846996;E. singular Gibalbín;Cadiz;Ana Maria Lopez Perez;
-Alhaurín el Grande;36.701283;-4.6979098;0.0281045751633987;Núcleo Villafranco del Guadalhorce;Malaga;Jose Luis Lopez Ramirez;
-Alquife;37.1799558;-3.1159215;1;;Granada;Victor Manuel Lopez Ruiz de Algar
-Obejo;38.1325555;-4.8000174;0.1971291866028708;E. singular Obejo;Cordoba;Inmaculada Maldonado Tenorio;
-Iznájar;37.3174443;-4.2552068;0.0742918225547835;E. singular El Higueral;Cordoba;Juan Marquez Moreno;
-El Valle;36.9296617;-3.5965077;0.1784582893347413;E. singular Saleres;Granada;Ana Maria Martin Gijon;
-Albox;37.4242617;-2.1645891;0.0183852917665867;E. singular Llano de los Olleres;Almeria;Florentina Martinez Alonso;
-Lúcar;37.4009313;-2.4241485;1;;Almeria;Victoria Martinez Fernandez;
-Castro del Río;37.5638251;-4.5248072;0.0568689256632519;E. singular Llano del Espinar;Cordoba;Maria Mateos Anzon;
-Marchal;37.2963627;-3.2021995;1;;Granada;Ali Mohamman Mimun;
-Taberno;37.4683539;-2.0779837;1;;Almeria;Maria del Carmen Montalbo Gonzalez;
-La Rinconada;37.4865155;-5.9416528;0.0120499851234752;Núcleo Urbanización Nueva Jarilla;Sevilla;Sonia Montaner Alonso;
-Serrato;36.8849238;-4.9810084;1;;Malaga;Miguel Angel Montero Villarejo;
-Torre Alháquime;36.9156897;-5.2347672;1;;Cadiz;Manuel Mozo Martin de Oliva;
-Trevélez;37.0023983;-3.2665989;1;;Granada;Jose Manuel Navarro Garcia;
-Tarifa;36.0850115;-5.7642442;0.0240124350109878;E. singular El Lentiscal;Cadiz;Margarita Ortega Barrio;
-Castillo de Locubín;37.5406086;-3.9944282;0.0931741500129769;E. singular Ventas del Carrizal;Jaen;Juan Manuel Pampano Rivero;
-Nerja;36.7586855;-3.8432581;0.0388622157804149;E. singular Maro;Malaga;Maria Mercedes Perez Almendros;
-Arroyomolinos de León;38.0235708;-6.4224907;1;;Huelva;Luis Manuel Perez Carrasco Repollo;
-Alfarnatejo;36.9790622;-4.2724898;1;;Malaga;Luis Quintana Ramirez;
-Castaño del Robledo;37.8954194;-6.7053982;1;;Huelva;Jesus Quintana Ramirez;
-Bayarque;37.3306886;-2.4359436;1;;Almeria;Patricia Rosa Reche Alonso;
-Cañaveral de León;38.0148419;-6.5285331;1;;Huelva;Maria Jesus Rodriguez Abellaneda;
-Pórtugos;36.9423001;-3.3103162;1;;Granada;Aurora  Rodriguez Bolivar;
-Sorvilán;36.7948706;-3.2668027;1;;Granada;Raquel Rodriguez Galdeano;
-Instinción;36.9928976;-2.6595977;1;;Almeria;Francisco Jose Rodriguez Gonzalez;
-Alcontar;37.3360254;-2.5971447;1;;Almeria;Juana Maria Rodriguez Sofliano;
-San Silvestre de Guzmán;37.3894253;-7.3478655;1;;Huelva;Luis Rodriguez Sotera;
-Lentegí;36.8342309;-3.6745581;1;;Granada;Maria Josefa Rojas Morante;
-Cogollos de Guadix;37.2241755;-3.1610634;1;;Granada; Manuel Rueda Illescas;
-Conquista;38.4080934;-4.5006552;1;;Cordoba;Maria Flora Ruiz Prado;
-Vélez-Málaga;36.7586844;-4.1857403;0.0095761741122566;E. singular Cajiz;Malaga;Manuel Ruiz Ramirez;
-Almócita;37.003137;-2.7904479;1;Almeria;Maria del Rosario Sanchez Jimenez;
-Enix;36.8769467;-2.6019386;1;;Almeria;Fco Jesus Sanchez Linares;
-Faraján;36.6162231;-5.1882209;1;;Malaga;Juan Miguel Santos del Rio;
-Salobreña;36.7472489;-3.6008619;0.0543305837563452;E. singular La Caleta-Guardia;Granada;Maria Luisa Segura Hernandez;
-Ferreira;37.1723754;-3.0362531;1;;Granada;Maria del Carmen Serrano Venteo;
-Albánchez;37.2868617;-2.1813585;1;;Almeria;Maria Isabel Torrente Granero;
-La Calahorra;37.1814745;-3.0640503;1;;Granada;Mariano Viezma Pastor;
-Hinojales;38.0079199;-6.5882245;1;;Huelva;Javier Antonio Viera Caballero;
-Alhabía;36.9896696;-2.5872342;1;;Almeria;Angeles Vizcaino Pascual;
-Turón;36.8637375;-3.0575117;1;;Granada;Jose Pedro Vozmediano Torres;
-Almegíjar;36.903015;-3.300126;1;;Granada;Antonio Jesus Girela Ortiz;
-Valdelarco;37.95;-6.6833;1;;Huelva;Maria Carmen Gil Caro;
-Villarrodrigo;38.4870974;-2.6361123;1;;Jaen;Maria Carmen Guzman Lopez;
-Castilleja del Campo;37.3861783;-6.3346299;1;;Sevilla;Manuel Izquierdo Tapia;
-Alpujarra de la Sierra;36.980833333333;-3.1558333333333;0.577962577962578;E. singular Mecina Bombarón;Granada;Isabel Lopez Rodriguez;
-El Puerto de Santa María;36.615944;-6.166282;0.0067571303761211;Núcleo Doña Blanca-Poblado;Cadiz;Isabel Maria Maestre Garcia;
-Villanueva de las Torres;37.556666666667;-3.0897222222222;1;;Granada;Ana MAria Molina Sanchez;
-La Granada de Río-tinto;37.766666666667;-6.5;1;;Huelva;Irene Palomo Ibañez
-Lugros;37.229;-3.241;1;;Granada;Emilia Rodriguez Martin;
-El Puerto de Santa María;36.7063;-6.1842;0.0044457715404267;Núcleo Cantarranas;Cadiz;Patricio Ignacio Roquett Castro;
-Bentarique;36.9865695;-2.6195624;1;;Almeria;Maria Ester Sotas Cabrera;
-Jubrique;36,564308;-5,215091;;Malaga;Maria Jesus Acuña Fernandez;
-Vícar;36.8316986;-2.6430297;0.0535344676372566;E. singular Congo-Canal;Almeria;Pedro Jose Fuentes Fernandez;
-Cortelazor;37,935812;-6,624681;;Huelva;Maria Dolores Garcia Martin;
-Alicún de Ortega;37,607501;-3,137822;;Granada;Jesus Ignacio Jimenez Lopez;
-Villanueva de las Cruces;37,627726;-7,024276;;Huelva;Eduardo Luis Limon Vizcaino;
-Beas de Guadix;37,27948;-3,205941;;Granada;Dolores Molero Villalba
-Felix;36,868959;-2,657532;;Almeria;Fausto Vilchez Martinez;
+import streamlit as st
+import pandas as pd
+import folium
+from folium.plugins import MarkerCluster, Fullscreen
+from streamlit_folium import st_folium
+import plotly.express as px
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
+import unicodedata
+import re
+from math import radians, cos, sin, asin, sqrt
+from io import BytesIO
+import numpy as np
+from types import SimpleNamespace
+
+# Set the title of the Streamlit application
+st.title("Mapa Interactivo de las Farmacias de la Primera fase de Adjudicaciones de Andalucía")
+
+# --------------------
+# Navigation tabs
+tab1, tab2 = st.tabs(["🗺️ Mapa y Ranking", "📊 Comparación de Municipios"])
+
+# --------------------
+# Sidebar for user inputs
+st.sidebar.header("Configuración de Datos y Puntuación")
+
+# --------------------
+# TAB 1: Mapa y Ranking
+with tab1:
+    # --------------------
+    # Lista de archivos CSV en GitHub
+    uploaded_files = [
+        "Territorios.csv",
+        "ieca_export_alquileres.csv",
+        "ieca_export_att_especializada.csv",
+        "ieca_export_att_primaria.csv",
+        "ieca_export_bancos.csv",
+        "ieca_export_centro_educativos.csv",
+        "ieca_export_centros_asistenciales.csv",
+        "ieca_export_centros_sociales.csv",
+        "ieca_export_contratos_registrados.csv",
+        "ieca_export_corbertura.csv",
+        "ieca_export_emigraciones_edad_sexo.csv",
+        "ieca_export_establec_turisticos.csv",
+        "ieca_export_establecimientos.csv",
+        "ieca_export_explot_ganaderas.csv",
+        "ieca_export_fcia_poblacion.csv",
+        "ieca_export_inmigraciones_edad_sexo.csv",
+        "ieca_export_inmigración_extranjeros.csv",
+        "ieca_export_instalaciones_deportivas.csv",
+        "ieca_export_latitud_longuitud.csv",
+        "ieca_export_poblacion_edad_nac.csv",
+        "ieca_export_renta.csv",
+        "singular_pob_sexo.csv"
+    ]
+
+    # Convertimos a objetos con atributo .name
+    uploaded_files = [SimpleNamespace(name=item) for item in uploaded_files]
+
+    lista_df = []
+    nombres_archivos = []
+    territorios_file = None
+    df_coords_existentes = pd.DataFrame()
+
+    for archivo in uploaded_files:
+        if archivo.name.lower() == "territorios.csv":
+            territorios_file = archivo
+            continue
+        if archivo.name.lower() == "ieca_export_latitud_longuitud.csv":
+            # --------------------
+            # Nuevo código: cargar automáticamente desde GitHub
+            try:
+                df_coords_raw = pd.read_csv(archivo.name, sep=';', decimal=',', usecols=['Territorio', 'Medida', 'Valor'])
+                df_coords_existentes = df_coords_raw.pivot(index='Territorio', columns='Medida', values='Valor').reset_index()
+                df_coords_existentes['Latitud'] = pd.to_numeric(df_coords_existentes['Latitud'], errors='coerce')
+                df_coords_existentes['Longitud'] = pd.to_numeric(df_coords_existentes['Longitud'], errors='coerce')
+                st.sidebar.success("Coordenadas cargadas automáticamente desde ieca_export_latitud_longuitud.csv")
+            except Exception as e:
+                st.sidebar.error(f"Error cargando ieca_export_latitud_longuitud.csv: {e}")
+            continue
+        
+            # --------------------
+            # Código antiguo (comentado): pedía subir el CSV manualmente
+            # uploaded_file = st.file_uploader("Sube ieca_export_latitud_longuitud.csv", type="csv")
+            # if uploaded_file is not None:
+            #     df_coords_raw = pd.read_csv(uploaded_file, sep=';', decimal=',', usecols=['Territorio', 'Medida', 'Valor'])
+            #     df_coords_existentes = df_coords_raw.pivot(index='Territorio', columns='Medida', values='Valor').reset_index()
+            #     df_coords_existentes['Latitud'] = pd.to_numeric(df_coords_existentes['Latitud'], errors='coerce')
+            #     df_coords_existentes['Longitud'] = pd.to_numeric(df_coords_existentes['Longitud'], errors='coerce')
+            #     st.sidebar.success("Coordenadas cargadas desde archivo subido")
+
+        try:
+            # Nuevo: usamos archivo.name
+            df_temp = pd.read_csv(archivo.name, sep=";", na_values=["-", "", "NA"])
+            df_temp.columns = df_temp.columns.str.strip()
+            if 'Valor' in df_temp.columns:
+                df_temp['Valor'] = pd.to_numeric(df_temp['Valor'], errors='coerce')
+            df_temp['__archivo__'] = archivo.name
+            lista_df.append(df_temp)
+            nombres_archivos.append(archivo.name)
+        except Exception as e:
+            st.error(f"Error al leer el archivo {archivo.name}: {e}")
+            st.stop()
+
+    # Concatenamos todo en un único DataFrame
+    df_original = pd.concat(lista_df, ignore_index=True)
+    st.success("Archivos cargados correctamente.Espere")
+
+    # --------------------
+    # Territorios.csv
+
+    df_farmacias = pd.DataFrame()
+    if territorios_file:
+        try:
+            # Nuevo: usamos territorios_file.name
+            df_farmacias = pd.read_csv(territorios_file.name, sep=";", na_values=["-", "", "NA"])
+            df_farmacias.columns = df_farmacias.columns.str.strip()
+            if 'Singular' in df_farmacias.columns:
+                df_farmacias['Nombre_Mostrar'] = df_farmacias['Singular'].fillna(df_farmacias['Territorio'])
+            else:
+                df_farmacias['Nombre_Mostrar'] = df_farmacias['Territorio']
+            st.sidebar.success(f"Farmacias cargadas desde Territorios.csv: {len(df_farmacias)} registros")
+            st.sidebar.write(f"Columnas disponibles: {list(df_farmacias.columns)}")
+        except Exception as e:
+            st.sidebar.error(f"Error al leer Territorios.csv: {e}")
+    else:
+        st.sidebar.error("No se encontró el archivo Territorios.csv")
+
+        # --------------------
+        # Código antiguo (comentado)
+        # df_farmacias = pd.read_csv(territorios_file, sep=";", na_values=["-", "", "NA"])
+
+    # --------------------
+    # Guardamos coordenadas en sesión
+    if 'df_coords' not in st.session_state:
+        st.session_state.df_coords = df_coords_existentes
+        st.session_state.df_coords_original = df_coords_existentes.copy()
+    def obtener_coordenadas(territorios, df_coords_existentes):
+        geolocator = Nominatim(user_agent="andalucia-mapa")
+        geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=3, error_wait_seconds=2)
+    
+        resultados = []
+        coords_dict = {}
+        if not df_coords_existentes.empty:
+            for _, row in df_coords_existentes.iterrows():
+                t = row['Territorio'].strip()
+                lat = row['Latitud']
+                lon = row['Longitud']
+                if pd.notna(lat) and pd.notna(lon):
+                    coords_dict[t] = (lat, lon)
+
+        nuevos_territorios = [t for t in territorios if t.strip() not in coords_dict]
+        progress_bar = st.sidebar.progress(0, text="Geocodificando...")
+        total_to_geocode = len(nuevos_territorios)
+
+        for i, lugar in enumerate(nuevos_territorios):
+            lugar_clean = lugar.strip()
+            try:
+                location = geocode(f"{lugar_clean}, Andalucía, España", timeout=10)
+                if location:
+                    resultados.append((lugar_clean, location.latitude, location.longitude))
+                else:
+                    resultados.append((lugar_clean, None, None))
+            except Exception as e:
+                st.sidebar.warning(f"No se pudieron obtener coordenadas para {lugar_clean}: {e}")
+                resultados.append((lugar_clean, None, None))
+            progress_bar.progress((i + 1) / total_to_geocode, text=f"Geocodificando {lugar_clean}...")
+    
+        progress_bar.empty()
+        df_nuevas_coords = pd.DataFrame(resultados, columns=["Territorio", "Latitud", "Longitud"])
+        return pd.concat([df_coords_existentes, df_nuevas_coords], ignore_index=True)
+
+    if st.sidebar.button("Geolocalizar Municipios Faltantes"):
+        municipios_unicos = df_original["Territorio"].unique()
+        with st.spinner("Geolocalizando... esto puede tardar un poco la primera vez."):
+            st.session_state.df_coords = obtener_coordenadas(municipios_unicos, st.session_state.df_coords_original)
+        st.sidebar.success("Geolocalización completada.")
+
+    if st.session_state.df_coords.empty:
+        st.info("Carga un archivo de coordenadas o usa el botón 'Geolocalizar Municipios Faltantes' para continuar.")
+        st.stop()
+
+    # --------------------
+    # Helper Functions (unmodified)
+    rango_colores = [
+        (0, 20, "#d73027"), (20, 40, "#fc8d59"), (40, 60, "#fee08b"),
+        (60, 80, "#d9ef8b"), (80, 100, "#91cf60")
+    ]
+
+    def limpiar_texto(texto):
+        texto = str(texto)
+        texto = unicodedata.normalize('NFKD', texto)
+        texto = ''.join([c for c in texto if not unicodedata.combining(c)])
+        texto = texto.title()
+        texto = re.sub(r'\W+', '_', texto)
+        texto = texto.strip('_')
+        return texto
+
+    def combinar_medida_y_extras(row, extras):
+        parts = [str(row['Medida']).strip()]
+        for col in extras:
+            val = str(row[col]).strip()
+            if val and val.lower() not in ['nan', 'none', 'na', '']:
+                parts.append(val)
+        clean_parts = [limpiar_texto(p) for p in parts]
+        return "_".join(clean_parts)
+
+    def normaliza_nombre_indicador(nombre):
+        nombre = str(nombre)
+        nombre = unicodedata.normalize('NFKD', nombre)
+        nombre = ''.join([c for c in nombre if not unicodedata.combining(c)])
+        nombre = nombre.lower()
+        nombre = re.sub(r'[^a-z0-9_]', '_', nombre)
+        nombre = re.sub(r'_+', '_', nombre)
+        return nombre.strip('_')
+
+    def normalizar_nombre_municipio(nombre):
+        nombre = str(nombre)
+        # Normalizar unicode y quitar acentos
+        nombre = unicodedata.normalize('NFKD', nombre)
+        nombre = ''.join([c for c in nombre if not unicodedata.combining(c)])
+        # Convertir a minúsculas
+        nombre = nombre.lower()
+        # Quitar solo caracteres especiales problemáticos, mantener letras, números, espacios y guiones
+        nombre = re.sub(r'[^\w\s\-]', '', nombre)
+        # Limpiar espacios múltiples
+        nombre = re.sub(r'\s+', ' ', nombre)
+        return nombre.strip()
+
+    # --------------------
+    # Load Weights from CSV
+    st.sidebar.subheader("Cargar/Guardar Pesos")
+    uploaded_weights_file = st.sidebar.file_uploader(
+        "Sube un archivo CSV con pesos guardados", type="csv", key="weights_uploader"
+    )
+    loaded_pesos_dict = {}
+    if uploaded_weights_file is not None:
+        try:
+            df_loaded_pesos = pd.read_csv(uploaded_weights_file, sep=';')
+            if 'Indicador' in df_loaded_pesos.columns and 'Peso' in df_loaded_pesos.columns:
+                loaded_pesos_dict = pd.Series(df_loaded_pesos.Peso.values, index=df_loaded_pesos.Indicador).to_dict()
+                st.sidebar.success("Pesos cargados correctamente.")
+            else:
+                st.sidebar.error("El archivo de pesos debe contener las columnas 'Indicador' y 'Peso'.")
+        except Exception as e:
+            st.sidebar.error(f"Error al cargar el archivo de pesos: {e}")
+
+    # --- INICIO DEL FORMULARIO ---
+    st.subheader("Ajuste de Pesos y Parámetros")
+
+    radio_km = st.sidebar.slider(
+        "Radio (km) para sumar puntuación de municipios cercanos sin farmacia", 0, 100, 0, step=1
+    )
+
+    pesos = {}
+    medidas_originales = {}
+
+    # --- Primero renderizamos los expansores con sliders y botones fuera del form ---
+    st.sidebar.markdown("### Configuración de pesos por archivo")
+
+    for archivo in nombres_archivos:
+        with st.sidebar.expander(f"⚙️ {archivo}", expanded=False):
+            df_archivo = df_original[df_original['__archivo__'] == archivo]
+            columnas_basicas = {'Territorio', 'Medida', 'Valor', '__archivo__'}
+            columnas_extra = [col for col in df_archivo.columns if col not in columnas_basicas]
+            indicadores_combinados = df_archivo.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1).unique()
+
+            # Campo para valor global y botón fuera del form (permitido)
+            col1, col2 = st.columns([0.7, 0.3])
+            
+            # Determinar valor global por defecto según reglas específicas
+            valor_global_por_defecto = 1.0  # Valor por defecto general
+            
+            # Regla 1: Todos los indicadores de explot_ganaderas tienen peso 0 por defecto
+            if "explot_ganaderas" in archivo:
+                valor_global_por_defecto = 0.0
+            
+            valor_global = col1.number_input(
+                f"Valor global para {archivo}", -5.0, 5.0, valor_global_por_defecto, 0.1, key=f"global_val_{archivo}"
+            )
+            if col2.button("Aplicar", key=f"aplicar_{archivo}"):
+                for indicador_completo in sorted(indicadores_combinados):
+                    clave_norm = normaliza_nombre_indicador(indicador_completo)
+                    st.session_state[f"{archivo}-{clave_norm}"] = valor_global
+                st.rerun()
+
+            # Sliders individuales
+            for indicador_completo in sorted(indicadores_combinados):
+                clave_norm = normaliza_nombre_indicador(indicador_completo)
+                
+                # Determinar peso por defecto según reglas específicas
+                peso_por_defecto = 1.0  # Valor por defecto general
+                
+                # Regla 1: Todos los indicadores de explot_ganaderas tienen peso 0 por defecto
+                if "explot_ganaderas" in archivo:
+                    peso_por_defecto = 0.0
+                
+                # Regla 2: Indicadores que empiecen por "Superficie" en centros_asistenciales tienen peso 0 por defecto
+                if "centros_asistenciales" in archivo and indicador_completo.startswith("Superficie"):
+                    peso_por_defecto = 0.0
+                
+                initial_peso = st.session_state.get(f"{archivo}-{clave_norm}", loaded_pesos_dict.get(clave_norm, peso_por_defecto))
+                peso = st.slider(f"{indicador_completo}", -5.0, 5.0, initial_peso, 0.1, key=f"{archivo}-{clave_norm}")
+                pesos[clave_norm] = peso
+                medidas_originales[clave_norm] = indicador_completo
+
+    # --- Formulario solo para recalcular ---
+    with st.sidebar.form("config_form"):
+        recalcular_button = st.form_submit_button("Aplicar Cambios y Recalcular")
+    # --- FIN DEL FORMULARIO ---
+
+    # El resto del código solo se ejecuta si se envía el formulario
+    # o si se carga la página por primera vez.
+
+    columnas_basicas = {'Territorio', 'Medida', 'Valor'}
+    columnas_extra = [col for col in df_original.columns if col not in columnas_basicas and col != '__archivo__']
+    df_original['Medida'] = df_original.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1)
+
+    @st.cache_data
+    def preparar_datos_base(df_original, df_coords, df_farmacias):
+        df_pivot = df_original.pivot_table(
+            index="Territorio", columns="Medida", values="Valor", aggfunc="first"
+        ).reset_index()
+        col_map = {col: normaliza_nombre_indicador(col) if col != 'Territorio' else col for col in df_pivot.columns}
+        df_pivot = df_pivot.rename(columns=col_map)
+        df_pivot["Territorio_normalizado"] = df_pivot["Territorio"].apply(normalizar_nombre_municipio)
+        municipios_con_farmacia = set()
+        df_farmacias_factores = pd.DataFrame()
+        if not df_farmacias.empty:
+            if 'Territorio' in df_farmacias.columns and 'Factor' in df_farmacias.columns:
+                # Debug: mostrar las primeras filas para verificar el contenido
+                st.sidebar.write("Debug: Primeras filas de df_farmacias:")
+                st.sidebar.write(df_farmacias[['Territorio', 'Factor']].head())
+                
+                df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
+                municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
+                # Incluir todas las columnas necesarias del archivo de farmacias
+                columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
+                if 'Provincia' in df_farmacias.columns:
+                    columnas_farmacias.append('Provincia')
+                if 'Ldo' in df_farmacias.columns:
+                    columnas_farmacias.append('Ldo')
+                
+                df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
+            else:
+                st.sidebar.error(f"Faltan columnas 'Territorio' o 'Factor' en df_farmacias. Columnas disponibles: {list(df_farmacias.columns)}")
+        else:
+            st.sidebar.error("df_farmacias está vacío")
+
+        df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
+        df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
+        
+        # Información de depuración solo si hay problemas
+        if len(df_con_farmacia_base) == 0 and len(municipios_con_farmacia) > 0:
+            st.sidebar.warning(f"⚠️ No se encontraron coincidencias entre {len(municipios_con_farmacia)} municipios con farmacia y {len(df_pivot)} municipios en los datos")
+            # Mostrar ejemplos para debugging
+            ejemplos_farmacias = list(municipios_con_farmacia)[:3]
+            ejemplos_pivot = list(df_pivot['Territorio_normalizado'].head(3))
+            st.sidebar.write(f"Ejemplos nombres farmacias: {ejemplos_farmacias}")
+            st.sidebar.write(f"Ejemplos nombres datos: {ejemplos_pivot}")
+            
+            # Debug específico: mostrar nombres originales vs normalizados
+            st.sidebar.write("--- DEBUG DETALLADO ---")
+            if not df_farmacias.empty:
+                st.sidebar.write("Nombres originales vs normalizados (farmacias):")
+                for i, row in df_farmacias.head(3).iterrows():
+                    original = row['Territorio']
+                    normalizado = row['Territorio_normalizado']
+                    st.sidebar.write(f"  '{original}' -> '{normalizado}'")
+            
+            st.sidebar.write("Nombres originales vs normalizados (datos):")
+            for i, row in df_pivot.head(3).iterrows():
+                original = row['Territorio']
+                normalizado = row['Territorio_normalizado']
+                st.sidebar.write(f"  '{original}' -> '{normalizado}'")
+    
+        if not df_farmacias_factores.empty:
+            # Incluir todas las columnas necesarias del archivo de farmacias
+            columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
+            if 'Provincia' in df_farmacias.columns:
+                columnas_farmacias.append('Provincia')
+            if 'Ldo' in df_farmacias.columns:
+                columnas_farmacias.append('Ldo')
+            
+            df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
+            df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_farmacias_factores, on="Territorio_normalizado", how="left")
+            df_con_farmacia_base['Factor'] = df_con_farmacia_base['Factor'].fillna(1.0)
+        else:
+            df_con_farmacia_base['Factor'] = 1.0
+            df_con_farmacia_base['Nombre_Mostrar'] = df_con_farmacia_base['Territorio']
+
+        df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_coords, on="Territorio", how="left")
+        df_sin_farmacia_base = pd.merge(df_sin_farmacia_base, df_coords, on="Territorio", how="left")
+        return df_con_farmacia_base, df_sin_farmacia_base
+
+    def calcular_puntuaciones(df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km):
+        df_con_farmacia = df_con_farmacia_base.copy()
+        df_sin_farmacia = df_sin_farmacia_base.copy()
+        df_con_farmacia['Puntuación'] = sum(
+            df_con_farmacia[col].fillna(0) * pesos.get(col, 0)
+            for col in pesos if col in df_con_farmacia.columns
+        )
+        df_sin_farmacia['Puntuación'] = sum(
+            df_sin_farmacia[col].fillna(0) * pesos.get(col, 0)
+            for col in pesos if col in df_sin_farmacia.columns
+        )
+        df_con_farmacia['PuntuaciónFinal'] = df_con_farmacia['Puntuación'] * df_con_farmacia['Factor']
+        df_con_farmacia['PuntuaciónExtendida'] = df_con_farmacia['PuntuaciónFinal']
+        df_con_farmacia['SumaMunicipiosCercanos'] = 0.0
+
+        if radio_km > 0 and not df_sin_farmacia.empty:
+            df_con_farmacia_valid = df_con_farmacia.dropna(subset=['Latitud', 'Longitud'])
+            df_sin_farmacia_valid = df_sin_farmacia.dropna(subset=['Latitud', 'Longitud'])
+            if not df_con_farmacia_valid.empty:
+                lat_con_rad = np.radians(df_con_farmacia_valid['Latitud'])
+                lon_con_rad = np.radians(df_con_farmacia_valid['Longitud'])
+                lat_sin_rad = np.radians(df_sin_farmacia_valid['Latitud'])
+                lon_sin_rad = np.radians(df_sin_farmacia_valid['Longitud'])
+                dlon = lon_sin_rad.values[:, None] - lon_con_rad.values
+                dlat = lat_sin_rad.values[:, None] - lat_con_rad.values
+                a = np.sin(dlat / 2.0)**2 + np.cos(lat_sin_rad.values[:, None]) * np.cos(lat_con_rad.values) * np.sin(dlon / 2.0)**2
+                c = 2 * np.arcsin(np.sqrt(a))
+                distancias = 6371 * c
+                indices_dentro_radio = np.where(distancias <= radio_km)
+                puntuaciones_cercanas = pd.Series(
+                    df_sin_farmacia_valid['Puntuación'].values[indices_dentro_radio[0]],
+                    index=df_con_farmacia_valid.index[indices_dentro_radio[1]]
+                ).groupby(level=0).sum()
+                df_con_farmacia.loc[puntuaciones_cercanas.index, 'SumaMunicipiosCercanos'] = puntuaciones_cercanas
+                df_con_farmacia['PuntuaciónExtendida'] = df_con_farmacia['PuntuaciónFinal'] + df_con_farmacia['SumaMunicipiosCercanos']
+        return df_con_farmacia, df_sin_farmacia
+
+    # --- FLUJO PRINCIPAL ---
+    df_con_farmacia_base, df_sin_farmacia_base = preparar_datos_base(
+        df_original, st.session_state.df_coords, df_farmacias
+    )
+
+    df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
+        df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km
+    )
+
+    # -------------------
+    # Display ranking table and allow selection
+    df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
+    df_ordenado.index += 1  # Índice 1-based
+
+    st.subheader("Ranking de municipios con farmacia ordenados por puntuación total")
+
+    # Filtro por provincia
+    if 'Provincia' in df_ordenado.columns:
+        provincias_disponibles = ['Todas'] + sorted(df_ordenado['Provincia'].dropna().unique().tolist())
+        provincia_seleccionada = st.selectbox(
+            "Filtrar por provincia:",
+            options=provincias_disponibles,
+            index=0
+        )
+        
+        # Aplicar filtro si no se selecciona "Todas"
+        if provincia_seleccionada != 'Todas':
+            df_ordenado_filtrado = df_ordenado[df_ordenado['Provincia'] == provincia_seleccionada].copy()
+            st.info(f"Mostrando {len(df_ordenado_filtrado)} municipios de {provincia_seleccionada}")
+        else:
+            df_ordenado_filtrado = df_ordenado.copy()
+            st.info(f"Mostrando todos los {len(df_ordenado_filtrado)} municipios")
+    else:
+        df_ordenado_filtrado = df_ordenado.copy()
+
+    if not df_ordenado_filtrado.empty:
+        territorio_seleccionado = st.selectbox(
+            "Selecciona un municipio del ranking para centrar el mapa:",
+            options=df_ordenado_filtrado['Nombre_Mostrar'].tolist()
+        )
+    else:
+        territorio_seleccionado = None
+        st.info("No hay municipios con farmacia para mostrar en el ranking.")
+
+    # Preparar columnas para mostrar
+    columnas_mostrar = ['Ranking', 'Nombre_Mostrar', 'Puntuación', 'Factor', 'PuntuaciónFinal', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida']
+    
+    # Añadir Provincia y Ldo si están disponibles
+    if 'Provincia' in df_ordenado.columns:
+        columnas_mostrar.insert(2, 'Provincia')  # Insertar después de Nombre_Mostrar
+    if 'Ldo' in df_ordenado.columns:
+        columnas_mostrar.insert(3, 'Ldo')  # Insertar después de Provincia
+    
+    # Filtrar solo las columnas que existen
+    columnas_existentes = [col for col in columnas_mostrar if col in df_ordenado.columns]
+    
+    st.dataframe(
+        df_ordenado_filtrado.reset_index().rename(columns={"index": "Ranking"})[columnas_existentes].round(2),
+        use_container_width=True
+    )
+
+
+    # Display detailed breakdown for the selected territory
+    if territorio_seleccionado:
+        st.subheader(f"Detalle de puntuación para: {territorio_seleccionado}")
+    
+        fila_farmacia = df_municipios_farmacias[df_municipios_farmacias["Nombre_Mostrar"] == territorio_seleccionado]
+        territorio_original_para_desglose = fila_farmacia.iloc[0]['Territorio'] if not fila_farmacia.empty else None
+
+        if territorio_original_para_desglose:
+            df_territorio = df_original[df_original["Territorio"] == territorio_original_para_desglose]
+        else:
+            df_territorio = pd.DataFrame()
+
+        if df_territorio.empty:
+            st.warning("No hay datos detallados para este territorio.")
+            df_desglose = pd.DataFrame()
+        else:
+            st.write(f"Número de indicadores para {territorio_seleccionado}: ", len(df_territorio))
+            desglose = []
+            puntuacion_base = 0
+            for _, row in df_territorio.iterrows():
+                clave_norm = normaliza_nombre_indicador(row["Medida"])
+                valor = row["Valor"]
+                peso = pesos.get(clave_norm, 1.0)
+                contribucion = valor * peso if pd.notna(valor) else 0
+                puntuacion_base += contribucion
+                original_display_name = medidas_originales.get(clave_norm, row["Medida"])
+                desglose.append({
+                    "Indicador": original_display_name,
+                    "Valor": round(valor, 2) if pd.notna(valor) else "N/A",
+                    "Peso": round(peso, 2),
+                    "Contribución": round(contribucion, 2) if contribucion is not None else "—"
+                })
+            df_desglose = pd.DataFrame(desglose)
+            st.dataframe(df_desglose, use_container_width=True, height=600)
+    
+        if not fila_farmacia.empty:
+            factor_valor = fila_farmacia.iloc[0]['Factor']
+            puntuacion_final = fila_farmacia.iloc[0]['PuntuaciónFinal']
+            st.write(f"**Puntuación base (suma de contribuciones):** {puntuacion_base:.2f}")
+            st.write(f"**Factor aplicado:** {factor_valor:.2f}")
+            st.write(f"**Puntuación con factor:** {puntuacion_final:.2f}")
+
+        csv_buffer_desglose = BytesIO()
+        df_desglose.to_csv(csv_buffer_desglose, index=False)
+        csv_buffer_desglose.seek(0)
+        st.download_button(
+            label="📥 Descargar desglose completo en CSV",
+            file_name=f"desglose_{territorio_seleccionado}.csv",
+            data=csv_buffer_desglose,
+            mime="text/csv"
+        )
+
+    # -------------------
+    # Folium Map
+    st.subheader("Mapa Interactivo de Municipios")
+
+    lat_centro, lon_centro = 37.4, -5.9
+    zoom_nivel = 7
+
+    if territorio_seleccionado and not df_ordenado.empty:
+        fila_sel = df_ordenado[df_ordenado['Nombre_Mostrar'] == territorio_seleccionado]
+        if not fila_sel.empty and pd.notna(fila_sel.iloc[0]['Latitud']) and pd.notna(fila_sel.iloc[0]['Longitud']):
+            lat_centro = fila_sel.iloc[0]['Latitud']
+            lon_centro = fila_sel.iloc[0]['Longitud']
+            zoom_nivel = 11
+
+    m = folium.Map(location=[lat_centro, lon_centro], zoom_start=zoom_nivel)
+    marker_cluster = MarkerCluster().add_to(m)
+
+    for idx, row in df_ordenado.iterrows():
+        lat, lon = row['Latitud'], row['Longitud']
+        if pd.isna(lat) or pd.isna(lon):
+            continue
+
+        color = "#777777"
+        puntuacion = row['PuntuaciónExtendida']
+        for (minv, maxv, col) in rango_colores:
+            if minv <= puntuacion < maxv:
+                color = col
+                break
+        if puntuacion >= rango_colores[-1][1]:
+            color = rango_colores[-1][2]
+
+        popup_html = f"""
+        <b>{row['Nombre_Mostrar']}</b><br>
+        """
+        
+        # Añadir Provincia y Ldo si están disponibles
+        if 'Provincia' in row and pd.notna(row['Provincia']):
+            popup_html += f"Provincia: {row['Provincia']}<br>"
+        if 'Ldo' in row and pd.notna(row['Ldo']):
+            popup_html += f"Ldo: {row['Ldo']}<br>"
+        
+        popup_html += f"""
+        Puntuación base: {row['Puntuación']:.2f}<br>
+        Factor: {row['Factor']:.2f}<br>
+        Puntuación con factor: {row['PuntuaciónFinal']:.2f}<br>
+        Suma municipios cercanos sin farmacia (≤ {radio_km} km): {row['SumaMunicipiosCercanos']:.2f}<br>
+        <b>Total combinado:</b> {row['PuntuaciónExtendida']:.2f}
+        """
+        folium.CircleMarker(
+            location=(lat, lon),
+            radius=7,
+            popup=folium.Popup(popup_html, max_width=300),
+            color=color,
+            fill=True,
+            fill_color=color,
+            fill_opacity=0.7,
+        ).add_to(marker_cluster)
+
+    Fullscreen().add_to(m)
+    st_data = st_folium(m, width=1200, height=700, returned_objects=["last_clicked"])
+
+    # -------------------
+    # Plotly Bar Chart
+    st.subheader("Gráfico de puntuación total combinada")
+    fig = px.bar(
+        df_ordenado,
+        x='Nombre_Mostrar',
+        y='PuntuaciónExtendida',
+        color='PuntuaciónExtendida',
+        color_continuous_scale='Viridis',
+        labels={'PuntuaciónExtendida': 'Puntuación Total', 'Nombre_Mostrar': 'Nombre Entidad'},
+        height=400
+    )
+    fig.update_layout(xaxis_tickangle=-45)
+    st.plotly_chart(fig, use_container_width=True)
+
+    # -------------------
+    # Export complete processed data
+    st.subheader("📥 Descargar datos procesados")
+    df_export = pd.concat([df_municipios_farmacias, df_municipios_sin], ignore_index=True)
+    cols_first = ["Nombre_Mostrar", "Territorio", "Latitud", "Longitud", "Puntuación", "Factor", "PuntuaciónFinal", "SumaMunicipiosCercanos", "PuntuaciónExtendida"]
+    cols_others = [col for col in df_export.columns if col not in cols_first and col != "Territorio_normalizado"]
+    df_export = df_export[cols_first + sorted(cols_others)]
+    csv_data = df_export.to_csv(index=False, sep=";", encoding="utf-8").encode("utf-8")
+    st.download_button(
+        label="📥 Descargar CSV con todos los municipios",
+        data=csv_data,
+        file_name="todos_los_municipios.csv",
+        mime="text/csv"
+    )
+
+    # Sidebar button to clear Streamlit cache
+    if st.sidebar.button("🧹 Limpiar caché de datos"):
+        st.cache_data.clear()
+        if 'df_coords' in st.session_state:
+            del st.session_state.df_coords
+        if 'df_coords_original' in st.session_state:
+            del st.session_state.df_coords_original
+        st.experimental_rerun()
+
+    # --------------------
+    # --------------------
+    # Guardar Pesos Actuales
+    st.sidebar.subheader("Guardar Pesos Actuales")
+    if pesos:
+        df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
+        df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
+        df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
+        
+        # Convertir a CSV string directamente
+        csv_string = df_pesos_guardar.to_csv(index=False, sep=';', encoding='utf-8')
+        
+        st.sidebar.download_button(
+            label="💾 Descargar configuración actual de pesos",
+            data=csv_string,
+            file_name="pesos_guardados.csv",
+            mime="text/csv",
+            key="download_weights_button"
+        )
+    else:
+        st.sidebar.warning("No hay pesos para guardar. Carga archivos de datos primero.")
+
+# --------------------
+# TAB 2: Comparación de Municipios
+with tab2:
+    st.header("📊 Comparación de Municipios")
+    
+    # Verificar que tenemos datos cargados
+    if 'df_municipios_farmacias' not in locals() or df_municipios_farmacias.empty:
+        st.warning("⚠️ Primero debes cargar los datos y calcular las puntuaciones en la pestaña 'Mapa y Ranking'.")
+        st.info("Ve a la primera pestaña, configura los pesos y presiona 'Aplicar Cambios y Recalcular'.")
+    else:
+        # Obtener lista de municipios disponibles
+        municipios_disponibles = df_municipios_farmacias['Nombre_Mostrar'].tolist()
+        
+        # Obtener el ranking ordenado por puntuación
+        df_ranking = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
+        
+        # Detectar cambios en el ranking para actualizar selección automáticamente
+        ranking_actual = df_ranking['Nombre_Mostrar'].head(2).tolist() if len(df_ranking) >= 2 else []
+        ranking_anterior = st.session_state.get('ranking_anterior', [])
+        
+        # Si el ranking cambió, actualizar la selección por defecto
+        if ranking_actual != ranking_anterior and len(ranking_actual) >= 2:
+            st.session_state['ranking_anterior'] = ranking_actual
+            # Limpiar selecciones anteriores para forzar actualización
+            if 'municipio1_selector' in st.session_state:
+                del st.session_state['municipio1_selector']
+            if 'municipio2_selector' in st.session_state:
+                del st.session_state['municipio2_selector']
+            st.rerun()
+        
+        # Mostrar información sobre la selección por defecto
+        if len(df_ranking) >= 2:
+            st.info(f"💡 **Selección automática**: Por defecto se comparan el **#{1} {df_ranking.iloc[0]['Nombre_Mostrar']}** (puntuación: {df_ranking.iloc[0]['PuntuaciónExtendida']:.2f}) y el **#{2} {df_ranking.iloc[1]['Nombre_Mostrar']}** (puntuación: {df_ranking.iloc[1]['PuntuaciónExtendida']:.2f}) del ranking.")
+        
+        # Selectores de municipios con valores por defecto del ranking
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Por defecto seleccionar el primer municipio del ranking
+            municipio1_default = df_ranking.iloc[0]['Nombre_Mostrar'] if len(df_ranking) > 0 else municipios_disponibles[0] if municipios_disponibles else None
+            municipio1 = st.selectbox(
+                "Selecciona el primer municipio:",
+                options=municipios_disponibles,
+                index=municipios_disponibles.index(municipio1_default) if municipio1_default in municipios_disponibles else 0,
+                key="municipio1_selector"
+            )
+        
+        with col2:
+            # Por defecto seleccionar el segundo municipio del ranking
+            municipio2_default = df_ranking.iloc[1]['Nombre_Mostrar'] if len(df_ranking) > 1 else None
+            municipios_disponibles_2 = [m for m in municipios_disponibles if m != municipio1]
+            municipio2_index = 0
+            if municipio2_default and municipio2_default in municipios_disponibles_2:
+                municipio2_index = municipios_disponibles_2.index(municipio2_default)
+            
+            municipio2 = st.selectbox(
+                "Selecciona el segundo municipio:",
+                options=municipios_disponibles_2,
+                index=municipio2_index,
+                key="municipio2_selector"
+            )
+        
+        if municipio1 and municipio2:
+            # Obtener datos de ambos municipios
+            datos1 = df_municipios_farmacias[df_municipios_farmacias['Nombre_Mostrar'] == municipio1].iloc[0]
+            datos2 = df_municipios_farmacias[df_municipios_farmacias['Nombre_Mostrar'] == municipio2].iloc[0]
+            
+            # Crear comparación visual
+            st.subheader(f"🔍 Comparación: {municipio1} vs {municipio2}")
+            
+            # Métricas principales
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.metric(
+                    label=f"Puntuación Total - {municipio1}",
+                    value=f"{datos1['PuntuaciónExtendida']:.2f}",
+                    delta=f"{datos1['PuntuaciónExtendida'] - datos2['PuntuaciónExtendida']:.2f}" if datos1['PuntuaciónExtendida'] != datos2['PuntuaciónExtendida'] else "0.00"
+                )
+            
+            with col2:
+                st.metric(
+                    label=f"Puntuación Total - {municipio2}",
+                    value=f"{datos2['PuntuaciónExtendida']:.2f}",
+                    delta=f"{datos2['PuntuaciónExtendida'] - datos1['PuntuaciónExtendida']:.2f}" if datos2['PuntuaciónExtendida'] != datos1['PuntuaciónExtendida'] else "0.00"
+                )
+            
+            with col3:
+                diferencia = abs(datos1['PuntuaciónExtendida'] - datos2['PuntuaciónExtendida'])
+                porcentaje_dif = (diferencia / max(datos1['PuntuaciónExtendida'], datos2['PuntuaciónExtendida'])) * 100
+                st.metric(
+                    label="Diferencia",
+                    value=f"{diferencia:.2f}",
+                    delta=f"{porcentaje_dif:.1f}%"
+                )
+            
+            # Gráfico de comparación de puntuaciones
+            st.subheader("📈 Comparación de Puntuaciones")
+            
+            # Datos para el gráfico
+            comparacion_data = {
+                'Municipio': [municipio1, municipio2],
+                'Puntuación Base': [datos1['Puntuación'], datos2['Puntuación']],
+                'Factor': [datos1['Factor'], datos2['Factor']],
+                'Puntuación con Factor': [datos1['PuntuaciónFinal'], datos2['PuntuaciónFinal']],
+                'Suma Municipios Cercanos': [datos1['SumaMunicipiosCercanos'], datos2['SumaMunicipiosCercanos']],
+                'Puntuación Total': [datos1['PuntuaciónExtendida'], datos2['PuntuaciónExtendida']]
+            }
+            
+            df_comparacion = pd.DataFrame(comparacion_data)
+            
+            # Gráfico de barras comparativo
+            fig_comparacion = px.bar(
+                df_comparacion,
+                x='Municipio',
+                y=['Puntuación Base', 'Puntuación con Factor', 'Suma Municipios Cercanos', 'Puntuación Total'],
+                title="Desglose de Puntuaciones por Componente",
+                barmode='group',
+                color_discrete_sequence=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+            )
+            fig_comparacion.update_layout(
+                yaxis_title="Puntuación",
+                xaxis_title="Municipio",
+                height=500
+            )
+            st.plotly_chart(fig_comparacion, use_container_width=True)
+            
+            # Tabla comparativa detallada
+            st.subheader("📋 Tabla Comparativa Detallada")
+            
+            tabla_comparacion = pd.DataFrame({
+                'Métrica': [
+                    'Puntuación Base',
+                    'Factor Aplicado',
+                    'Puntuación con Factor',
+                    'Suma Municipios Cercanos (≤{} km)'.format(radio_km),
+                    'Puntuación Total Final',
+                    'Latitud',
+                    'Longitud'
+                ],
+                municipio1: [
+                    f"{datos1['Puntuación']:.2f}",
+                    f"{datos1['Factor']:.4f}",
+                    f"{datos1['PuntuaciónFinal']:.2f}",
+                    f"{datos1['SumaMunicipiosCercanos']:.2f}",
+                    f"{datos1['PuntuaciónExtendida']:.2f}",
+                    f"{datos1['Latitud']:.6f}" if pd.notna(datos1['Latitud']) else "N/A",
+                    f"{datos1['Longitud']:.6f}" if pd.notna(datos1['Longitud']) else "N/A"
+                ],
+                municipio2: [
+                    f"{datos2['Puntuación']:.2f}",
+                    f"{datos2['Factor']:.4f}",
+                    f"{datos2['PuntuaciónFinal']:.2f}",
+                    f"{datos2['SumaMunicipiosCercanos']:.2f}",
+                    f"{datos2['PuntuaciónExtendida']:.2f}",
+                    f"{datos2['Latitud']:.6f}" if pd.notna(datos2['Latitud']) else "N/A",
+                    f"{datos2['Longitud']:.6f}" if pd.notna(datos2['Longitud']) else "N/A"
+                ]
+            })
+            
+            st.dataframe(tabla_comparacion, use_container_width=True)
+            
+            # Desglose detallado por indicadores
+            st.subheader("🔍 Desglose Detallado por Indicadores")
+            
+            # Obtener datos originales para ambos municipios
+            territorio1_original = datos1['Territorio']
+            territorio2_original = datos2['Territorio']
+            
+            df_territorio1 = df_original[df_original["Territorio"] == territorio1_original]
+            df_territorio2 = df_original[df_original["Territorio"] == territorio2_original]
+            
+            if not df_territorio1.empty and not df_territorio2.empty:
+                # Crear desglose comparativo
+                desglose_comparativo = []
+                
+                # Obtener todos los indicadores únicos
+                indicadores_unicos = set(df_territorio1['Medida'].unique()) | set(df_territorio2['Medida'].unique())
+                
+                for indicador in sorted(indicadores_unicos):
+                    clave_norm = normaliza_nombre_indicador(indicador)
+                    peso = pesos.get(clave_norm, 1.0)
+                    
+                    # Buscar valor para municipio 1
+                    valor1 = df_territorio1[df_territorio1['Medida'] == indicador]['Valor'].iloc[0] if not df_territorio1[df_territorio1['Medida'] == indicador].empty else None
+                    contribucion1 = valor1 * peso if pd.notna(valor1) else 0
+                    
+                    # Buscar valor para municipio 2
+                    valor2 = df_territorio2[df_territorio2['Medida'] == indicador]['Valor'].iloc[0] if not df_territorio2[df_territorio2['Medida'] == indicador].empty else None
+                    contribucion2 = valor2 * peso if pd.notna(valor2) else 0
+                    
+                    desglose_comparativo.append({
+                        'Indicador': indicador,
+                        'Peso': f"{peso:.2f}",
+                        f'Valor - {municipio1}': f"{valor1:.2f}" if pd.notna(valor1) else "N/A",
+                        f'Contribución - {municipio1}': f"{contribucion1:.2f}",
+                        f'Valor - {municipio2}': f"{valor2:.2f}" if pd.notna(valor2) else "N/A",
+                        f'Contribución - {municipio2}': f"{contribucion2:.2f}",
+                        'Diferencia': f"{contribucion1 - contribucion2:.2f}"
+                    })
+                
+                df_desglose_comparativo = pd.DataFrame(desglose_comparativo)
+                st.dataframe(df_desglose_comparativo, use_container_width=True, height=600)
+                
+                # Gráfico de contribuciones por indicador
+                st.subheader("📊 Contribuciones por Indicador")
+                
+                # Preparar datos para el gráfico
+                indicadores_grafico = []
+                contribuciones1 = []
+                contribuciones2 = []
+                
+                for _, row in df_desglose_comparativo.iterrows():
+                    if row['Indicador'] and row[f'Contribución - {municipio1}'] != "0.00" and row[f'Contribución - {municipio2}'] != "0.00":
+                        indicadores_grafico.append(row['Indicador'][:30] + "..." if len(row['Indicador']) > 30 else row['Indicador'])
+                        contribuciones1.append(float(row[f'Contribución - {municipio1}']))
+                        contribuciones2.append(float(row[f'Contribución - {municipio2}']))
+                
+                if indicadores_grafico:
+                    fig_contribuciones = px.bar(
+                        x=indicadores_grafico,
+                        y=[contribuciones1, contribuciones2],
+                        title="Comparación de Contribuciones por Indicador",
+                        labels={'x': 'Indicador', 'y': 'Contribución a la Puntuación'},
+                        barmode='group'
+                    )
+                    fig_contribuciones.update_layout(
+                        xaxis_tickangle=-45,
+                        height=500
+                    )
+                    st.plotly_chart(fig_contribuciones, use_container_width=True)
+            
+            # Mapa de comparación
+            st.subheader("🗺️ Ubicación de los Municipios")
+            
+            # Crear mapa centrado entre ambos municipios
+            if pd.notna(datos1['Latitud']) and pd.notna(datos1['Longitud']) and pd.notna(datos2['Latitud']) and pd.notna(datos2['Longitud']):
+                lat_centro = (datos1['Latitud'] + datos2['Latitud']) / 2
+                lon_centro = (datos1['Longitud'] + datos2['Longitud']) / 2
+                
+                m_comparacion = folium.Map(location=[lat_centro, lon_centro], zoom_start=10)
+                
+                # Agregar marcadores para ambos municipios
+                folium.Marker(
+                    [datos1['Latitud'], datos1['Longitud']],
+                    popup=f"<b>{municipio1}</b><br>Puntuación: {datos1['PuntuaciónExtendida']:.2f}",
+                    icon=folium.Icon(color='blue', icon='info-sign')
+                ).add_to(m_comparacion)
+                
+                folium.Marker(
+                    [datos2['Latitud'], datos2['Longitud']],
+                    popup=f"<b>{municipio2}</b><br>Puntuación: {datos2['PuntuaciónExtendida']:.2f}",
+                    icon=folium.Icon(color='red', icon='info-sign')
+                ).add_to(m_comparacion)
+                
+                # Agregar línea conectora
+                folium.PolyLine(
+                    locations=[[datos1['Latitud'], datos1['Longitud']], [datos2['Latitud'], datos2['Longitud']]],
+                    color='green',
+                    weight=2,
+                    opacity=0.7
+                ).add_to(m_comparacion)
+                
+                st_folium(m_comparacion, width=1200, height=400)
+            else:
+                st.warning("No se pueden mostrar las coordenadas en el mapa para uno o ambos municipios.")
+            
+            # Descarga de datos de comparación
+            st.subheader("📥 Descargar Datos de Comparación")
+            
+            csv_buffer_comparacion = BytesIO()
+            df_desglose_comparativo.to_csv(csv_buffer_comparacion, index=False, sep=';', encoding='utf-8')
+            csv_buffer_comparacion.seek(0)
+            
+            st.download_button(
+                label="📥 Descargar desglose comparativo en CSV",
+                data=csv_buffer_comparacion,
+                file_name=f"comparacion_{municipio1}_vs_{municipio2}.csv",
+                mime="text/csv"
+            )
+
+# --------------------
+# Version information in the sidebar
+st.sidebar.subheader("Version 1.8.0")
+
+
