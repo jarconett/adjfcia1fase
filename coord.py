@@ -116,18 +116,14 @@ with tab1:
             df_farmacias = pd.read_csv(territorios_file.name, sep=";", na_values=["-", "", "NA"])
             df_farmacias.columns = df_farmacias.columns.str.strip()
             
-            # Debug: mostrar las primeras filas para verificar
-            st.sidebar.write("Debug: Primeras filas del archivo Territorios.csv:")
-            st.sidebar.write(df_farmacias.head(3))
-            st.sidebar.write("Debug: Nombres de columnas:")
-            st.sidebar.write(list(df_farmacias.columns))
+            # Información de carga exitosa
+            st.sidebar.success(f"✅ Archivo Territorios.csv cargado correctamente")
             
             if 'Singular' in df_farmacias.columns:
                 df_farmacias['Nombre_Mostrar'] = df_farmacias['Singular'].fillna(df_farmacias['Territorio'])
             else:
                 df_farmacias['Nombre_Mostrar'] = df_farmacias['Territorio']
-            st.sidebar.success(f"Farmacias cargadas desde Territorios.csv: {len(df_farmacias)} registros")
-            st.sidebar.write(f"Columnas disponibles: {list(df_farmacias.columns)}")
+            st.sidebar.success(f"Farmacias cargadas: {len(df_farmacias)} registros")
         except Exception as e:
             st.sidebar.error(f"Error al leer Territorios.csv: {e}")
     else:
@@ -335,9 +331,7 @@ with tab1:
         df_farmacias_factores = pd.DataFrame()
         if not df_farmacias.empty:
             if 'Territorio' in df_farmacias.columns and 'Factor' in df_farmacias.columns:
-                # Debug: mostrar las primeras filas para verificar el contenido
-                st.sidebar.write("Debug: Primeras filas de df_farmacias:")
-                st.sidebar.write(df_farmacias[['Territorio', 'Factor']].head())
+                # Procesar datos de farmacias
                 
                 df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
                 municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
@@ -357,29 +351,11 @@ with tab1:
         df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
         df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
         
-        # Información de depuración solo si hay problemas
-        if len(df_con_farmacia_base) == 0 and len(municipios_con_farmacia) > 0:
+        # Información de estado
+        if len(df_con_farmacia_base) > 0:
+            st.sidebar.success(f"✅ {len(df_con_farmacia_base)} municipios con farmacia encontrados")
+        elif len(municipios_con_farmacia) > 0:
             st.sidebar.warning(f"⚠️ No se encontraron coincidencias entre {len(municipios_con_farmacia)} municipios con farmacia y {len(df_pivot)} municipios en los datos")
-            # Mostrar ejemplos para debugging
-            ejemplos_farmacias = list(municipios_con_farmacia)[:3]
-            ejemplos_pivot = list(df_pivot['Territorio_normalizado'].head(3))
-            st.sidebar.write(f"Ejemplos nombres farmacias: {ejemplos_farmacias}")
-            st.sidebar.write(f"Ejemplos nombres datos: {ejemplos_pivot}")
-            
-            # Debug específico: mostrar nombres originales vs normalizados
-            st.sidebar.write("--- DEBUG DETALLADO ---")
-            if not df_farmacias.empty:
-                st.sidebar.write("Nombres originales vs normalizados (farmacias):")
-                for i, row in df_farmacias.head(3).iterrows():
-                    original = row['Territorio']
-                    normalizado = row['Territorio_normalizado']
-                    st.sidebar.write(f"  '{original}' -> '{normalizado}'")
-            
-            st.sidebar.write("Nombres originales vs normalizados (datos):")
-            for i, row in df_pivot.head(3).iterrows():
-                original = row['Territorio']
-                normalizado = row['Territorio_normalizado']
-                st.sidebar.write(f"  '{original}' -> '{normalizado}'")
     
         if not df_farmacias_factores.empty:
             # Incluir todas las columnas necesarias del archivo de farmacias
