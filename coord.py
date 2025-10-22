@@ -328,6 +328,10 @@ with tab1:
         df_farmacias_factores = pd.DataFrame()
         if not df_farmacias.empty:
             if 'Territorio' in df_farmacias.columns and 'Factor' in df_farmacias.columns:
+                # Debug: mostrar las primeras filas para verificar el contenido
+                st.sidebar.write("Debug: Primeras filas de df_farmacias:")
+                st.sidebar.write(df_farmacias[['Territorio', 'Factor']].head())
+                
                 df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
                 municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
                 # Incluir todas las columnas necesarias del archivo de farmacias
