@@ -216,10 +216,15 @@ with tab1:
 
     def normalizar_nombre_municipio(nombre):
         nombre = str(nombre)
+        # Normalizar unicode y quitar acentos
         nombre = unicodedata.normalize('NFKD', nombre)
         nombre = ''.join([c for c in nombre if not unicodedata.combining(c)])
+        # Convertir a minúsculas
         nombre = nombre.lower()
-        nombre = re.sub(r'[^a-z0-9 ]', '', nombre)
+        # Quitar solo caracteres especiales problemáticos, mantener letras, números, espacios y guiones
+        nombre = re.sub(r'[^\w\s\-]', '', nombre)
+        # Limpiar espacios múltiples
+        nombre = re.sub(r'\s+', ' ', nombre)
         return nombre.strip()
 
     # --------------------
@@ -322,13 +327,9 @@ with tab1:
         municipios_con_farmacia = set()
         df_farmacias_factores = pd.DataFrame()
         if not df_farmacias.empty:
-            st.sidebar.write(f"Debug: df_farmacias tiene {len(df_farmacias)} filas")
-            st.sidebar.write(f"Debug: Columnas en df_farmacias: {list(df_farmacias.columns)}")
             if 'Territorio' in df_farmacias.columns and 'Factor' in df_farmacias.columns:
                 df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
                 municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
-                st.sidebar.write(f"Debug: Municipios con farmacia encontrados: {len(municipios_con_farmacia)}")
-                st.sidebar.write(f"Debug: Primeros 5 municipios: {list(municipios_con_farmacia)[:5]}")
                 # Incluir todas las columnas necesarias del archivo de farmacias
                 columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
                 if 'Provincia' in df_farmacias.columns:
@@ -338,33 +339,21 @@ with tab1:
                 
                 df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
             else:
-                st.sidebar.error(f"Debug: Faltan columnas 'Territorio' o 'Factor' en df_farmacias. Columnas disponibles: {list(df_farmacias.columns)}")
+                st.sidebar.error(f"Faltan columnas 'Territorio' o 'Factor' en df_farmacias. Columnas disponibles: {list(df_farmacias.columns)}")
         else:
-            st.sidebar.error("Debug: df_farmacias está vacío")
+            st.sidebar.error("df_farmacias está vacío")
 
         df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
         df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
         
-        st.sidebar.write(f"Debug: Municipios con farmacia en df_pivot: {len(df_con_farmacia_base)}")
-        st.sidebar.write(f"Debug: Municipios sin farmacia en df_pivot: {len(df_sin_farmacia_base)}")
-        if len(df_con_farmacia_base) > 0:
-            st.sidebar.write(f"Debug: Primeros municipios con farmacia: {list(df_con_farmacia_base['Territorio_normalizado'].head())}")
-        if len(municipios_con_farmacia) > 0:
-            st.sidebar.write(f"Debug: Primeros municipios con farmacia del archivo: {list(municipios_con_farmacia)[:5]}")
-            st.sidebar.write(f"Debug: Primeros municipios en df_pivot: {list(df_pivot['Territorio_normalizado'].head())}")
-            
-            # Verificar si hay coincidencias
-            coincidencias = municipios_con_farmacia.intersection(set(df_pivot['Territorio_normalizado']))
-            st.sidebar.write(f"Debug: Coincidencias encontradas: {len(coincidencias)}")
-            if len(coincidencias) > 0:
-                st.sidebar.write(f"Debug: Primeras coincidencias: {list(coincidencias)[:5]}")
-            else:
-                st.sidebar.write("Debug: NO HAY COINCIDENCIAS - Problema de normalización de nombres")
-                # Mostrar ejemplos de nombres que no coinciden
-                ejemplos_farmacias = list(municipios_con_farmacia)[:3]
-                ejemplos_pivot = list(df_pivot['Territorio_normalizado'].head(3))
-                st.sidebar.write(f"Debug: Ejemplos nombres farmacias: {ejemplos_farmacias}")
-                st.sidebar.write(f"Debug: Ejemplos nombres pivot: {ejemplos_pivot}")
+        # Información de depuración solo si hay problemas
+        if len(df_con_farmacia_base) == 0 and len(municipios_con_farmacia) > 0:
+            st.sidebar.warning(f"⚠️ No se encontraron coincidencias entre {len(municipios_con_farmacia)} municipios con farmacia y {len(df_pivot)} municipios en los datos")
+            # Mostrar ejemplos para debugging
+            ejemplos_farmacias = list(municipios_con_farmacia)[:3]
+            ejemplos_pivot = list(df_pivot['Territorio_normalizado'].head(3))
+            st.sidebar.write(f"Ejemplos nombres farmacias: {ejemplos_farmacias}")
+            st.sidebar.write(f"Ejemplos nombres datos: {ejemplos_pivot}")
     
         if not df_farmacias_factores.empty:
             # Incluir todas las columnas necesarias del archivo de farmacias
@@ -942,5 +931,7 @@ with tab2:
 # --------------------
 # Version information in the sidebar
 st.sidebar.subheader("Version 1.8.0")
+
+
 
 
