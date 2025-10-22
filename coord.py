@@ -123,6 +123,13 @@ with tab1:
             df_farmacias = df_farmacias.iloc[1:].reset_index(drop=True)
             df_farmacias.columns = df_farmacias.columns.str.strip()
             
+            # Convertir las columnas numéricas al tipo correcto
+            df_farmacias['Latitud'] = pd.to_numeric(df_farmacias['Latitud'], errors='coerce')
+            df_farmacias['Longitud'] = pd.to_numeric(df_farmacias['Longitud'], errors='coerce')
+            df_farmacias['Factor'] = pd.to_numeric(df_farmacias['Factor'], errors='coerce')
+            # Rellenar valores faltantes en Factor con 1.0
+            df_farmacias['Factor'] = df_farmacias['Factor'].fillna(1.0)
+            
             # Debug temporal: verificar que las columnas se leen correctamente
             st.sidebar.write("Debug: Verificación de columnas:")
             st.sidebar.write(f"Primera fila - Territorio: '{df_farmacias.iloc[0]['Territorio']}'")
@@ -424,6 +431,8 @@ with tab1:
             df_sin_farmacia[col].fillna(0) * pesos.get(col, 0)
             for col in pesos if col in df_sin_farmacia.columns
         )
+        # Asegurar que Factor sea numérico
+        df_con_farmacia['Factor'] = pd.to_numeric(df_con_farmacia['Factor'], errors='coerce').fillna(1.0)
         df_con_farmacia['PuntuaciónFinal'] = df_con_farmacia['Puntuación'] * df_con_farmacia['Factor']
         df_con_farmacia['PuntuaciónExtendida'] = df_con_farmacia['PuntuaciónFinal']
         df_con_farmacia['SumaMunicipiosCercanos'] = 0.0
