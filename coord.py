@@ -131,10 +131,20 @@ with tab1:
             df_farmacias['Factor'] = df_farmacias['Factor'].fillna(1.0)
             
             # Debug temporal: verificar que las columnas se leen correctamente
-            #st.sidebar.write("Debug: Verificación de columnas:")
-            #st.sidebar.write(f"Primera fila - Territorio: '{df_farmacias.iloc[0]['Territorio']}'")
-            #st.sidebar.write(f"Primera fila - Latitud: '{df_farmacias.iloc[0]['Latitud']}'")
-            #st.sidebar.write(f"Primera fila - Factor: '{df_farmacias.iloc[0]['Factor']}'")
+            st.sidebar.write("Debug: Verificación de columnas:")
+            st.sidebar.write(f"Primera fila - Territorio: '{df_farmacias.iloc[0]['Territorio']}'")
+            st.sidebar.write(f"Primera fila - Latitud: '{df_farmacias.iloc[0]['Latitud']}'")
+            st.sidebar.write(f"Primera fila - Factor: '{df_farmacias.iloc[0]['Factor']}'")
+            
+            # Debug: verificar duplicados en Ldo
+            ldos_duplicados = df_farmacias[df_farmacias.duplicated(subset=['Ldo'], keep=False)]
+            if not ldos_duplicados.empty:
+                st.sidebar.warning(f"⚠️ Ldos duplicados encontrados: {len(ldos_duplicados)}")
+                st.sidebar.write("Ldos duplicados:")
+                for _, row in ldos_duplicados.iterrows():
+                    st.sidebar.write(f"  - {row['Ldo']} (Territorio: {row['Territorio']})")
+            else:
+                st.sidebar.success("✅ No hay Ldos duplicados en el archivo original")
             
             # Información de carga exitosa
             st.sidebar.success(f"✅ Archivo Territorios.csv cargado correctamente")
@@ -370,6 +380,17 @@ with tab1:
 
         df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
         df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
+        
+        # Verificar duplicados después del procesamiento
+        if len(df_con_farmacia_base) > 0:
+            ldos_duplicados_procesados = df_con_farmacia_base[df_con_farmacia_base.duplicated(subset=['Ldo'], keep=False)]
+            if not ldos_duplicados_procesados.empty:
+                st.sidebar.warning(f"⚠️ Ldos duplicados después del procesamiento: {len(ldos_duplicados_procesados)}")
+                st.sidebar.write("Ldos duplicados procesados:")
+                for _, row in ldos_duplicados_procesados.iterrows():
+                    st.sidebar.write(f"  - {row['Ldo']} (Territorio: {row['Territorio']})")
+            else:
+                st.sidebar.success("✅ No hay Ldos duplicados después del procesamiento")
         
         # Información de estado
         if len(df_con_farmacia_base) > 0:
