@@ -130,21 +130,7 @@ with tab1:
             # Rellenar valores faltantes en Factor con 1.0
             df_farmacias['Factor'] = df_farmacias['Factor'].fillna(1.0)
             
-            # Debug temporal: verificar que las columnas se leen correctamente
-            st.sidebar.write("Debug: Verificación de columnas:")
-            st.sidebar.write(f"Primera fila - Territorio: '{df_farmacias.iloc[0]['Territorio']}'")
-            st.sidebar.write(f"Primera fila - Latitud: '{df_farmacias.iloc[0]['Latitud']}'")
-            st.sidebar.write(f"Primera fila - Factor: '{df_farmacias.iloc[0]['Factor']}'")
-            
-            # Debug: verificar duplicados en Ldo
-            ldos_duplicados = df_farmacias[df_farmacias.duplicated(subset=['Ldo'], keep=False)]
-            if not ldos_duplicados.empty:
-                st.sidebar.warning(f"⚠️ Ldos duplicados encontrados: {len(ldos_duplicados)}")
-                st.sidebar.write("Ldos duplicados:")
-                for _, row in ldos_duplicados.iterrows():
-                    st.sidebar.write(f"  - {row['Ldo']} (Territorio: {row['Territorio']})")
-            else:
-                st.sidebar.success("✅ No hay Ldos duplicados en el archivo original")
+            # Verificación de datos cargados correctamente
             
             # Información de carga exitosa
             st.sidebar.success(f"✅ Archivo Territorios.csv cargado correctamente")
@@ -260,6 +246,139 @@ with tab1:
         nombre = re.sub(r'\s+', ' ', nombre)
         return nombre.strip()
 
+    def normalizar_indicador(valor, min_val, max_val, direccion='alto_deseable'):
+        """
+        Normaliza un valor a escala 0-1
+        direccion: 'alto_deseable' o 'bajo_deseable'
+        """
+        if pd.isna(valor) or pd.isna(min_val) or pd.isna(max_val):
+            return 0.0
+        
+        # Evitar división por cero
+        if max_val == min_val:
+            return 0.5
+        
+        # Normalizar a escala 0-1
+        normalizado = (valor - min_val) / (max_val - min_val)
+        
+        # Aplicar direccionalidad
+        if direccion == 'bajo_deseable':
+            normalizado = 1.0 - normalizado
+        
+        # Asegurar que esté en rango [0, 1]
+        return max(0.0, min(1.0, normalizado))
+
+    def calcular_estadisticas_indicador(serie):
+        """Calcula estadísticas para normalización de un indicador"""
+        serie_limpia = serie.dropna()
+        if len(serie_limpia) == 0:
+            return {'min': 0, 'max': 1, 'mean': 0.5, 'std': 0}
+        
+        return {
+            'min': serie_limpia.min(),
+            'max': serie_limpia.max(),
+            'mean': serie_limpia.mean(),
+            'std': serie_limpia.std()
+        }
+
+    # --------------------
+    # Configuración de Normalización
+    st.sidebar.subheader("🔧 Configuración de Normalización")
+    
+    # Opciones de normalización
+    metodo_normalizacion = st.sidebar.selectbox(
+        "Método de normalización:",
+        ["Min-Max (0-1)", "Min-Max (0-100)", "Z-Score", "Sin normalizar"],
+        index=0
+    )
+    
+    # Escala de normalización
+    if "Min-Max" in metodo_normalizacion:
+        escala_max = 1.0 if "0-1" in metodo_normalizacion else 100.0
+    else:
+        escala_max = 1.0
+    
+    # Configuración de direccionalidad
+    st.sidebar.markdown("**Configurar direccionalidad de indicadores:**")
+    configurar_direccionalidad = st.sidebar.checkbox("Configurar direccionalidad manualmente", value=False)
+    
+    # Diccionario para almacenar direccionalidad de indicadores
+    direccionalidad_indicadores = {}
+    
+    if configurar_direccionalidad:
+        st.sidebar.markdown("**Selecciona indicadores para configurar:**")
+        
+        # Obtener lista de indicadores únicos
+        indicadores_unicos = df_original['Medida'].unique()
+        
+        # Mostrar configuración para los primeros 10 indicadores (para no sobrecargar la UI)
+        indicadores_a_configurar = sorted(indicadores_unicos)[:10]
+        
+        for indicador in indicadores_a_configurar:
+            clave_norm = normaliza_nombre_indicador(indicador)
+            direccion_default = st.sidebar.selectbox(
+                f"📊 {indicador[:30]}{'...' if len(indicador) > 30 else ''}",
+                ["Alto deseable", "Bajo deseable"],
+                index=0,
+                key=f"direccion_{clave_norm}"
+            )
+            direccionalidad_indicadores[clave_norm] = 'alto_deseable' if direccion_default == "Alto deseable" else 'bajo_deseable'
+        
+        if len(indicadores_unicos) > 10:
+            st.sidebar.info(f"ℹ️ Mostrando configuración para los primeros 10 indicadores de {len(indicadores_unicos)} totales")
+        
+        # Botón para descargar configuración de direccionalidad
+        if direccionalidad_indicadores:
+            st.sidebar.markdown("---")
+            st.sidebar.markdown("**💾 Descargar configuración:**")
+            
+            # Crear DataFrame con la configuración
+            config_df = pd.DataFrame([
+                {
+                    'Indicador': indicador,
+                    'Indicador_Normalizado': normaliza_nombre_indicador(indicador),
+                    'Direccionalidad': 'Alto deseable' if direccion == 'alto_deseable' else 'Bajo deseable',
+                    'Codigo_Direccion': direccion
+                }
+                for indicador, direccion in direccionalidad_indicadores.items()
+            ])
+            
+            # Convertir a CSV
+            csv_config = config_df.to_csv(index=False, sep=';', encoding='utf-8')
+            
+            st.sidebar.download_button(
+                label="📥 Descargar configdirecc.csv",
+                data=csv_config,
+                file_name="configdirecc.csv",
+                mime="text/csv",
+                key="download_direccionalidad"
+            )
+    
+    # --------------------
+    # Cargar Configuración de Direccionalidad
+    st.sidebar.subheader("📥 Cargar Configuración de Direccionalidad")
+    uploaded_direcc_file = st.sidebar.file_uploader(
+        "Sube configdirecc.csv", type="csv", key="direcc_uploader"
+    )
+    
+    if uploaded_direcc_file is not None:
+        try:
+            df_direcc_loaded = pd.read_csv(uploaded_direcc_file, sep=';')
+            if 'Indicador_Normalizado' in df_direcc_loaded.columns and 'Codigo_Direccion' in df_direcc_loaded.columns:
+                # Crear diccionario de direccionalidad cargada
+                direccionalidad_cargada = pd.Series(
+                    df_direcc_loaded.Codigo_Direccion.values, 
+                    index=df_direcc_loaded.Indicador_Normalizado
+                ).to_dict()
+                
+                # Actualizar el diccionario de direccionalidad
+                direccionalidad_indicadores.update(direccionalidad_cargada)
+                st.sidebar.success(f"✅ Configuración de direccionalidad cargada: {len(direccionalidad_cargada)} indicadores")
+            else:
+                st.sidebar.error("❌ El archivo debe contener las columnas 'Indicador_Normalizado' y 'Codigo_Direccion'")
+        except Exception as e:
+            st.sidebar.error(f"❌ Error al cargar configdirecc.csv: {e}")
+    
     # --------------------
     # Load Weights from CSV
     st.sidebar.subheader("Cargar/Guardar Pesos")
@@ -350,13 +469,52 @@ with tab1:
     df_original['Medida'] = df_original.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1)
 
     @st.cache_data
-    def preparar_datos_base(df_original, df_coords, df_farmacias):
+    def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizacion, escala_max, configurar_direccionalidad):
         df_pivot = df_original.pivot_table(
             index="Territorio", columns="Medida", values="Valor", aggfunc="first"
         ).reset_index()
         col_map = {col: normaliza_nombre_indicador(col) if col != 'Territorio' else col for col in df_pivot.columns}
         df_pivot = df_pivot.rename(columns=col_map)
         df_pivot["Territorio_normalizado"] = df_pivot["Territorio"].apply(normalizar_nombre_municipio)
+        
+        # Aplicar normalización si está habilitada
+        if metodo_normalizacion != "Sin normalizar":
+            df_pivot_normalizado = df_pivot.copy()
+            
+            # Obtener columnas de indicadores (excluyendo Territorio y Territorio_normalizado)
+            columnas_indicadores = [col for col in df_pivot.columns if col not in ['Territorio', 'Territorio_normalizado']]
+            
+            for col in columnas_indicadores:
+                if col in df_pivot.columns:
+                    serie_original = df_pivot[col]
+                    serie_limpia = serie_original.dropna()
+                    
+                    if len(serie_limpia) > 0:
+                        if "Min-Max" in metodo_normalizacion:
+                            min_val = serie_limpia.min()
+                            max_val = serie_limpia.max()
+                            
+                            # Determinar direccionalidad
+                            direccion = direccionalidad_indicadores.get(col, 'alto_deseable')
+                            
+                            # Aplicar normalización Min-Max
+                            df_pivot_normalizado[col] = serie_original.apply(
+                                lambda x: normalizar_indicador(x, min_val, max_val, direccion) * escala_max
+                                if pd.notna(x) else 0
+                            )
+                        elif metodo_normalizacion == "Z-Score":
+                            mean_val = serie_limpia.mean()
+                            std_val = serie_limpia.std()
+                            
+                            if std_val > 0:
+                                # Normalizar Z-Score y convertir a escala 0-1
+                                z_scores = (serie_original - mean_val) / std_val
+                                # Convertir Z-scores a escala 0-1 usando función sigmoide
+                                df_pivot_normalizado[col] = 1 / (1 + np.exp(-z_scores)) * escala_max
+                            else:
+                                df_pivot_normalizado[col] = 0.5 * escala_max
+            
+            df_pivot = df_pivot_normalizado
         municipios_con_farmacia = set()
         df_farmacias_factores = pd.DataFrame()
         if not df_farmacias.empty:
@@ -381,16 +539,7 @@ with tab1:
         df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
         df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
         
-        # Verificar duplicados después del procesamiento
-        if len(df_con_farmacia_base) > 0:
-            ldos_duplicados_procesados = df_con_farmacia_base[df_con_farmacia_base.duplicated(subset=['Ldo'], keep=False)]
-            if not ldos_duplicados_procesados.empty:
-                st.sidebar.warning(f"⚠️ Ldos duplicados después del procesamiento: {len(ldos_duplicados_procesados)}")
-                st.sidebar.write("Ldos duplicados procesados:")
-                for _, row in ldos_duplicados_procesados.iterrows():
-                    st.sidebar.write(f"  - {row['Ldo']} (Territorio: {row['Territorio']})")
-            else:
-                st.sidebar.success("✅ No hay Ldos duplicados después del procesamiento")
+        # Procesamiento de datos completado
         
         # Información de estado
         if len(df_con_farmacia_base) > 0:
@@ -398,29 +547,9 @@ with tab1:
         elif len(municipios_con_farmacia) > 0:
             st.sidebar.warning(f"⚠️ No se encontraron coincidencias entre {len(municipios_con_farmacia)} municipios con farmacia y {len(df_pivot)} municipios en los datos")
             
-            # Diagnóstico detallado
-            st.sidebar.write("--- DIAGNÓSTICO ---")
+            # Información de diagnóstico simplificada
             st.sidebar.write(f"Municipios con farmacia: {len(municipios_con_farmacia)}")
             st.sidebar.write(f"Municipios en datos: {len(df_pivot)}")
-            
-            # Mostrar ejemplos de nombres para comparar
-            ejemplos_farmacias = list(municipios_con_farmacia)[:3]
-            ejemplos_datos = list(df_pivot['Territorio_normalizado'].head(3))
-            st.sidebar.write(f"Ejemplos farmacias: {ejemplos_farmacias}")
-            st.sidebar.write(f"Ejemplos datos: {ejemplos_datos}")
-            
-            # Verificar si hay coincidencias parciales
-            coincidencias_parciales = 0
-            for farmacia in ejemplos_farmacias:
-                for dato in ejemplos_datos:
-                    if farmacia.lower() in dato.lower() or dato.lower() in farmacia.lower():
-                        coincidencias_parciales += 1
-                        st.sidebar.write(f"Coincidencia parcial: '{farmacia}' <-> '{dato}'")
-            
-            if coincidencias_parciales == 0:
-                st.sidebar.write("❌ No hay coincidencias ni siquiera parciales")
-            else:
-                st.sidebar.write(f"✅ {coincidencias_parciales} coincidencias parciales encontradas")
     
         if not df_farmacias_factores.empty:
             # Incluir todas las columnas necesarias del archivo de farmacias
@@ -482,7 +611,7 @@ with tab1:
 
     # --- FLUJO PRINCIPAL ---
     df_con_farmacia_base, df_sin_farmacia_base = preparar_datos_base(
-        df_original, st.session_state.df_coords, df_farmacias
+        df_original, st.session_state.df_coords, df_farmacias, metodo_normalizacion, escala_max, configurar_direccionalidad
     )
 
     df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
@@ -493,6 +622,46 @@ with tab1:
     # Display ranking table and allow selection
     df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
     df_ordenado.index += 1  # Índice 1-based
+
+    # Mostrar información sobre normalización
+    if metodo_normalizacion != "Sin normalizar":
+        st.info(f"📊 **Normalización aplicada**: {metodo_normalizacion} (escala 0-{escala_max:.0f})")
+        if configurar_direccionalidad:
+            st.info("🎯 **Direccionalidad**: Configuración manual habilitada")
+            if direccionalidad_indicadores:
+                st.info(f"📋 **Indicadores configurados**: {len(direccionalidad_indicadores)} indicadores con direccionalidad personalizada")
+        else:
+            st.info("🎯 **Direccionalidad**: Alto valor = deseable (por defecto)")
+        
+        # Mostrar estadísticas de normalización
+        with st.expander("📈 Estadísticas de normalización", expanded=False):
+            if len(df_con_farmacia_base) > 0:
+                # Obtener columnas de indicadores normalizados
+                columnas_indicadores = [col for col in df_con_farmacia_base.columns 
+                                      if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
+                                                   'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']]
+                
+                if columnas_indicadores:
+                    st.write("**Rango de valores normalizados por indicador:**")
+                    stats_df = []
+                    for col in columnas_indicadores[:10]:  # Mostrar solo los primeros 10
+                        if col in df_con_farmacia_base.columns:
+                            serie = df_con_farmacia_base[col].dropna()
+                            if len(serie) > 0:
+                                stats_df.append({
+                                    'Indicador': col[:40] + '...' if len(col) > 40 else col,
+                                    'Min': f"{serie.min():.2f}",
+                                    'Max': f"{serie.max():.2f}",
+                                    'Media': f"{serie.mean():.2f}",
+                                    'Desv. Est.': f"{serie.std():.2f}"
+                                })
+                    
+                    if stats_df:
+                        st.dataframe(pd.DataFrame(stats_df), use_container_width=True)
+                    else:
+                        st.write("No hay datos normalizados para mostrar.")
+                else:
+                    st.write("No se encontraron indicadores normalizados.")
 
     st.subheader("Ranking de municipios con farmacia ordenados por puntuación total")
 
