@@ -112,9 +112,22 @@ with tab1:
     df_farmacias = pd.DataFrame()
     if territorios_file:
         try:
-            # Leer el archivo con nombres de columnas explícitos
-            df_farmacias = pd.read_csv(territorios_file.name, sep=";", na_values=["-", "", "NA"])
+            # Leer el archivo especificando explícitamente los nombres de columnas
+            df_farmacias = pd.read_csv(
+                territorios_file.name, 
+                sep=";", 
+                na_values=["-", "", "NA"],
+                names=['Territorio', 'Latitud', 'Longitud', 'Factor', 'Singular', 'Provincia', 'Ldo']
+            )
+            # Saltar la primera fila que contiene los encabezados
+            df_farmacias = df_farmacias.iloc[1:].reset_index(drop=True)
             df_farmacias.columns = df_farmacias.columns.str.strip()
+            
+            # Debug temporal: verificar que las columnas se leen correctamente
+            st.sidebar.write("Debug: Verificación de columnas:")
+            st.sidebar.write(f"Primera fila - Territorio: '{df_farmacias.iloc[0]['Territorio']}'")
+            st.sidebar.write(f"Primera fila - Latitud: '{df_farmacias.iloc[0]['Latitud']}'")
+            st.sidebar.write(f"Primera fila - Factor: '{df_farmacias.iloc[0]['Factor']}'")
             
             # Información de carga exitosa
             st.sidebar.success(f"✅ Archivo Territorios.csv cargado correctamente")
