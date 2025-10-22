@@ -112,9 +112,16 @@ with tab1:
     df_farmacias = pd.DataFrame()
     if territorios_file:
         try:
-            # Nuevo: usamos territorios_file.name
+            # Leer el archivo con nombres de columnas explícitos
             df_farmacias = pd.read_csv(territorios_file.name, sep=";", na_values=["-", "", "NA"])
             df_farmacias.columns = df_farmacias.columns.str.strip()
+            
+            # Debug: mostrar las primeras filas para verificar
+            st.sidebar.write("Debug: Primeras filas del archivo Territorios.csv:")
+            st.sidebar.write(df_farmacias.head(3))
+            st.sidebar.write("Debug: Nombres de columnas:")
+            st.sidebar.write(list(df_farmacias.columns))
+            
             if 'Singular' in df_farmacias.columns:
                 df_farmacias['Nombre_Mostrar'] = df_farmacias['Singular'].fillna(df_farmacias['Territorio'])
             else:
