@@ -356,6 +356,30 @@ with tab1:
             st.sidebar.success(f"✅ {len(df_con_farmacia_base)} municipios con farmacia encontrados")
         elif len(municipios_con_farmacia) > 0:
             st.sidebar.warning(f"⚠️ No se encontraron coincidencias entre {len(municipios_con_farmacia)} municipios con farmacia y {len(df_pivot)} municipios en los datos")
+            
+            # Diagnóstico detallado
+            st.sidebar.write("--- DIAGNÓSTICO ---")
+            st.sidebar.write(f"Municipios con farmacia: {len(municipios_con_farmacia)}")
+            st.sidebar.write(f"Municipios en datos: {len(df_pivot)}")
+            
+            # Mostrar ejemplos de nombres para comparar
+            ejemplos_farmacias = list(municipios_con_farmacia)[:3]
+            ejemplos_datos = list(df_pivot['Territorio_normalizado'].head(3))
+            st.sidebar.write(f"Ejemplos farmacias: {ejemplos_farmacias}")
+            st.sidebar.write(f"Ejemplos datos: {ejemplos_datos}")
+            
+            # Verificar si hay coincidencias parciales
+            coincidencias_parciales = 0
+            for farmacia in ejemplos_farmacias:
+                for dato in ejemplos_datos:
+                    if farmacia.lower() in dato.lower() or dato.lower() in farmacia.lower():
+                        coincidencias_parciales += 1
+                        st.sidebar.write(f"Coincidencia parcial: '{farmacia}' <-> '{dato}'")
+            
+            if coincidencias_parciales == 0:
+                st.sidebar.write("❌ No hay coincidencias ni siquiera parciales")
+            else:
+                st.sidebar.write(f"✅ {coincidencias_parciales} coincidencias parciales encontradas")
     
         if not df_farmacias_factores.empty:
             # Incluir todas las columnas necesarias del archivo de farmacias
