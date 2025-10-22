@@ -298,86 +298,8 @@ with tab1:
     else:
         escala_max = 1.0
     
-    # Configuración de direccionalidad
-    st.sidebar.markdown("**Configurar direccionalidad de indicadores:**")
-    configurar_direccionalidad = st.sidebar.checkbox("Configurar direccionalidad manualmente", value=False)
-    
-    # Diccionario para almacenar direccionalidad de indicadores
-    direccionalidad_indicadores = {}
-    
-    if configurar_direccionalidad:
-        st.sidebar.markdown("**Selecciona indicadores para configurar:**")
-        
-        # Obtener lista de indicadores únicos
-        indicadores_unicos = df_original['Medida'].unique()
-        
-        # Mostrar configuración para los primeros 10 indicadores (para no sobrecargar la UI)
-        indicadores_a_configurar = sorted(indicadores_unicos)[:10]
-        
-        for indicador in indicadores_a_configurar:
-            clave_norm = normaliza_nombre_indicador(indicador)
-            direccion_default = st.sidebar.selectbox(
-                f"📊 {indicador[:30]}{'...' if len(indicador) > 30 else ''}",
-                ["Alto deseable", "Bajo deseable"],
-                index=0,
-                key=f"direccion_{clave_norm}"
-            )
-            direccionalidad_indicadores[clave_norm] = 'alto_deseable' if direccion_default == "Alto deseable" else 'bajo_deseable'
-        
-        if len(indicadores_unicos) > 10:
-            st.sidebar.info(f"ℹ️ Mostrando configuración para los primeros 10 indicadores de {len(indicadores_unicos)} totales")
-        
-        # Botón para descargar configuración de direccionalidad
-        if direccionalidad_indicadores:
-            st.sidebar.markdown("---")
-            st.sidebar.markdown("**💾 Descargar configuración:**")
-            
-            # Crear DataFrame con la configuración
-            config_df = pd.DataFrame([
-                {
-                    'Indicador': indicador,
-                    'Indicador_Normalizado': normaliza_nombre_indicador(indicador),
-                    'Direccionalidad': 'Alto deseable' if direccion == 'alto_deseable' else 'Bajo deseable',
-                    'Codigo_Direccion': direccion
-                }
-                for indicador, direccion in direccionalidad_indicadores.items()
-            ])
-            
-            # Convertir a CSV
-            csv_config = config_df.to_csv(index=False, sep=';', encoding='utf-8')
-            
-            st.sidebar.download_button(
-                label="📥 Descargar configdirecc.csv",
-                data=csv_config,
-                file_name="configdirecc.csv",
-                mime="text/csv",
-                key="download_direccionalidad"
-            )
-    
-    # --------------------
-    # Cargar Configuración de Direccionalidad
-    st.sidebar.subheader("📥 Cargar Configuración de Direccionalidad")
-    uploaded_direcc_file = st.sidebar.file_uploader(
-        "Sube configdirecc.csv", type="csv", key="direcc_uploader"
-    )
-    
-    if uploaded_direcc_file is not None:
-        try:
-            df_direcc_loaded = pd.read_csv(uploaded_direcc_file, sep=';')
-            if 'Indicador_Normalizado' in df_direcc_loaded.columns and 'Codigo_Direccion' in df_direcc_loaded.columns:
-                # Crear diccionario de direccionalidad cargada
-                direccionalidad_cargada = pd.Series(
-                    df_direcc_loaded.Codigo_Direccion.values, 
-                    index=df_direcc_loaded.Indicador_Normalizado
-                ).to_dict()
-                
-                # Actualizar el diccionario de direccionalidad
-                direccionalidad_indicadores.update(direccionalidad_cargada)
-                st.sidebar.success(f"✅ Configuración de direccionalidad cargada: {len(direccionalidad_cargada)} indicadores")
-            else:
-                st.sidebar.error("❌ El archivo debe contener las columnas 'Indicador_Normalizado' y 'Codigo_Direccion'")
-        except Exception as e:
-            st.sidebar.error(f"❌ Error al cargar configdirecc.csv: {e}")
+    # Información sobre direccionalidad
+    st.sidebar.info("💡 **Direccionalidad**: Se controla con los pesos positivos/negativos en los sliders")
     
     # --------------------
     # Load Weights from CSV
@@ -469,7 +391,7 @@ with tab1:
     df_original['Medida'] = df_original.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1)
 
     @st.cache_data
-    def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizacion, escala_max, configurar_direccionalidad):
+    def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizacion, escala_max):
         df_pivot = df_original.pivot_table(
             index="Territorio", columns="Medida", values="Valor", aggfunc="first"
         ).reset_index()
@@ -494,12 +416,9 @@ with tab1:
                             min_val = serie_limpia.min()
                             max_val = serie_limpia.max()
                             
-                            # Determinar direccionalidad
-                            direccion = direccionalidad_indicadores.get(col, 'alto_deseable')
-                            
-                            # Aplicar normalización Min-Max
+                            # Aplicar normalización Min-Max (direccionalidad se maneja con pesos)
                             df_pivot_normalizado[col] = serie_original.apply(
-                                lambda x: normalizar_indicador(x, min_val, max_val, direccion) * escala_max
+                                lambda x: normalizar_indicador(x, min_val, max_val, 'alto_deseable') * escala_max
                                 if pd.notna(x) else 0
                             )
                         elif metodo_normalizacion == "Z-Score":
@@ -611,7 +530,7 @@ with tab1:
 
     # --- FLUJO PRINCIPAL ---
     df_con_farmacia_base, df_sin_farmacia_base = preparar_datos_base(
-        df_original, st.session_state.df_coords, df_farmacias, metodo_normalizacion, escala_max, configurar_direccionalidad
+        df_original, st.session_state.df_coords, df_farmacias, metodo_normalizacion, escala_max
     )
 
     df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
@@ -626,12 +545,7 @@ with tab1:
     # Mostrar información sobre normalización
     if metodo_normalizacion != "Sin normalizar":
         st.info(f"📊 **Normalización aplicada**: {metodo_normalizacion} (escala 0-{escala_max:.0f})")
-        if configurar_direccionalidad:
-            st.info("🎯 **Direccionalidad**: Configuración manual habilitada")
-            if direccionalidad_indicadores:
-                st.info(f"📋 **Indicadores configurados**: {len(direccionalidad_indicadores)} indicadores con direccionalidad personalizada")
-        else:
-            st.info("🎯 **Direccionalidad**: Alto valor = deseable (por defecto)")
+        st.info("🎯 **Direccionalidad**: Se controla con pesos positivos/negativos en los sliders")
         
         # Mostrar estadísticas de normalización
         with st.expander("📈 Estadísticas de normalización", expanded=False):
