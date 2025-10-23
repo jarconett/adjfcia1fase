@@ -420,8 +420,8 @@ with tab1:
                 nombre_a_buscar = str(territorio).strip()
             
             # Debug: mostrar información de búsqueda
-            if territorio in ['Andújar', 'El Guijo', 'Jaén']:  # Solo para algunos territorios de ejemplo
-                st.write(f"Debug {territorio}: Buscando '{nombre_a_buscar}', Singular='{singular}', Factor={factor}")
+            #if territorio in ['Andújar', 'El Guijo', 'Jaén']:  # Solo para algunos territorios de ejemplo
+            #    st.write(f"Debug {territorio}: Buscando '{nombre_a_buscar}', Singular='{singular}', Factor={factor}")
             
             # Buscar población para "Ambos sexos" - manejar ambos órdenes de columnas
             if nombre_a_buscar:
