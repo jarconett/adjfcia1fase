@@ -21,12 +21,8 @@ st.title("Mapa Interactivo de las Farmacias de la Primera fase de Adjudicaciones
 tab1, tab2 = st.tabs(["🗺️ Mapa y Ranking", "📊 Comparación de Municipios"])
 
 # --------------------
-# Sidebar for user inputs
-st.sidebar.header("Configuración de Datos y Puntuación")
-
-# --------------------
-# Configuración de Normalización (mover al principio)
-st.sidebar.subheader("🔧 Configuración de Normalización")
+# Configuración de Normalización (FUERA de los tabs)
+st.sidebar.header("🔧 Configuración de Normalización")
 
 # Opciones de normalización
 metodo_normalizacion = st.sidebar.selectbox(
@@ -43,6 +39,10 @@ else:
 
 # Información sobre direccionalidad
 st.sidebar.info("💡 **Direccionalidad**: Se controla con los pesos positivos/negativos en los sliders")
+
+# --------------------
+# Sidebar for user inputs
+st.sidebar.header("Configuración de Datos y Puntuación")
 
 # --------------------
 # TAB 1: Mapa y Ranking
@@ -301,7 +301,7 @@ with tab1:
             'std': serie_limpia.std()
         }
 
-    # Configuración de normalización ya definida arriba
+    # Configuración de normalización ya definida fuera de los tabs
     
     # --------------------
     # Load Weights from CSV
