@@ -61,6 +61,21 @@ if "Min-Max" in metodo_normalizacion:
 else:
     valor_max_personalizado = None
 
+# Configuración de aplicación del Factor
+st.sidebar.markdown("---")
+st.sidebar.subheader("⚙️ Aplicación del Factor")
+
+aplicar_factor_antes = st.sidebar.checkbox(
+    "Aplicar Factor antes de normalización",
+    value=False,
+    help="Si está activado, el Factor se aplica a cada indicador antes de normalizar. Si no, se aplica a la puntuación final."
+)
+
+if aplicar_factor_antes:
+    st.sidebar.info("🔧 **Factor aplicado a indicadores individuales** antes de normalización")
+else:
+    st.sidebar.info("🔧 **Factor aplicado a puntuación final** (comportamiento actual)")
+
 # Información sobre direccionalidad
 st.sidebar.info("💡 **Direccionalidad**: Se controla con los pesos positivos/negativos en los sliders")
 
@@ -450,13 +465,27 @@ with tab1:
     df_original['Medida'] = df_original.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1)
 
 @st.cache_data
-def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizacion, escala_max, valor_max_personalizado=None):
+def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizacion, escala_max, valor_max_personalizado=None, aplicar_factor_antes=False):
         df_pivot = df_original.pivot_table(
             index="Territorio", columns="Medida", values="Valor", aggfunc="first"
         ).reset_index()
         col_map = {col: normaliza_nombre_indicador(col) if col != 'Territorio' else col for col in df_pivot.columns}
         df_pivot = df_pivot.rename(columns=col_map)
         df_pivot["Territorio_normalizado"] = df_pivot["Territorio"].apply(normalizar_nombre_municipio)
+        
+        # Aplicar Factor a indicadores individuales antes de normalización si está habilitado
+        if aplicar_factor_antes:
+            # Obtener factores de farmacias
+            factores_dict = dict(zip(df_farmacias['Territorio'], df_farmacias['Factor']))
+            
+            # Aplicar factor a cada indicador para cada territorio
+            columnas_indicadores = [col for col in df_pivot.columns if col not in ['Territorio', 'Territorio_normalizado']]
+            for col in columnas_indicadores:
+                if col in df_pivot.columns:
+                    df_pivot[col] = df_pivot.apply(
+                        lambda row: row[col] * factores_dict.get(row['Territorio'], 1.0) if pd.notna(row[col]) else row[col],
+                        axis=1
+                    )
         
         # Aplicar normalización si está habilitada
         if metodo_normalizacion != "Sin normalizar":
@@ -561,7 +590,7 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
         df_sin_farmacia_base = pd.merge(df_sin_farmacia_base, df_coords, on="Territorio", how="left")
         return df_con_farmacia_base, df_sin_farmacia_base
 
-def calcular_puntuaciones(df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km):
+def calcular_puntuaciones(df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km, aplicar_factor_antes=False):
     df_con_farmacia = df_con_farmacia_base.copy()
     df_sin_farmacia = df_sin_farmacia_base.copy()
     df_con_farmacia['Puntuación'] = sum(
@@ -574,7 +603,14 @@ def calcular_puntuaciones(df_con_farmacia_base, df_sin_farmacia_base, pesos, rad
     )
     # Asegurar que Factor sea numérico
     df_con_farmacia['Factor'] = pd.to_numeric(df_con_farmacia['Factor'], errors='coerce').fillna(1.0)
-    df_con_farmacia['PuntuaciónFinal'] = df_con_farmacia['Puntuación'] * df_con_farmacia['Factor']
+    
+    # Aplicar Factor según la configuración
+    if aplicar_factor_antes:
+        # Si el factor ya se aplicó antes de normalización, no aplicarlo aquí
+        df_con_farmacia['PuntuaciónFinal'] = df_con_farmacia['Puntuación']
+    else:
+        # Aplicar factor a la puntuación final (comportamiento actual)
+        df_con_farmacia['PuntuaciónFinal'] = df_con_farmacia['Puntuación'] * df_con_farmacia['Factor']
     df_con_farmacia['PuntuaciónExtendida'] = df_con_farmacia['PuntuaciónFinal']
     df_con_farmacia['SumaMunicipiosCercanos'] = 0.0
 
@@ -602,11 +638,11 @@ def calcular_puntuaciones(df_con_farmacia_base, df_sin_farmacia_base, pesos, rad
 
 # --- FLUJO PRINCIPAL ---
 df_con_farmacia_base, df_sin_farmacia_base = preparar_datos_base(
-    df_original, st.session_state.df_coords, df_farmacias, metodo_normalizacion, escala_max, valor_max_personalizado
+    df_original, st.session_state.df_coords, df_farmacias, metodo_normalizacion, escala_max, valor_max_personalizado, aplicar_factor_antes
 )
 
 df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
-    df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km
+    df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km, aplicar_factor_antes
 )
 
 # -------------------
@@ -625,6 +661,12 @@ if metodo_normalizacion != "Sin normalizar":
     if "Logarítmico" in metodo_normalizacion:
         st.info("📈 **Normalización Logarítmica**: Ideal para indicadores con gran disparidad (ej: población, ingresos)")
         st.info("💡 **Beneficio**: Las diferencias en valores bajos son más significativas que en valores altos")
+    
+    # Información sobre aplicación del Factor
+    if aplicar_factor_antes:
+        st.info("⚙️ **Factor aplicado a indicadores individuales** antes de normalización")
+    else:
+        st.info("⚙️ **Factor aplicado a puntuación final** (comportamiento tradicional)")
     
     st.info("🎯 **Direccionalidad**: Se controla con pesos positivos/negativos en los sliders")
     
