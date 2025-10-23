@@ -67,7 +67,7 @@ st.sidebar.subheader("⚙️ Aplicación del Factor")
 
 aplicar_factor_antes = st.sidebar.checkbox(
     "Aplicar Factor antes de normalización",
-    value=False,
+    value=True,
     help="Si está activado, el Factor se aplica a cada indicador antes de normalizar. Si no, se aplica a la puntuación final."
 )
 
