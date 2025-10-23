@@ -372,6 +372,37 @@ with tab1:
             'mean': serie_limpia.mean(),
             'std': serie_limpia.std()
         }
+    
+    def obtener_poblacion_territorio(territorio, singular=None):
+        """Obtiene la población de un territorio desde singular_pob_sexo.csv"""
+        try:
+            # Cargar el archivo singular_pob_sexo.csv
+            df_singular_pob = pd.read_csv("singular_pob_sexo.csv", sep=";", na_values=["-", "", "NA"])
+            
+            # Determinar el nombre a buscar
+            nombre_a_buscar = None
+            if singular and pd.notna(singular) and str(singular).strip() != '':
+                # Si Singular tiene valor, usar ese
+                nombre_a_buscar = str(singular).strip()
+            else:
+                # Si Singular está vacío, usar Territorio
+                nombre_a_buscar = str(territorio).strip()
+            
+            # Buscar población para "Ambos sexos"
+            if nombre_a_buscar:
+                poblacion_data = df_singular_pob[
+                    (df_singular_pob['Territorio'] == nombre_a_buscar) & 
+                    (df_singular_pob['Sexo'] == 'Ambos sexos') &
+                    (df_singular_pob['Medida'] == 'Población')
+                ]
+                
+                if not poblacion_data.empty:
+                    valor = poblacion_data.iloc[0]['Valor']
+                    return f"{valor:.0f}" if pd.notna(valor) else "N/A"
+            
+            return "N/A"
+        except Exception as e:
+            return "N/A"
 
     # Configuración de normalización ya definida fuera de los tabs
     
@@ -739,11 +770,18 @@ if metodo_normalizacion != "Sin normalizar":
     # Preparar columnas para mostrar
     columnas_mostrar = ['Ranking', 'Nombre_Mostrar', 'Puntuación', 'Factor', 'PuntuaciónFinal', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida']
     
-    # Añadir Provincia y Ldo si están disponibles
+    # Añadir Provincia y Población si están disponibles
     if 'Provincia' in df_ordenado.columns:
         columnas_mostrar.insert(2, 'Provincia')  # Insertar después de Nombre_Mostrar
-    if 'Ldo' in df_ordenado.columns:
-        columnas_mostrar.insert(3, 'Ldo')  # Insertar después de Provincia
+    
+    # Agregar columna de Población
+    if 'Territorio' in df_ordenado.columns and 'Singular' in df_ordenado.columns:
+        # Calcular población para cada territorio
+        df_ordenado['Población'] = df_ordenado.apply(
+            lambda row: obtener_poblacion_territorio(row['Territorio'], row.get('Singular', None)), 
+            axis=1
+        )
+        columnas_mostrar.insert(3, 'Población')  # Insertar después de Provincia
     
     # Filtrar solo las columnas que existen
     columnas_existentes = [col for col in columnas_mostrar if col in df_ordenado.columns]
