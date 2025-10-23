@@ -28,7 +28,7 @@ st.sidebar.header("🔧 Configuración de Normalización")
 metodo_normalizacion = st.sidebar.selectbox(
     "Método de normalización:",
     ["Min-Max (0-1)", "Min-Max (0-100)", "Min-Max Logarítmico (0-1)", "Min-Max Logarítmico (0-100)", "Z-Score", "Sin normalizar"],
-    index=1
+    index=3
 )
 
 # Escala de normalización
@@ -36,6 +36,30 @@ if "Min-Max" in metodo_normalizacion:
     escala_max = 1.0 if "0-1" in metodo_normalizacion else 100.0
 else:
     escala_max = 1.0
+
+# Configuración de rango personalizado para normalización
+if "Min-Max" in metodo_normalizacion:
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("🎯 Rango de Normalización")
+    
+    usar_rango_personalizado = st.sidebar.checkbox(
+        "Usar rango personalizado",
+        value=False,
+        help="Permite establecer un valor máximo personalizado para la normalización"
+    )
+    
+    if usar_rango_personalizado:
+        valor_max_personalizado = st.sidebar.number_input(
+            "Valor máximo para normalización:",
+            min_value=0.0,
+            value=100.0,
+            step=1.0,
+            help="Valor que se usará como máximo (100) en la normalización"
+        )
+    else:
+        valor_max_personalizado = None
+else:
+    valor_max_personalizado = None
 
 # Información sobre direccionalidad
 st.sidebar.info("💡 **Direccionalidad**: Se controla con los pesos positivos/negativos en los sliders")
