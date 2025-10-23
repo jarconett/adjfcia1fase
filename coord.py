@@ -28,7 +28,7 @@ st.sidebar.header("🔧 Configuración de Normalización")
 metodo_normalizacion = st.sidebar.selectbox(
     "Método de normalización:",
     ["Min-Max (0-1)", "Min-Max (0-100)", "Min-Max Logarítmico (0-1)", "Min-Max Logarítmico (0-100)", "Z-Score", "Sin normalizar"],
-    index=3
+    index=1
 )
 
 # Escala de normalización
@@ -537,108 +537,108 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
         df_sin_farmacia_base = pd.merge(df_sin_farmacia_base, df_coords, on="Territorio", how="left")
         return df_con_farmacia_base, df_sin_farmacia_base
 
-    def calcular_puntuaciones(df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km):
-        df_con_farmacia = df_con_farmacia_base.copy()
-        df_sin_farmacia = df_sin_farmacia_base.copy()
-        df_con_farmacia['Puntuación'] = sum(
-            df_con_farmacia[col].fillna(0) * pesos.get(col, 0)
-            for col in pesos if col in df_con_farmacia.columns
-        )
-        df_sin_farmacia['Puntuación'] = sum(
-            df_sin_farmacia[col].fillna(0) * pesos.get(col, 0)
-            for col in pesos if col in df_sin_farmacia.columns
-        )
-        # Asegurar que Factor sea numérico
-        df_con_farmacia['Factor'] = pd.to_numeric(df_con_farmacia['Factor'], errors='coerce').fillna(1.0)
-        df_con_farmacia['PuntuaciónFinal'] = df_con_farmacia['Puntuación'] * df_con_farmacia['Factor']
-        df_con_farmacia['PuntuaciónExtendida'] = df_con_farmacia['PuntuaciónFinal']
-        df_con_farmacia['SumaMunicipiosCercanos'] = 0.0
-
-        if radio_km > 0 and not df_sin_farmacia.empty:
-            df_con_farmacia_valid = df_con_farmacia.dropna(subset=['Latitud', 'Longitud'])
-            df_sin_farmacia_valid = df_sin_farmacia.dropna(subset=['Latitud', 'Longitud'])
-            if not df_con_farmacia_valid.empty:
-                lat_con_rad = np.radians(df_con_farmacia_valid['Latitud'])
-                lon_con_rad = np.radians(df_con_farmacia_valid['Longitud'])
-                lat_sin_rad = np.radians(df_sin_farmacia_valid['Latitud'])
-                lon_sin_rad = np.radians(df_sin_farmacia_valid['Longitud'])
-                dlon = lon_sin_rad.values[:, None] - lon_con_rad.values
-                dlat = lat_sin_rad.values[:, None] - lat_con_rad.values
-                a = np.sin(dlat / 2.0)**2 + np.cos(lat_sin_rad.values[:, None]) * np.cos(lat_con_rad.values) * np.sin(dlon / 2.0)**2
-                c = 2 * np.arcsin(np.sqrt(a))
-                distancias = 6371 * c
-                indices_dentro_radio = np.where(distancias <= radio_km)
-                puntuaciones_cercanas = pd.Series(
-                    df_sin_farmacia_valid['Puntuación'].values[indices_dentro_radio[0]],
-                    index=df_con_farmacia_valid.index[indices_dentro_radio[1]]
-                ).groupby(level=0).sum()
-                df_con_farmacia.loc[puntuaciones_cercanas.index, 'SumaMunicipiosCercanos'] = puntuaciones_cercanas
-                df_con_farmacia['PuntuaciónExtendida'] = df_con_farmacia['PuntuaciónFinal'] + df_con_farmacia['SumaMunicipiosCercanos']
-        return df_con_farmacia, df_sin_farmacia
-
-    # --- FLUJO PRINCIPAL ---
-    df_con_farmacia_base, df_sin_farmacia_base = preparar_datos_base(
-        df_original, st.session_state.df_coords, df_farmacias, metodo_normalizacion, escala_max, valor_max_personalizado
+def calcular_puntuaciones(df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km):
+    df_con_farmacia = df_con_farmacia_base.copy()
+    df_sin_farmacia = df_sin_farmacia_base.copy()
+    df_con_farmacia['Puntuación'] = sum(
+        df_con_farmacia[col].fillna(0) * pesos.get(col, 0)
+        for col in pesos if col in df_con_farmacia.columns
     )
-
-    df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
-        df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km
+    df_sin_farmacia['Puntuación'] = sum(
+        df_sin_farmacia[col].fillna(0) * pesos.get(col, 0)
+        for col in pesos if col in df_sin_farmacia.columns
     )
+    # Asegurar que Factor sea numérico
+    df_con_farmacia['Factor'] = pd.to_numeric(df_con_farmacia['Factor'], errors='coerce').fillna(1.0)
+    df_con_farmacia['PuntuaciónFinal'] = df_con_farmacia['Puntuación'] * df_con_farmacia['Factor']
+    df_con_farmacia['PuntuaciónExtendida'] = df_con_farmacia['PuntuaciónFinal']
+    df_con_farmacia['SumaMunicipiosCercanos'] = 0.0
 
-    # -------------------
-    # Display ranking table and allow selection
-    df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
-    df_ordenado.index += 1  # Índice 1-based
+    if radio_km > 0 and not df_sin_farmacia.empty:
+        df_con_farmacia_valid = df_con_farmacia.dropna(subset=['Latitud', 'Longitud'])
+        df_sin_farmacia_valid = df_sin_farmacia.dropna(subset=['Latitud', 'Longitud'])
+        if not df_con_farmacia_valid.empty:
+            lat_con_rad = np.radians(df_con_farmacia_valid['Latitud'])
+            lon_con_rad = np.radians(df_con_farmacia_valid['Longitud'])
+            lat_sin_rad = np.radians(df_sin_farmacia_valid['Latitud'])
+            lon_sin_rad = np.radians(df_sin_farmacia_valid['Longitud'])
+            dlon = lon_sin_rad.values[:, None] - lon_con_rad.values
+            dlat = lat_sin_rad.values[:, None] - lat_con_rad.values
+            a = np.sin(dlat / 2.0)**2 + np.cos(lat_sin_rad.values[:, None]) * np.cos(lat_con_rad.values) * np.sin(dlon / 2.0)**2
+            c = 2 * np.arcsin(np.sqrt(a))
+            distancias = 6371 * c
+            indices_dentro_radio = np.where(distancias <= radio_km)
+            puntuaciones_cercanas = pd.Series(
+                df_sin_farmacia_valid['Puntuación'].values[indices_dentro_radio[0]],
+                index=df_con_farmacia_valid.index[indices_dentro_radio[1]]
+            ).groupby(level=0).sum()
+            df_con_farmacia.loc[puntuaciones_cercanas.index, 'SumaMunicipiosCercanos'] = puntuaciones_cercanas
+            df_con_farmacia['PuntuaciónExtendida'] = df_con_farmacia['PuntuaciónFinal'] + df_con_farmacia['SumaMunicipiosCercanos']
+    return df_con_farmacia, df_sin_farmacia
 
-    # Mostrar información sobre normalización
-    if metodo_normalizacion != "Sin normalizar":
-        if valor_max_personalizado is not None:
-            st.info(f"📊 **Normalización aplicada**: {metodo_normalizacion} (escala 0-{escala_max:.0f})")
-            st.info(f"🎯 **Rango personalizado**: Máximo establecido en {valor_max_personalizado}")
-        else:
-            st.info(f"📊 **Normalización aplicada**: {metodo_normalizacion} (escala 0-{escala_max:.0f})")
+# --- FLUJO PRINCIPAL ---
+df_con_farmacia_base, df_sin_farmacia_base = preparar_datos_base(
+    df_original, st.session_state.df_coords, df_farmacias, metodo_normalizacion, escala_max, valor_max_personalizado
+)
+
+df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
+    df_con_farmacia_base, df_sin_farmacia_base, pesos, radio_km
+)
+
+# -------------------
+# Display ranking table and allow selection
+df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
+df_ordenado.index += 1  # Índice 1-based
+
+# Mostrar información sobre normalización
+if metodo_normalizacion != "Sin normalizar":
+    if valor_max_personalizado is not None:
+        st.info(f"📊 **Normalización aplicada**: {metodo_normalizacion} (escala 0-{escala_max:.0f})")
+        st.info(f"🎯 **Rango personalizado**: Máximo establecido en {valor_max_personalizado}")
+    else:
+        st.info(f"📊 **Normalización aplicada**: {metodo_normalizacion} (escala 0-{escala_max:.0f})")
+    
+    if "Logarítmico" in metodo_normalizacion:
+        st.info("📈 **Normalización Logarítmica**: Ideal para indicadores con gran disparidad (ej: población, ingresos)")
+        st.info("💡 **Beneficio**: Las diferencias en valores bajos son más significativas que en valores altos")
+    
+    st.info("🎯 **Direccionalidad**: Se controla con pesos positivos/negativos en los sliders")
+    
+    # Debug: mostrar algunos valores normalizados
+    if len(df_con_farmacia_base) > 0:
+        columnas_indicadores = [col for col in df_con_farmacia_base.columns 
+                              if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
+                                           'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']]
         
-        if "Logarítmico" in metodo_normalizacion:
-            st.info("📈 **Normalización Logarítmica**: Ideal para indicadores con gran disparidad (ej: población, ingresos)")
-            st.info("💡 **Beneficio**: Las diferencias en valores bajos son más significativas que en valores altos")
-        
-        st.info("🎯 **Direccionalidad**: Se controla con pesos positivos/negativos en los sliders")
-        
-        # Debug: mostrar algunos valores normalizados
-        if len(df_con_farmacia_base) > 0:
-            columnas_indicadores = [col for col in df_con_farmacia_base.columns 
-                                  if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
-                                               'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']]
-            
-            # Mostrar estadísticas de normalización
-            with st.expander("📈 Estadísticas de normalización", expanded=False):
-                if len(df_con_farmacia_base) > 0:
-                    # Obtener columnas de indicadores normalizados
-                    columnas_indicadores = [col for col in df_con_farmacia_base.columns 
-                                          if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
-                                                       'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']]
+        # Mostrar estadísticas de normalización
+        with st.expander("📈 Estadísticas de normalización", expanded=False):
+            if len(df_con_farmacia_base) > 0:
+                # Obtener columnas de indicadores normalizados
+                columnas_indicadores = [col for col in df_con_farmacia_base.columns 
+                                      if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
+                                                   'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']]
+                
+                if columnas_indicadores:
+                    st.write("**Rango de valores normalizados por indicador:**")
+                    stats_df = []
+                    for col in columnas_indicadores[:10]:  # Mostrar solo los primeros 10
+                        if col in df_con_farmacia_base.columns:
+                            serie = df_con_farmacia_base[col].dropna()
+                            if len(serie) > 0:
+                                stats_df.append({
+                                    'Indicador': col[:40] + '...' if len(col) > 40 else col,
+                                    'Min': f"{serie.min():.2f}",
+                                    'Max': f"{serie.max():.2f}",
+                                    'Media': f"{serie.mean():.2f}",
+                                    'Desv. Est.': f"{serie.std():.2f}"
+                                })
                     
-                    if columnas_indicadores:
-                        st.write("**Rango de valores normalizados por indicador:**")
-                        stats_df = []
-                        for col in columnas_indicadores[:10]:  # Mostrar solo los primeros 10
-                            if col in df_con_farmacia_base.columns:
-                                serie = df_con_farmacia_base[col].dropna()
-                                if len(serie) > 0:
-                                    stats_df.append({
-                                        'Indicador': col[:40] + '...' if len(col) > 40 else col,
-                                        'Min': f"{serie.min():.2f}",
-                                        'Max': f"{serie.max():.2f}",
-                                        'Media': f"{serie.mean():.2f}",
-                                        'Desv. Est.': f"{serie.std():.2f}"
-                                    })
-                        
-                        if stats_df:
-                            st.dataframe(pd.DataFrame(stats_df), use_container_width=True)
-                        else:
-                            st.write("No hay datos normalizados para mostrar.")
+                    if stats_df:
+                        st.dataframe(pd.DataFrame(stats_df), use_container_width=True)
                     else:
-                        st.write("No se encontraron indicadores normalizados.")
+                        st.write("No hay datos normalizados para mostrar.")
+                else:
+                    st.write("No se encontraron indicadores normalizados.")
 
     st.subheader("Ranking de municipios con farmacia ordenados por puntuación total")
 
