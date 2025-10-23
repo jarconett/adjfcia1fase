@@ -28,7 +28,7 @@ st.sidebar.header("🔧 Configuración de Normalización")
 metodo_normalizacion = st.sidebar.selectbox(
     "Método de normalización:",
     ["Min-Max (0-1)", "Min-Max (0-100)", "Z-Score", "Sin normalizar"],
-    index=0
+    index=1
 )
 
 # Escala de normalización
@@ -1030,6 +1030,26 @@ with tab2:
                 # Crear desglose comparativo
                 desglose_comparativo = []
                 
+                # Obtener valores normalizados para ambos municipios
+                valores_normalizados1 = {}
+                valores_normalizados2 = {}
+                
+                # Buscar filas en df_con_farmacia_base para ambos municipios
+                fila_municipio1 = df_con_farmacia_base[df_con_farmacia_base['Nombre_Mostrar'] == municipio1]
+                fila_municipio2 = df_con_farmacia_base[df_con_farmacia_base['Nombre_Mostrar'] == municipio2]
+                
+                if not fila_municipio1.empty:
+                    for col in df_con_farmacia_base.columns:
+                        if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
+                                     'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']:
+                            valores_normalizados1[col] = fila_municipio1.iloc[0].get(col, 0)
+                
+                if not fila_municipio2.empty:
+                    for col in df_con_farmacia_base.columns:
+                        if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
+                                     'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']:
+                            valores_normalizados2[col] = fila_municipio2.iloc[0].get(col, 0)
+                
                 # Obtener todos los indicadores únicos
                 indicadores_unicos = set(df_territorio1['Medida'].unique()) | set(df_territorio2['Medida'].unique())
                 
@@ -1045,12 +1065,23 @@ with tab2:
                     valor2 = df_territorio2[df_territorio2['Medida'] == indicador]['Valor'].iloc[0] if not df_territorio2[df_territorio2['Medida'] == indicador].empty else None
                     contribucion2 = valor2 * peso if pd.notna(valor2) else 0
                     
+                    # Obtener valores normalizados
+                    valor_norm1 = valores_normalizados1.get(clave_norm, "N/A")
+                    valor_norm2 = valores_normalizados2.get(clave_norm, "N/A")
+                    
+                    if valor_norm1 != "N/A" and pd.notna(valor_norm1):
+                        valor_norm1 = f"{valor_norm1:.2f}"
+                    if valor_norm2 != "N/A" and pd.notna(valor_norm2):
+                        valor_norm2 = f"{valor_norm2:.2f}"
+                    
                     desglose_comparativo.append({
                         'Indicador': indicador,
                         'Peso': f"{peso:.2f}",
                         f'Valor - {municipio1}': f"{valor1:.2f}" if pd.notna(valor1) else "N/A",
+                        f'Valor Normalizado - {municipio1}': valor_norm1,
                         f'Contribución - {municipio1}': f"{contribucion1:.2f}",
                         f'Valor - {municipio2}': f"{valor2:.2f}" if pd.notna(valor2) else "N/A",
+                        f'Valor Normalizado - {municipio2}': valor_norm2,
                         f'Contribución - {municipio2}': f"{contribucion2:.2f}",
                         'Diferencia': f"{contribucion1 - contribucion2:.2f}"
                     })
