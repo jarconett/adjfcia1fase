@@ -652,6 +652,15 @@ with tab1:
             st.write(f"Número de indicadores para {territorio_seleccionado}: ", len(df_territorio))
             desglose = []
             puntuacion_base = 0
+            
+            # Obtener valores normalizados del territorio seleccionado
+            valores_normalizados = {}
+            if not fila_farmacia.empty:
+                for col in df_con_farmacia_base.columns:
+                    if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
+                                 'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']:
+                        valores_normalizados[col] = fila_farmacia.iloc[0].get(col, 0)
+            
             for _, row in df_territorio.iterrows():
                 clave_norm = normaliza_nombre_indicador(row["Medida"])
                 valor = row["Valor"]
@@ -659,9 +668,16 @@ with tab1:
                 contribucion = valor * peso if pd.notna(valor) else 0
                 puntuacion_base += contribucion
                 original_display_name = medidas_originales.get(clave_norm, row["Medida"])
+                
+                # Obtener valor normalizado si existe
+                valor_normalizado = valores_normalizados.get(clave_norm, "N/A")
+                if valor_normalizado != "N/A" and pd.notna(valor_normalizado):
+                    valor_normalizado = round(valor_normalizado, 2)
+                
                 desglose.append({
                     "Indicador": original_display_name,
                     "Valor": round(valor, 2) if pd.notna(valor) else "N/A",
+                    "Valor Normalizado": valor_normalizado,
                     "Peso": round(peso, 2),
                     "Contribución": round(contribucion, 2) if contribucion is not None else "—"
                 })
