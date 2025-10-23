@@ -746,7 +746,38 @@ with tab1:
         if 'Ldo' in row and pd.notna(row['Ldo']):
             popup_html += f"Ldo: {row['Ldo']}<br>"
         
+        # Buscar valor de población sin normalizar desde singular_pob_sexo.csv
+        poblacion_original = "N/A"
+        
+        # Determinar el nombre a buscar
+        nombre_a_buscar = None
+        if 'Singular' in row and pd.notna(row['Singular']) and str(row['Singular']).strip() != '':
+            # Si Singular tiene valor, usar ese
+            nombre_a_buscar = str(row['Singular']).strip()
+        else:
+            # Si Singular está vacío, usar Territorio
+            nombre_a_buscar = str(row['Territorio']).strip()
+        
+        # Buscar en singular_pob_sexo.csv
+        if nombre_a_buscar:
+            # Cargar el archivo singular_pob_sexo.csv si no está cargado
+            try:
+                df_singular_pob = pd.read_csv("singular_pob_sexo.csv", sep=";", na_values=["-", "", "NA"])
+                
+                # Buscar población para "Ambos sexos"
+                poblacion_data = df_singular_pob[
+                    (df_singular_pob['Territorio'] == nombre_a_buscar) & 
+                    (df_singular_pob['Sexo'] == 'Ambos sexos') &
+                    (df_singular_pob['Medida'] == 'Población')
+                ]
+                
+                if not poblacion_data.empty:
+                    poblacion_original = f"{poblacion_data.iloc[0]['Valor']:.0f}" if pd.notna(poblacion_data.iloc[0]['Valor']) else "N/A"
+            except Exception as e:
+                poblacion_original = "Error al cargar datos"
+        
         popup_html += f"""
+        <b>Población:</b> {poblacion_original}<br>
         Puntuación base: {row['Puntuación']:.2f}<br>
         Factor: {row['Factor']:.2f}<br>
         Puntuación con factor: {row['PuntuaciónFinal']:.2f}<br>
