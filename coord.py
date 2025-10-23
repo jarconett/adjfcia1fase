@@ -67,7 +67,7 @@ st.sidebar.subheader("⚙️ Aplicación del Factor")
 
 aplicar_factor_antes = st.sidebar.checkbox(
     "Aplicar Factor antes de normalización",
-    value=True,
+    value=False,
     help="Si está activado, el Factor se aplica a cada indicador antes de normalizar. Si no, se aplica a la puntuación final."
 )
 
@@ -790,6 +790,20 @@ if metodo_normalizacion != "Sin normalizar":
         df_ordenado_filtrado.reset_index().rename(columns={"index": "Ranking"})[columnas_existentes].round(2),
         use_container_width=True
     )
+    
+    # Botón de descarga del ranking con población
+    if not df_ordenado_filtrado.empty:
+        csv_buffer_ranking = BytesIO()
+        df_ranking_export = df_ordenado_filtrado.reset_index().rename(columns={"index": "Ranking"})[columnas_existentes]
+        df_ranking_export.to_csv(csv_buffer_ranking, index=False, sep=';', encoding='utf-8')
+        csv_buffer_ranking.seek(0)
+        
+        st.download_button(
+            label="📥 Descargar ranking en CSV",
+            data=csv_buffer_ranking,
+            file_name="ranking_municipios.csv",
+            mime="text/csv"
+        )
 
 
     # Display detailed breakdown for the selected territory
