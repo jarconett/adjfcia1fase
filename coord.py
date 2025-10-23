@@ -27,7 +27,7 @@ st.sidebar.header("🔧 Configuración de Normalización")
 # Opciones de normalización
 metodo_normalizacion = st.sidebar.selectbox(
     "Método de normalización:",
-    ["Min-Max (0-1)", "Min-Max (0-100)", "Z-Score", "Sin normalizar"],
+    ["Min-Max (0-1)", "Min-Max (0-100)", "Min-Max Logarítmico (0-1)", "Min-Max Logarítmico (0-100)", "Z-Score", "Sin normalizar"],
     index=1
 )
 
@@ -287,6 +287,39 @@ with tab1:
         
         # Asegurar que esté en rango [0, 1]
         return max(0.0, min(1.0, normalizado))
+    
+    def normalizar_indicador_logaritmico(valor, min_val, max_val, direccion='alto_deseable'):
+        """
+        Normaliza un valor usando escala logarítmica (útil para indicadores con gran disparidad)
+        direccion: 'alto_deseable' o 'bajo_deseable'
+        """
+        if pd.isna(valor) or pd.isna(min_val) or pd.isna(max_val):
+            return 0.0
+        
+        # Evitar valores negativos o cero para logaritmo
+        valor_ajustado = max(valor, 1.0)
+        min_ajustado = max(min_val, 1.0)
+        max_ajustado = max(max_val, 1.0)
+        
+        # Evitar división por cero
+        if max_ajustado == min_ajustado:
+            return 0.5
+        
+        # Aplicar logaritmo
+        import numpy as np
+        log_valor = np.log(valor_ajustado)
+        log_min = np.log(min_ajustado)
+        log_max = np.log(max_ajustado)
+        
+        # Normalizar en escala logarítmica
+        normalizado = (log_valor - log_min) / (log_max - log_min)
+        
+        # Aplicar direccionalidad
+        if direccion == 'bajo_deseable':
+            normalizado = 1.0 - normalizado
+        
+        # Asegurar que esté en rango [0, 1]
+        return max(0.0, min(1.0, normalizado))
 
     def calcular_estadisticas_indicador(serie):
         """Calcula estadísticas para normalización de un indicador"""
@@ -416,13 +449,26 @@ with tab1:
                     if len(serie_limpia) > 0:
                         if "Min-Max" in metodo_normalizacion:
                             min_val = serie_limpia.min()
-                            max_val = serie_limpia.max()
+                            
+                            # Usar valor máximo personalizado si está configurado
+                            if valor_max_personalizado is not None:
+                                max_val = valor_max_personalizado
+                            else:
+                                max_val = serie_limpia.max()
                             
                             # Aplicar normalización Min-Max (direccionalidad se maneja con pesos)
-                            df_pivot_normalizado[col] = serie_original.apply(
-                                lambda x: normalizar_indicador(x, min_val, max_val, 'alto_deseable') * escala_max
-                                if pd.notna(x) else 0
-                            )
+                            if "Logarítmico" in metodo_normalizacion:
+                                # Usar normalización logarítmica
+                                df_pivot_normalizado[col] = serie_original.apply(
+                                    lambda x: normalizar_indicador_logaritmico(x, min_val, max_val, 'alto_deseable') * escala_max
+                                    if pd.notna(x) else 0
+                                )
+                            else:
+                                # Usar normalización lineal
+                                df_pivot_normalizado[col] = serie_original.apply(
+                                    lambda x: normalizar_indicador(x, min_val, max_val, 'alto_deseable') * escala_max
+                                    if pd.notna(x) else 0
+                                )
                         elif metodo_normalizacion == "Z-Score":
                             mean_val = serie_limpia.mean()
                             std_val = serie_limpia.std()
@@ -546,7 +592,16 @@ with tab1:
 
     # Mostrar información sobre normalización
     if metodo_normalizacion != "Sin normalizar":
-        st.info(f"📊 **Normalización aplicada**: {metodo_normalizacion} (escala 0-{escala_max:.0f})")
+        if valor_max_personalizado is not None:
+            st.info(f"📊 **Normalización aplicada**: {metodo_normalizacion} (escala 0-{escala_max:.0f})")
+            st.info(f"🎯 **Rango personalizado**: Máximo establecido en {valor_max_personalizado}")
+        else:
+            st.info(f"📊 **Normalización aplicada**: {metodo_normalizacion} (escala 0-{escala_max:.0f})")
+        
+        if "Logarítmico" in metodo_normalizacion:
+            st.info("📈 **Normalización Logarítmica**: Ideal para indicadores con gran disparidad (ej: población, ingresos)")
+            st.info("💡 **Beneficio**: Las diferencias en valores bajos son más significativas que en valores altos")
+        
         st.info("🎯 **Direccionalidad**: Se controla con pesos positivos/negativos en los sliders")
         
         # Debug: mostrar algunos valores normalizados
