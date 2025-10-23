@@ -195,7 +195,11 @@ with tab1:
             st.sidebar.success(f"✅ Archivo Territorios.csv cargado correctamente")
 
             if 'Singular' in df_farmacias.columns:
-                df_farmacias['Nombre_Mostrar'] = df_farmacias['Singular'].fillna(df_farmacias['Territorio'])
+                # Crear Nombre_Mostrar único combinando Territorio y Singular
+                df_farmacias['Nombre_Mostrar'] = df_farmacias.apply(
+                    lambda row: f"{row['Singular']}" if pd.notna(row['Singular']) and str(row['Singular']).strip() != '' 
+                    else f"{row['Territorio']}", axis=1
+                )
             else:
                 df_farmacias['Nombre_Mostrar'] = df_farmacias['Territorio']
             st.sidebar.success(f"Farmacias cargadas: {len(df_farmacias)} registros")
