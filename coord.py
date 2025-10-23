@@ -622,11 +622,14 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
         if not df_farmacias.empty:
             if 'Territorio' in df_farmacias.columns and 'Factor' in df_farmacias.columns:
                 # Procesar datos de farmacias
-
                 df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
+                
+                # Crear un identificador único para cada fila
+                df_farmacias["ID_Unico"] = df_farmacias.index
+                
                 municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
                 # Incluir todas las columnas necesarias del archivo de farmacias
-                columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
+                columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar", "ID_Unico"]
                 if 'Provincia' in df_farmacias.columns:
                     columnas_farmacias.append('Provincia')
                 if 'Ldo' in df_farmacias.columns:
@@ -654,16 +657,29 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
             st.sidebar.write(f"Municipios en datos: {len(df_pivot)}")
 
         if not df_farmacias_factores.empty:
-            # Incluir todas las columnas necesarias del archivo de farmacias
-            columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
-            if 'Provincia' in df_farmacias.columns:
-                columnas_farmacias.append('Provincia')
-            if 'Ldo' in df_farmacias.columns:
-                columnas_farmacias.append('Ldo')
-
-            df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
-            df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_farmacias_factores, on="Territorio_normalizado", how="left")
-            df_con_farmacia_base['Factor'] = df_con_farmacia_base['Factor'].fillna(1.0)
+            # Hacer merge manual para manejar duplicados correctamente
+            df_con_farmacia_base['Factor'] = 1.0
+            df_con_farmacia_base['Nombre_Mostrar'] = df_con_farmacia_base['Territorio']
+            
+            # Para cada fila en df_con_farmacia_base, buscar la correspondiente en df_farmacias
+            for idx, row in df_con_farmacia_base.iterrows():
+                territorio_norm = row['Territorio_normalizado']
+                territorio_orig = row['Territorio']
+                
+                # Buscar en df_farmacias las filas que coincidan
+                matches = df_farmacias[df_farmacias['Territorio_normalizado'] == territorio_norm]
+                
+                if not matches.empty:
+                    # Si hay múltiples matches, usar el primero (o implementar lógica más sofisticada)
+                    match = matches.iloc[0]
+                    df_con_farmacia_base.at[idx, 'Factor'] = match['Factor']
+                    df_con_farmacia_base.at[idx, 'Nombre_Mostrar'] = match['Nombre_Mostrar']
+                    
+                    # Agregar otras columnas si existen
+                    if 'Provincia' in df_farmacias.columns:
+                        df_con_farmacia_base.at[idx, 'Provincia'] = match['Provincia']
+                    if 'Ldo' in df_farmacias.columns:
+                        df_con_farmacia_base.at[idx, 'Ldo'] = match['Ldo']
         else:
             df_con_farmacia_base['Factor'] = 1.0
             df_con_farmacia_base['Nombre_Mostrar'] = df_con_farmacia_base['Territorio']
