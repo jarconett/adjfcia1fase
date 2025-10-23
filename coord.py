@@ -28,7 +28,7 @@ st.sidebar.header("🔧 Configuración de Normalización")
 metodo_normalizacion = st.sidebar.selectbox(
     "Método de normalización:",
     ["Min-Max (0-1)", "Min-Max (0-100)", "Min-Max Logarítmico (0-1)", "Min-Max Logarítmico (0-100)", "Z-Score", "Sin normalizar"],
-    index=1
+    index=3
 )
 
 # Escala de normalización
@@ -425,8 +425,8 @@ with tab1:
     columnas_extra = [col for col in df_original.columns if col not in columnas_basicas and col != '__archivo__']
     df_original['Medida'] = df_original.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1)
 
-    @st.cache_data
-    def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizacion, escala_max):
+@st.cache_data
+def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizacion, escala_max, valor_max_personalizado=None):
         df_pivot = df_original.pivot_table(
             index="Territorio", columns="Medida", values="Valor", aggfunc="first"
         ).reset_index()
@@ -578,7 +578,7 @@ with tab1:
 
     # --- FLUJO PRINCIPAL ---
     df_con_farmacia_base, df_sin_farmacia_base = preparar_datos_base(
-        df_original, st.session_state.df_coords, df_farmacias, metodo_normalizacion, escala_max
+        df_original, st.session_state.df_coords, df_farmacias, metodo_normalizacion, escala_max, valor_max_personalizado
     )
 
     df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
