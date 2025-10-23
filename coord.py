@@ -775,16 +775,23 @@ if metodo_normalizacion != "Sin normalizar":
         columnas_mostrar.insert(2, 'Provincia')  # Insertar después de Nombre_Mostrar
     
     # Agregar columna de Población al dataframe filtrado
-    if 'Territorio' in df_ordenado_filtrado.columns and 'Singular' in df_ordenado_filtrado.columns:
+    st.write(f"Debug: Columnas disponibles en df_ordenado_filtrado: {list(df_ordenado_filtrado.columns)}")
+    
+    if 'Territorio' in df_ordenado_filtrado.columns:
         # Calcular población para cada territorio en el dataframe filtrado
         df_ordenado_filtrado['Población'] = df_ordenado_filtrado.apply(
-            lambda row: obtener_poblacion_territorio(row['Territorio'], row.get('Singular', None)), 
+            lambda row: obtener_poblacion_territorio(row['Territorio'], row.get('Singular', None) if 'Singular' in df_ordenado_filtrado.columns else None), 
             axis=1
         )
         columnas_mostrar.insert(3, 'Población')  # Insertar después de Provincia
+        st.write("Debug: Columna Población agregada")
+    else:
+        st.write("Debug: Columna Territorio no encontrada")
     
     # Filtrar solo las columnas que existen
     columnas_existentes = [col for col in columnas_mostrar if col in df_ordenado_filtrado.columns]
+    st.write(f"Debug: Columnas a mostrar: {columnas_mostrar}")
+    st.write(f"Debug: Columnas existentes: {columnas_existentes}")
     
     st.dataframe(
         df_ordenado_filtrado.reset_index().rename(columns={"index": "Ranking"})[columnas_existentes].round(2),
