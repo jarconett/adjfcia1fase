@@ -774,17 +774,17 @@ if metodo_normalizacion != "Sin normalizar":
     if 'Provincia' in df_ordenado.columns:
         columnas_mostrar.insert(2, 'Provincia')  # Insertar después de Nombre_Mostrar
     
-    # Agregar columna de Población
-    if 'Territorio' in df_ordenado.columns and 'Singular' in df_ordenado.columns:
-        # Calcular población para cada territorio
-        df_ordenado['Población'] = df_ordenado.apply(
+    # Agregar columna de Población al dataframe filtrado
+    if 'Territorio' in df_ordenado_filtrado.columns and 'Singular' in df_ordenado_filtrado.columns:
+        # Calcular población para cada territorio en el dataframe filtrado
+        df_ordenado_filtrado['Población'] = df_ordenado_filtrado.apply(
             lambda row: obtener_poblacion_territorio(row['Territorio'], row.get('Singular', None)), 
             axis=1
         )
         columnas_mostrar.insert(3, 'Población')  # Insertar después de Provincia
     
     # Filtrar solo las columnas que existen
-    columnas_existentes = [col for col in columnas_mostrar if col in df_ordenado.columns]
+    columnas_existentes = [col for col in columnas_mostrar if col in df_ordenado_filtrado.columns]
     
     st.dataframe(
         df_ordenado_filtrado.reset_index().rename(columns={"index": "Ranking"})[columnas_existentes].round(2),
