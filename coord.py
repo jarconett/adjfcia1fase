@@ -419,9 +419,6 @@ with tab1:
                 # Si Singular está vacío, usar Territorio
                 nombre_a_buscar = str(territorio).strip()
 
-            # Debug: mostrar información de búsqueda
-            if territorio in ['Andújar', 'El Guijo', 'Jaén']:  # Solo para algunos territorios de ejemplo
-                st.write(f"Debug {territorio}: Buscando '{nombre_a_buscar}', Singular='{singular}', Factor={factor}")
 
             # Buscar población para "Ambos sexos"
             # Buscar población para "Ambos sexos" - manejar ambos órdenes de columnas
@@ -446,21 +443,12 @@ with tab1:
                     if pd.notna(valor) and factor and pd.notna(factor):
                         # Multiplicar por el factor
                         valor_con_factor = valor * factor
-                        if territorio in ['Andújar', 'El Guijo', 'Jaén']:
-                            st.write(f"Debug {territorio}: Población encontrada: {valor}, Factor: {factor}, Resultado: {valor_con_factor}")
                         return f"{valor_con_factor:.0f}"
                     else:
-                        if territorio in ['Andújar', 'El Guijo', 'Jaén']:
-                            st.write(f"Debug {territorio}: Población sin factor: {valor}")
                         return f"{valor:.0f}" if pd.notna(valor) else "N/A"
-                else:
-                    if territorio in ['Andújar', 'El Guijo', 'Jaén']:
-                        st.write(f"Debug {territorio}: No se encontró población para '{nombre_a_buscar}'")
 
             return "N/A"
         except Exception as e:
-            if territorio in ['Andújar', 'El Guijo', 'Jaén']:
-                st.write(f"Debug {territorio}: Error - {str(e)}")
             return "N/A"
 
     # Configuración de normalización ya definida fuera de los tabs
@@ -849,7 +837,7 @@ if metodo_normalizacion != "Sin normalizar":
         columnas_mostrar.insert(3, 'Población')  # Insertar después de Provincia
         #st.write("Debug: Columna Población agregada")
     else:
-        st.write("Debug: Columna Territorio no encontrada")
+        pass
 
     # Filtrar solo las columnas que existen
     columnas_existentes = [col for col in columnas_mostrar if col in df_ordenado_filtrado.columns]
