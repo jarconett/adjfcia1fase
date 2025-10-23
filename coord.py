@@ -423,13 +423,22 @@ with tab1:
             if territorio in ['Andújar', 'El Guijo', 'Jaén']:  # Solo para algunos territorios de ejemplo
                 st.write(f"Debug {territorio}: Buscando '{nombre_a_buscar}', Singular='{singular}', Factor={factor}")
             
-            # Buscar población para "Ambos sexos"
+            # Buscar población para "Ambos sexos" - manejar ambos órdenes de columnas
             if nombre_a_buscar:
+                # Intentar con el orden estándar: Territorio, Medida, Sexo, Valor
                 poblacion_data = df_singular_pob[
                     (df_singular_pob['Territorio'] == nombre_a_buscar) & 
                     (df_singular_pob['Sexo'] == 'Ambos sexos') &
                     (df_singular_pob['Medida'] == 'Población')
                 ]
+                
+                # Si no encuentra nada, intentar con el orden alternativo: Territorio, Sexo, Medida, Valor
+                if poblacion_data.empty:
+                    poblacion_data = df_singular_pob[
+                        (df_singular_pob['Territorio'] == nombre_a_buscar) & 
+                        (df_singular_pob['Medida'] == 'Ambos sexos') &
+                        (df_singular_pob['Sexo'] == 'Población')
+                    ]
                 
                 if not poblacion_data.empty:
                     valor = poblacion_data.iloc[0]['Valor']
