@@ -838,25 +838,25 @@ else:
 columnas_existentes = [col for col in columnas_mostrar if col in df_ordenado_filtrado.columns]
 #st.write(f"Debug: Columnas a mostrar: {columnas_mostrar}")
 #st.write(f"Debug: Columnas existentes: {columnas_existentes}")
+
+st.dataframe(
+    df_ordenado_filtrado.reset_index().rename(columns={"index": "Ranking"})[columnas_existentes].round(2),
+    use_container_width=True
+)
+
+# Botón de descarga del ranking con población
+if not df_ordenado_filtrado.empty:
+    csv_buffer_ranking = BytesIO()
+    df_ranking_export = df_ordenado_filtrado.reset_index().rename(columns={"index": "Ranking"})[columnas_existentes]
+    df_ranking_export.to_csv(csv_buffer_ranking, index=False, sep=';', encoding='utf-8')
+    csv_buffer_ranking.seek(0)
     
-    st.dataframe(
-        df_ordenado_filtrado.reset_index().rename(columns={"index": "Ranking"})[columnas_existentes].round(2),
-        use_container_width=True
+    st.download_button(
+        label="📥 Descargar ranking en CSV",
+        data=csv_buffer_ranking,
+        file_name="ranking_municipios.csv",
+        mime="text/csv"
     )
-    
-    # Botón de descarga del ranking con población
-    if not df_ordenado_filtrado.empty:
-        csv_buffer_ranking = BytesIO()
-        df_ranking_export = df_ordenado_filtrado.reset_index().rename(columns={"index": "Ranking"})[columnas_existentes]
-        df_ranking_export.to_csv(csv_buffer_ranking, index=False, sep=';', encoding='utf-8')
-        csv_buffer_ranking.seek(0)
-        
-        st.download_button(
-            label="📥 Descargar ranking en CSV",
-            data=csv_buffer_ranking,
-            file_name="ranking_municipios.csv",
-            mime="text/csv"
-        )
 
 
 # Display detailed breakdown for the selected territory
@@ -878,14 +878,14 @@ if territorio_seleccionado:
         st.write(f"Número de indicadores para {territorio_seleccionado}: ", len(df_territorio))
         desglose = []
         puntuacion_base = 0
-            
-            # Obtener valores normalizados del territorio seleccionado
-            valores_normalizados = {}
-            if not fila_farmacia.empty:
-                for col in df_con_farmacia_base.columns:
-                    if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
-                                 'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']:
-                        valores_normalizados[col] = fila_farmacia.iloc[0].get(col, 0)
+        
+        # Obtener valores normalizados del territorio seleccionado
+        valores_normalizados = {}
+        if not fila_farmacia.empty:
+            for col in df_con_farmacia_base.columns:
+                if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
+                             'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']:
+                    valores_normalizados[col] = fila_farmacia.iloc[0].get(col, 0)
             
         for _, row in df_territorio.iterrows():
             clave_norm = normaliza_nombre_indicador(row["Medida"])
@@ -894,16 +894,16 @@ if territorio_seleccionado:
             contribucion = valor * peso if pd.notna(valor) else 0
             puntuacion_base += contribucion
             original_display_name = medidas_originales.get(clave_norm, row["Medida"])
-                
-                # Obtener valor normalizado si existe
-                valor_normalizado = valores_normalizados.get(clave_norm, "N/A")
-                if valor_normalizado != "N/A" and pd.notna(valor_normalizado):
-                    valor_normalizado = round(valor_normalizado, 2)
-                
+            
+            # Obtener valor normalizado si existe
+            valor_normalizado = valores_normalizados.get(clave_norm, "N/A")
+            if valor_normalizado != "N/A" and pd.notna(valor_normalizado):
+                valor_normalizado = round(valor_normalizado, 2)
+            
             desglose.append({
                 "Indicador": original_display_name,
                 "Valor": round(valor, 2) if pd.notna(valor) else "N/A",
-                    "Valor Normalizado": valor_normalizado,
+                "Valor Normalizado": valor_normalizado,
                 "Peso": round(peso, 2),
                 "Contribución": round(contribucion, 2) if contribucion is not None else "—"
             })
@@ -960,43 +960,43 @@ for idx, row in df_ordenado.iterrows():
 
     popup_html = f"""
     <b>{row['Nombre_Mostrar']}</b><br>
-        """
-        
-        # Añadir Provincia y Ldo si están disponibles
-        if 'Provincia' in row and pd.notna(row['Provincia']):
-            popup_html += f"Provincia: {row['Provincia']}<br>"
-        if 'Ldo' in row and pd.notna(row['Ldo']):
-            popup_html += f"Ldo: {row['Ldo']}<br>"
-        
-        # Buscar valor de población sin normalizar desde singular_pob_sexo.csv
-        poblacion_original = "N/A"
-        
-        # Determinar el nombre a buscar
-        nombre_a_buscar = None
-        if 'Singular' in row and pd.notna(row['Singular']) and str(row['Singular']).strip() != '':
-            # Si Singular tiene valor, usar ese
-            nombre_a_buscar = str(row['Singular']).strip()
-        else:
-            # Si Singular está vacío, usar Territorio
-            nombre_a_buscar = str(row['Territorio']).strip()
-        
-        # Buscar en singular_pob_sexo.csv
-        if nombre_a_buscar:
-            # Cargar el archivo singular_pob_sexo.csv si no está cargado
-            try:
-                df_singular_pob = pd.read_csv("singular_pob_sexo.csv", sep=";", na_values=["-", "", "NA"])
-                
-                # Buscar población para "Ambos sexos"
-                poblacion_data = df_singular_pob[
-                    (df_singular_pob['Territorio'] == nombre_a_buscar) & 
-                    (df_singular_pob['Sexo'] == 'Ambos sexos') &
-                    (df_singular_pob['Medida'] == 'Población')
-                ]
-                
-                if not poblacion_data.empty:
-                    poblacion_original = f"{poblacion_data.iloc[0]['Valor']:.0f}" if pd.notna(poblacion_data.iloc[0]['Valor']) else "N/A"
-            except Exception as e:
-                poblacion_original = "Error al cargar datos"
+    """
+    
+    # Añadir Provincia y Ldo si están disponibles
+    if 'Provincia' in row and pd.notna(row['Provincia']):
+        popup_html += f"Provincia: {row['Provincia']}<br>"
+    if 'Ldo' in row and pd.notna(row['Ldo']):
+        popup_html += f"Ldo: {row['Ldo']}<br>"
+    
+    # Buscar valor de población sin normalizar desde singular_pob_sexo.csv
+    poblacion_original = "N/A"
+    
+    # Determinar el nombre a buscar
+    nombre_a_buscar = None
+    if 'Singular' in row and pd.notna(row['Singular']) and str(row['Singular']).strip() != '':
+        # Si Singular tiene valor, usar ese
+        nombre_a_buscar = str(row['Singular']).strip()
+    else:
+        # Si Singular está vacío, usar Territorio
+        nombre_a_buscar = str(row['Territorio']).strip()
+    
+    # Buscar en singular_pob_sexo.csv
+    if nombre_a_buscar:
+        # Cargar el archivo singular_pob_sexo.csv si no está cargado
+        try:
+            df_singular_pob = pd.read_csv("singular_pob_sexo.csv", sep=";", na_values=["-", "", "NA"])
+            
+            # Buscar población para "Ambos sexos"
+            poblacion_data = df_singular_pob[
+                (df_singular_pob['Territorio'] == nombre_a_buscar) & 
+                (df_singular_pob['Sexo'] == 'Ambos sexos') &
+                (df_singular_pob['Medida'] == 'Población')
+            ]
+            
+            if not poblacion_data.empty:
+                poblacion_original = f"{poblacion_data.iloc[0]['Valor']:.0f}" if pd.notna(poblacion_data.iloc[0]['Valor']) else "N/A"
+        except Exception as e:
+            poblacion_original = "Error al cargar datos"
         
         popup_html += f"""
         <b>Población:</b> {poblacion_original}<br>
@@ -1059,26 +1059,25 @@ if st.sidebar.button("🧹 Limpiar caché de datos"):
     st.experimental_rerun()
 
 # --------------------
-    # --------------------
-    # Guardar Pesos Actuales
+# Guardar Pesos Actuales
 st.sidebar.subheader("Guardar Pesos Actuales")
-    if pesos:
-        df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
-        df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
-        df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
-        
-        # Convertir a CSV string directamente
-        csv_string = df_pesos_guardar.to_csv(index=False, sep=';', encoding='utf-8')
-        
-        st.sidebar.download_button(
-            label="💾 Descargar configuración actual de pesos",
-            data=csv_string,
-            file_name="pesos_guardados.csv",
-            mime="text/csv",
-            key="download_weights_button"
-        )
-    else:
-        st.sidebar.warning("No hay pesos para guardar. Carga archivos de datos primero.")
+if pesos:
+    df_pesos_guardar = pd.DataFrame(pesos.items(), columns=['Indicador', 'Peso'])
+    df_pesos_guardar['Indicador_Original'] = df_pesos_guardar['Indicador'].map(medidas_originales)
+    df_pesos_guardar = df_pesos_guardar[['Indicador_Original', 'Indicador', 'Peso']]
+    
+    # Convertir a CSV string directamente
+    csv_string = df_pesos_guardar.to_csv(index=False, sep=';', encoding='utf-8')
+    
+    st.sidebar.download_button(
+        label="💾 Descargar configuración actual de pesos",
+        data=csv_string,
+        file_name="pesos_guardados.csv",
+        mime="text/csv",
+        key="download_weights_button"
+    )
+else:
+    st.sidebar.warning("No hay pesos para guardar. Carga archivos de datos primero.")
 
 # --------------------
 # TAB 2: Comparación de Municipios
