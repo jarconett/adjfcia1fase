@@ -555,55 +555,35 @@ with tab1:
                                   if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
                                                'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']]
             
-            if columnas_indicadores:
-                st.write("**🔍 Verificación de normalización:**")
-                # Mostrar algunos valores de ejemplo
-                ejemplo_municipio = df_con_farmacia_base.iloc[0] if len(df_con_farmacia_base) > 0 else None
-                if ejemplo_municipio is not None:
-                    st.write(f"**Municipio de ejemplo**: {ejemplo_municipio.get('Nombre_Mostrar', 'N/A')}")
-                    valores_ejemplo = []
-                    for col in columnas_indicadores[:5]:  # Primeros 5 indicadores
-                        if col in df_con_farmacia_base.columns:
-                            valor = ejemplo_municipio.get(col, 0)
-                            if pd.notna(valor):
-                                valores_ejemplo.append(f"{col[:30]}: {valor:.2f}")
+            # Mostrar estadísticas de normalización
+            with st.expander("📈 Estadísticas de normalización", expanded=False):
+                if len(df_con_farmacia_base) > 0:
+                    # Obtener columnas de indicadores normalizados
+                    columnas_indicadores = [col for col in df_con_farmacia_base.columns 
+                                          if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
+                                                       'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']]
                     
-                    if valores_ejemplo:
-                        st.write("**Valores normalizados de ejemplo:**")
-                        for valor in valores_ejemplo:
-                            st.write(f"  - {valor}")
+                    if columnas_indicadores:
+                        st.write("**Rango de valores normalizados por indicador:**")
+                        stats_df = []
+                        for col in columnas_indicadores[:10]:  # Mostrar solo los primeros 10
+                            if col in df_con_farmacia_base.columns:
+                                serie = df_con_farmacia_base[col].dropna()
+                                if len(serie) > 0:
+                                    stats_df.append({
+                                        'Indicador': col[:40] + '...' if len(col) > 40 else col,
+                                        'Min': f"{serie.min():.2f}",
+                                        'Max': f"{serie.max():.2f}",
+                                        'Media': f"{serie.mean():.2f}",
+                                        'Desv. Est.': f"{serie.std():.2f}"
+                                    })
+                        
+                        if stats_df:
+                            st.dataframe(pd.DataFrame(stats_df), use_container_width=True)
+                        else:
+                            st.write("No hay datos normalizados para mostrar.")
                     else:
-                        st.write("No se encontraron valores normalizados.")
-        
-        # Mostrar estadísticas de normalización
-        with st.expander("📈 Estadísticas de normalización", expanded=False):
-            if len(df_con_farmacia_base) > 0:
-                # Obtener columnas de indicadores normalizados
-                columnas_indicadores = [col for col in df_con_farmacia_base.columns 
-                                      if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
-                                                   'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']]
-                
-                if columnas_indicadores:
-                    st.write("**Rango de valores normalizados por indicador:**")
-                    stats_df = []
-                    for col in columnas_indicadores[:10]:  # Mostrar solo los primeros 10
-                        if col in df_con_farmacia_base.columns:
-                            serie = df_con_farmacia_base[col].dropna()
-                            if len(serie) > 0:
-                                stats_df.append({
-                                    'Indicador': col[:40] + '...' if len(col) > 40 else col,
-                                    'Min': f"{serie.min():.2f}",
-                                    'Max': f"{serie.max():.2f}",
-                                    'Media': f"{serie.mean():.2f}",
-                                    'Desv. Est.': f"{serie.std():.2f}"
-                                })
-                    
-                    if stats_df:
-                        st.dataframe(pd.DataFrame(stats_df), use_container_width=True)
-                    else:
-                        st.write("No hay datos normalizados para mostrar.")
-                else:
-                    st.write("No se encontraron indicadores normalizados.")
+                        st.write("No se encontraron indicadores normalizados.")
 
     st.subheader("Ranking de municipios con farmacia ordenados por puntuación total")
 
@@ -1141,6 +1121,6 @@ with tab2:
 
 # --------------------
 # Version information in the sidebar
-st.sidebar.subheader("Version 1.8.0")
+st.sidebar.subheader("Version 1.9.0")
 
 
