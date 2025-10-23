@@ -403,6 +403,42 @@ with tab1:
             return "N/A"
         except Exception as e:
             return "N/A"
+    
+    def obtener_poblacion_territorio_con_factor(territorio, singular=None, factor=None):
+        """Obtiene la población de un territorio desde singular_pob_sexo.csv y la multiplica por el factor"""
+        try:
+            # Cargar el archivo singular_pob_sexo.csv
+            df_singular_pob = pd.read_csv("singular_pob_sexo.csv", sep=";", na_values=["-", "", "NA"])
+            
+            # Determinar el nombre a buscar
+            nombre_a_buscar = None
+            if singular and pd.notna(singular) and str(singular).strip() != '':
+                # Si Singular tiene valor, usar ese
+                nombre_a_buscar = str(singular).strip()
+            else:
+                # Si Singular está vacío, usar Territorio
+                nombre_a_buscar = str(territorio).strip()
+            
+            # Buscar población para "Ambos sexos"
+            if nombre_a_buscar:
+                poblacion_data = df_singular_pob[
+                    (df_singular_pob['Territorio'] == nombre_a_buscar) & 
+                    (df_singular_pob['Sexo'] == 'Ambos sexos') &
+                    (df_singular_pob['Medida'] == 'Población')
+                ]
+                
+                if not poblacion_data.empty:
+                    valor = poblacion_data.iloc[0]['Valor']
+                    if pd.notna(valor) and factor and pd.notna(factor):
+                        # Multiplicar por el factor
+                        valor_con_factor = valor * factor
+                        return f"{valor_con_factor:.0f}"
+                    else:
+                        return f"{valor:.0f}" if pd.notna(valor) else "N/A"
+            
+            return "N/A"
+        except Exception as e:
+            return "N/A"
 
     # Configuración de normalización ya definida fuera de los tabs
     
@@ -778,9 +814,13 @@ if metodo_normalizacion != "Sin normalizar":
     #st.write(f"Debug: Columnas disponibles en df_ordenado_filtrado: {list(df_ordenado_filtrado.columns)}")
     
     if 'Territorio' in df_ordenado_filtrado.columns:
-        # Calcular población para cada territorio en el dataframe filtrado
+        # Calcular población para cada territorio en el dataframe filtrado (con factor aplicado)
         df_ordenado_filtrado['Población'] = df_ordenado_filtrado.apply(
-            lambda row: obtener_poblacion_territorio(row['Territorio'], row.get('Singular', None) if 'Singular' in df_ordenado_filtrado.columns else None), 
+            lambda row: obtener_poblacion_territorio_con_factor(
+                row['Territorio'], 
+                row.get('Singular', None) if 'Singular' in df_ordenado_filtrado.columns else None,
+                row.get('Factor', None) if 'Factor' in df_ordenado_filtrado.columns else None
+            ), 
             axis=1
         )
         columnas_mostrar.insert(3, 'Población')  # Insertar después de Provincia
