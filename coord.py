@@ -171,31 +171,31 @@ st.success("Archivos cargados correctamente.Espere")
 df_farmacias = pd.DataFrame()
 if territorios_file:
     try:
-            # Leer el archivo con los encabezados correctos
-            df_farmacias = pd.read_csv(
-                territorios_file.name, 
-                sep=";", 
-                na_values=["-", "", "NA"]
-            )
+        # Leer el archivo con los encabezados correctos
+        df_farmacias = pd.read_csv(
+            territorios_file.name, 
+            sep=";", 
+            na_values=["-", "", "NA"]
+        )
         df_farmacias.columns = df_farmacias.columns.str.strip()
-            
-            # Convertir las columnas numéricas al tipo correcto
-            df_farmacias['Latitud'] = pd.to_numeric(df_farmacias['Latitud'], errors='coerce')
-            df_farmacias['Longitud'] = pd.to_numeric(df_farmacias['Longitud'], errors='coerce')
-            df_farmacias['Factor'] = pd.to_numeric(df_farmacias['Factor'], errors='coerce')
-            # Rellenar valores faltantes en Factor con 1.0
-            df_farmacias['Factor'] = df_farmacias['Factor'].fillna(1.0)
-            
-            # Verificación de datos cargados correctamente
-            
-            # Información de carga exitosa
-            st.sidebar.success(f"✅ Archivo Territorios.csv cargado correctamente")
-            
+        
+        # Convertir las columnas numéricas al tipo correcto
+        df_farmacias['Latitud'] = pd.to_numeric(df_farmacias['Latitud'], errors='coerce')
+        df_farmacias['Longitud'] = pd.to_numeric(df_farmacias['Longitud'], errors='coerce')
+        df_farmacias['Factor'] = pd.to_numeric(df_farmacias['Factor'], errors='coerce')
+        # Rellenar valores faltantes en Factor con 1.0
+        df_farmacias['Factor'] = df_farmacias['Factor'].fillna(1.0)
+        
+        # Verificación de datos cargados correctamente
+        
+        # Información de carga exitosa
+        st.sidebar.success(f"✅ Archivo Territorios.csv cargado correctamente")
+        
         if 'Singular' in df_farmacias.columns:
             df_farmacias['Nombre_Mostrar'] = df_farmacias['Singular'].fillna(df_farmacias['Territorio'])
         else:
             df_farmacias['Nombre_Mostrar'] = df_farmacias['Territorio']
-            st.sidebar.success(f"Farmacias cargadas: {len(df_farmacias)} registros")
+        st.sidebar.success(f"Farmacias cargadas: {len(df_farmacias)} registros")
     except Exception as e:
         st.sidebar.error(f"Error al leer Territorios.csv: {e}")
     else:
@@ -500,8 +500,8 @@ if uploaded_weights_file is not None:
                 f"Valor global para {archivo}", -5.0, 5.0, valor_global_por_defecto, 0.1, key=f"global_val_{archivo}"
             )
             if col2.button("Aplicar", key=f"aplicar_{archivo}"):
-            for indicador_completo in sorted(indicadores_combinados):
-                clave_norm = normaliza_nombre_indicador(indicador_completo)
+                for indicador_completo in sorted(indicadores_combinados):
+                    clave_norm = normaliza_nombre_indicador(indicador_completo)
                     st.session_state[f"{archivo}-{clave_norm}"] = valor_global
                 st.rerun()
 
@@ -527,8 +527,8 @@ if uploaded_weights_file is not None:
 
     # --- Formulario solo para recalcular ---
     with st.sidebar.form("config_form"):
-    recalcular_button = st.form_submit_button("Aplicar Cambios y Recalcular")
-# --- FIN DEL FORMULARIO ---
+        recalcular_button = st.form_submit_button("Aplicar Cambios y Recalcular")
+    # --- FIN DEL FORMULARIO ---
 
 # El resto del código solo se ejecuta si se envía el formulario
 # o si se carga la página por primera vez.
@@ -545,20 +545,20 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
     col_map = {col: normaliza_nombre_indicador(col) if col != 'Territorio' else col for col in df_pivot.columns}
     df_pivot = df_pivot.rename(columns=col_map)
     df_pivot["Territorio_normalizado"] = df_pivot["Territorio"].apply(normalizar_nombre_municipio)
+    
+    # Aplicar Factor a indicadores individuales antes de normalización si está habilitado
+    if aplicar_factor_antes:
+        # Obtener factores de farmacias
+        factores_dict = dict(zip(df_farmacias['Territorio'], df_farmacias['Factor']))
         
-        # Aplicar Factor a indicadores individuales antes de normalización si está habilitado
-        if aplicar_factor_antes:
-            # Obtener factores de farmacias
-            factores_dict = dict(zip(df_farmacias['Territorio'], df_farmacias['Factor']))
-            
-            # Aplicar factor a cada indicador para cada territorio
-            columnas_indicadores = [col for col in df_pivot.columns if col not in ['Territorio', 'Territorio_normalizado']]
-            for col in columnas_indicadores:
-                if col in df_pivot.columns:
-                    df_pivot[col] = df_pivot.apply(
-                        lambda row: row[col] * factores_dict.get(row['Territorio'], 1.0) if pd.notna(row[col]) else row[col],
-                        axis=1
-                    )
+        # Aplicar factor a cada indicador para cada territorio
+        columnas_indicadores = [col for col in df_pivot.columns if col not in ['Territorio', 'Territorio_normalizado']]
+        for col in columnas_indicadores:
+            if col in df_pivot.columns:
+                df_pivot[col] = df_pivot.apply(
+                    lambda row: row[col] * factores_dict.get(row['Territorio'], 1.0) if pd.notna(row[col]) else row[col],
+                    axis=1
+                )
         
         # Aplicar normalización si está habilitada
         if metodo_normalizacion != "Sin normalizar":
@@ -616,35 +616,6 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
                 
             df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
             municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
-                # Incluir todas las columnas necesarias del archivo de farmacias
-                columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
-                if 'Provincia' in df_farmacias.columns:
-                    columnas_farmacias.append('Provincia')
-                if 'Ldo' in df_farmacias.columns:
-                    columnas_farmacias.append('Ldo')
-                
-                df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
-            else:
-                st.sidebar.error(f"Faltan columnas 'Territorio' o 'Factor' en df_farmacias. Columnas disponibles: {list(df_farmacias.columns)}")
-        else:
-            st.sidebar.error("df_farmacias está vacío")
-
-    df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
-    df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
-        
-        # Procesamiento de datos completado
-        
-        # Información de estado
-        if len(df_con_farmacia_base) > 0:
-            st.sidebar.success(f"✅ {len(df_con_farmacia_base)} municipios con farmacia encontrados")
-        elif len(municipios_con_farmacia) > 0:
-            st.sidebar.warning(f"⚠️ No se encontraron coincidencias entre {len(municipios_con_farmacia)} municipios con farmacia y {len(df_pivot)} municipios en los datos")
-            
-            # Información de diagnóstico simplificada
-            st.sidebar.write(f"Municipios con farmacia: {len(municipios_con_farmacia)}")
-            st.sidebar.write(f"Municipios en datos: {len(df_pivot)}")
-    
-    if not df_farmacias_factores.empty:
             # Incluir todas las columnas necesarias del archivo de farmacias
             columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
             if 'Provincia' in df_farmacias.columns:
@@ -653,6 +624,35 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
                 columnas_farmacias.append('Ldo')
             
             df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
+        else:
+            st.sidebar.error(f"Faltan columnas 'Territorio' o 'Factor' en df_farmacias. Columnas disponibles: {list(df_farmacias.columns)}")
+    else:
+        st.sidebar.error("df_farmacias está vacío")
+
+    df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
+    df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
+    
+    # Procesamiento de datos completado
+    
+    # Información de estado
+    if len(df_con_farmacia_base) > 0:
+        st.sidebar.success(f"✅ {len(df_con_farmacia_base)} municipios con farmacia encontrados")
+    elif len(municipios_con_farmacia) > 0:
+        st.sidebar.warning(f"⚠️ No se encontraron coincidencias entre {len(municipios_con_farmacia)} municipios con farmacia y {len(df_pivot)} municipios en los datos")
+        
+        # Información de diagnóstico simplificada
+        st.sidebar.write(f"Municipios con farmacia: {len(municipios_con_farmacia)}")
+        st.sidebar.write(f"Municipios en datos: {len(df_pivot)}")
+    
+    if not df_farmacias_factores.empty:
+        # Incluir todas las columnas necesarias del archivo de farmacias
+        columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
+        if 'Provincia' in df_farmacias.columns:
+            columnas_farmacias.append('Provincia')
+        if 'Ldo' in df_farmacias.columns:
+            columnas_farmacias.append('Ldo')
+        
+        df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
         df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_farmacias_factores, on="Territorio_normalizado", how="left")
         df_con_farmacia_base['Factor'] = df_con_farmacia_base['Factor'].fillna(1.0)
     else:
@@ -683,7 +683,7 @@ def calcular_puntuaciones(df_con_farmacia_base, df_sin_farmacia_base, pesos, rad
         df_con_farmacia['PuntuaciónFinal'] = df_con_farmacia['Puntuación']
     else:
         # Aplicar factor a la puntuación final (comportamiento actual)
-    df_con_farmacia['PuntuaciónFinal'] = df_con_farmacia['Puntuación'] * df_con_farmacia['Factor']
+        df_con_farmacia['PuntuaciónFinal'] = df_con_farmacia['Puntuación'] * df_con_farmacia['Factor']
     df_con_farmacia['PuntuaciónExtendida'] = df_con_farmacia['PuntuaciónFinal']
     df_con_farmacia['SumaMunicipiosCercanos'] = 0.0
 
@@ -781,63 +781,63 @@ if metodo_normalizacion != "Sin normalizar":
 
 st.subheader("Ranking de municipios con farmacia ordenados por puntuación total")
 
-    # Filtro por provincia
-    if 'Provincia' in df_ordenado.columns:
-        provincias_disponibles = ['Todas'] + sorted(df_ordenado['Provincia'].dropna().unique().tolist())
-        provincia_seleccionada = st.selectbox(
-            "Filtrar por provincia:",
-            options=provincias_disponibles,
-            index=0
-        )
-        
-        # Aplicar filtro si no se selecciona "Todas"
-        if provincia_seleccionada != 'Todas':
-            df_ordenado_filtrado = df_ordenado[df_ordenado['Provincia'] == provincia_seleccionada].copy()
-            st.info(f"Mostrando {len(df_ordenado_filtrado)} municipios de {provincia_seleccionada}")
-        else:
-            df_ordenado_filtrado = df_ordenado.copy()
-            st.info(f"Mostrando todos los {len(df_ordenado_filtrado)} municipios")
+# Filtro por provincia
+if 'Provincia' in df_ordenado.columns:
+    provincias_disponibles = ['Todas'] + sorted(df_ordenado['Provincia'].dropna().unique().tolist())
+    provincia_seleccionada = st.selectbox(
+        "Filtrar por provincia:",
+        options=provincias_disponibles,
+        index=0
+    )
+    
+    # Aplicar filtro si no se selecciona "Todas"
+    if provincia_seleccionada != 'Todas':
+        df_ordenado_filtrado = df_ordenado[df_ordenado['Provincia'] == provincia_seleccionada].copy()
+        st.info(f"Mostrando {len(df_ordenado_filtrado)} municipios de {provincia_seleccionada}")
     else:
         df_ordenado_filtrado = df_ordenado.copy()
+        st.info(f"Mostrando todos los {len(df_ordenado_filtrado)} municipios")
+else:
+    df_ordenado_filtrado = df_ordenado.copy()
 
-    if not df_ordenado_filtrado.empty:
+if not df_ordenado_filtrado.empty:
     territorio_seleccionado = st.selectbox(
         "Selecciona un municipio del ranking para centrar el mapa:",
-            options=df_ordenado_filtrado['Nombre_Mostrar'].tolist()
+        options=df_ordenado_filtrado['Nombre_Mostrar'].tolist()
     )
 else:
     territorio_seleccionado = None
     st.info("No hay municipios con farmacia para mostrar en el ranking.")
 
-    # Preparar columnas para mostrar
-    columnas_mostrar = ['Ranking', 'Nombre_Mostrar', 'Puntuación', 'Factor', 'PuntuaciónFinal', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida']
-    
-    # Añadir Provincia y Población si están disponibles
-    if 'Provincia' in df_ordenado.columns:
-        columnas_mostrar.insert(2, 'Provincia')  # Insertar después de Nombre_Mostrar
-    
-    # Agregar columna de Población al dataframe filtrado
-    #st.write(f"Debug: Columnas disponibles en df_ordenado_filtrado: {list(df_ordenado_filtrado.columns)}")
-    
-    if 'Territorio' in df_ordenado_filtrado.columns:
-        # Calcular población para cada territorio en el dataframe filtrado (con factor aplicado)
-        df_ordenado_filtrado['Población'] = df_ordenado_filtrado.apply(
-            lambda row: obtener_poblacion_territorio_con_factor(
-                row['Territorio'], 
-                row.get('Singular', None) if 'Singular' in df_ordenado_filtrado.columns else None,
-                row.get('Factor', None) if 'Factor' in df_ordenado_filtrado.columns else None
-            ), 
-            axis=1
-        )
-        columnas_mostrar.insert(3, 'Población')  # Insertar después de Provincia
-        #st.write("Debug: Columna Población agregada")
-    else:
-        st.write("Debug: Columna Territorio no encontrada")
-    
-    # Filtrar solo las columnas que existen
-    columnas_existentes = [col for col in columnas_mostrar if col in df_ordenado_filtrado.columns]
-    #st.write(f"Debug: Columnas a mostrar: {columnas_mostrar}")
-    #st.write(f"Debug: Columnas existentes: {columnas_existentes}")
+# Preparar columnas para mostrar
+columnas_mostrar = ['Ranking', 'Nombre_Mostrar', 'Puntuación', 'Factor', 'PuntuaciónFinal', 'SumaMunicipiosCercanos', 'PuntuaciónExtendida']
+
+# Añadir Provincia y Población si están disponibles
+if 'Provincia' in df_ordenado.columns:
+    columnas_mostrar.insert(2, 'Provincia')  # Insertar después de Nombre_Mostrar
+
+# Agregar columna de Población al dataframe filtrado
+#st.write(f"Debug: Columnas disponibles en df_ordenado_filtrado: {list(df_ordenado_filtrado.columns)}")
+
+if 'Territorio' in df_ordenado_filtrado.columns:
+    # Calcular población para cada territorio en el dataframe filtrado (con factor aplicado)
+    df_ordenado_filtrado['Población'] = df_ordenado_filtrado.apply(
+        lambda row: obtener_poblacion_territorio_con_factor(
+            row['Territorio'], 
+            row.get('Singular', None) if 'Singular' in df_ordenado_filtrado.columns else None,
+            row.get('Factor', None) if 'Factor' in df_ordenado_filtrado.columns else None
+        ), 
+        axis=1
+    )
+    columnas_mostrar.insert(3, 'Población')  # Insertar después de Provincia
+    #st.write("Debug: Columna Población agregada")
+else:
+    st.write("Debug: Columna Territorio no encontrada")
+
+# Filtrar solo las columnas que existen
+columnas_existentes = [col for col in columnas_mostrar if col in df_ordenado_filtrado.columns]
+#st.write(f"Debug: Columnas a mostrar: {columnas_mostrar}")
+#st.write(f"Debug: Columnas existentes: {columnas_existentes}")
     
     st.dataframe(
         df_ordenado_filtrado.reset_index().rename(columns={"index": "Ranking"})[columnas_existentes].round(2),
