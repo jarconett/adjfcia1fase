@@ -25,6 +25,26 @@ tab1, tab2 = st.tabs(["🗺️ Mapa y Ranking", "📊 Comparación de Municipios
 st.sidebar.header("Configuración de Datos y Puntuación")
 
 # --------------------
+# Configuración de Normalización (mover al principio)
+st.sidebar.subheader("🔧 Configuración de Normalización")
+
+# Opciones de normalización
+metodo_normalizacion = st.sidebar.selectbox(
+    "Método de normalización:",
+    ["Min-Max (0-1)", "Min-Max (0-100)", "Z-Score", "Sin normalizar"],
+    index=0
+)
+
+# Escala de normalización
+if "Min-Max" in metodo_normalizacion:
+    escala_max = 1.0 if "0-1" in metodo_normalizacion else 100.0
+else:
+    escala_max = 1.0
+
+# Información sobre direccionalidad
+st.sidebar.info("💡 **Direccionalidad**: Se controla con los pesos positivos/negativos en los sliders")
+
+# --------------------
 # TAB 1: Mapa y Ranking
 with tab1:
     # --------------------
@@ -281,25 +301,7 @@ with tab1:
             'std': serie_limpia.std()
         }
 
-    # --------------------
-    # Configuración de Normalización
-    st.sidebar.subheader("🔧 Configuración de Normalización")
-    
-    # Opciones de normalización
-    metodo_normalizacion = st.sidebar.selectbox(
-        "Método de normalización:",
-        ["Min-Max (0-1)", "Min-Max (0-100)", "Z-Score", "Sin normalizar"],
-        index=0
-    )
-    
-    # Escala de normalización
-    if "Min-Max" in metodo_normalizacion:
-        escala_max = 1.0 if "0-1" in metodo_normalizacion else 100.0
-    else:
-        escala_max = 1.0
-    
-    # Información sobre direccionalidad
-    st.sidebar.info("💡 **Direccionalidad**: Se controla con los pesos positivos/negativos en los sliders")
+    # Configuración de normalización ya definida arriba
     
     # --------------------
     # Load Weights from CSV
@@ -546,6 +548,32 @@ with tab1:
     if metodo_normalizacion != "Sin normalizar":
         st.info(f"📊 **Normalización aplicada**: {metodo_normalizacion} (escala 0-{escala_max:.0f})")
         st.info("🎯 **Direccionalidad**: Se controla con pesos positivos/negativos en los sliders")
+        
+        # Debug: mostrar algunos valores normalizados
+        if len(df_con_farmacia_base) > 0:
+            columnas_indicadores = [col for col in df_con_farmacia_base.columns 
+                                  if col not in ['Territorio', 'Territorio_normalizado', 'Latitud', 'Longitud', 
+                                               'Factor', 'Nombre_Mostrar', 'Provincia', 'Ldo']]
+            
+            if columnas_indicadores:
+                st.write("**🔍 Verificación de normalización:**")
+                # Mostrar algunos valores de ejemplo
+                ejemplo_municipio = df_con_farmacia_base.iloc[0] if len(df_con_farmacia_base) > 0 else None
+                if ejemplo_municipio is not None:
+                    st.write(f"**Municipio de ejemplo**: {ejemplo_municipio.get('Nombre_Mostrar', 'N/A')}")
+                    valores_ejemplo = []
+                    for col in columnas_indicadores[:5]:  # Primeros 5 indicadores
+                        if col in df_con_farmacia_base.columns:
+                            valor = ejemplo_municipio.get(col, 0)
+                            if pd.notna(valor):
+                                valores_ejemplo.append(f"{col[:30]}: {valor:.2f}")
+                    
+                    if valores_ejemplo:
+                        st.write("**Valores normalizados de ejemplo:**")
+                        for valor in valores_ejemplo:
+                            st.write(f"  - {valor}")
+                    else:
+                        st.write("No se encontraron valores normalizados.")
         
         # Mostrar estadísticas de normalización
         with st.expander("📈 Estadísticas de normalización", expanded=False):
