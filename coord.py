@@ -195,14 +195,20 @@ with tab1:
             st.sidebar.success(f"✅ Archivo Territorios.csv cargado correctamente")
 
             if 'Singular' in df_farmacias.columns:
-                # Crear Nombre_Mostrar único combinando Territorio y Singular
+                # Crear Nombre_Mostrar único combinando Territorio + Singular
                 df_farmacias['Nombre_Mostrar'] = df_farmacias.apply(
-                    lambda row: f"{row['Singular']}" if pd.notna(row['Singular']) and str(row['Singular']).strip() != '' 
+                    lambda row: f"{row['Territorio']} ({row['Singular'].strip()})" if pd.notna(row['Singular']) and str(row['Singular']).strip() != ''
                     else f"{row['Territorio']}", axis=1
                 )
             else:
                 df_farmacias['Nombre_Mostrar'] = df_farmacias['Territorio']
+            # 🔧 Asegurar unicidad absoluta de Nombre_Mostrar (por si hay duplicados exactos)
+            df_farmacias['Nombre_Mostrar'] = df_farmacias['Nombre_Mostrar'].astype(str)
+            df_farmacias['Nombre_Mostrar'] = df_farmacias['Nombre_Mostrar'] + \
+                df_farmacias.groupby('Nombre_Mostrar').cumcount().replace(0, '').astype(str)
+
             st.sidebar.success(f"Farmacias cargadas: {len(df_farmacias)} registros")
+            
         except Exception as e:
             st.sidebar.error(f"Error al leer Territorios.csv: {e}")
     else:
