@@ -661,34 +661,66 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
             # Información de diagnóstico simplificada
             st.sidebar.write(f"Municipios con farmacia: {len(municipios_con_farmacia)}")
             st.sidebar.write(f"Municipios en datos: {len(df_pivot)}")
+        # -----------------------------
+        # NUEVO BLOQUE: generar df_con_farmacia_base con múltiples filas por Territorio
+        # -----------------------------
+        df_pivot_con = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
+        df_pivot_sin = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
 
         if not df_farmacias_factores.empty:
+            # Merge entre pivot y farmacias → genera una fila por cada farmacia (Territorio + Singular)
+            df_con_farmacia_base = pd.merge(
+                df_pivot_con,
+                df_farmacias_factores,
+                on="Territorio_normalizado",
+                how="left",
+                suffixes=("", "_farm")
+            )
+            # Asegurar que Factor siempre tenga valor
+            df_con_farmacia_base["Factor"] = pd.to_numeric(df_con_farmacia_base["Factor"], errors="coerce").fillna(1.0)
+
+            # Si por algún motivo Nombre_Mostrar está vacío, usar Territorio como respaldo
+            df_con_farmacia_base["Nombre_Mostrar"] = df_con_farmacia_base["Nombre_Mostrar"].fillna(df_con_farmacia_base["Territorio"])
+
+            # Añadir coordenadas (merge final con df_coords)
+            df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_coords, on="Territorio", how="left")
+        else:
+            # Si no hay farmacias, mantener lógica previa
+            df_con_farmacia_base = df_pivot_con.copy()
+            df_con_farmacia_base["Factor"] = 1.0
+            df_con_farmacia_base["Nombre_Mostrar"] = df_con_farmacia_base["Territorio"]
+            df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_coords, on="Territorio", how="left")
+        # Municipios sin farmacia igual que antes
+        df_sin_farmacia_base = pd.merge(df_pivot_sin, df_coords, on="Territorio", how="left")
+        return df_con_farmacia_base, df_sin_farmacia_base
+            
+        #if not df_farmacias_factores.empty:
             # Hacer merge manual para manejar duplicados correctamente
-            df_con_farmacia_base['Factor'] = 1.0
-            df_con_farmacia_base['Nombre_Mostrar'] = df_con_farmacia_base['Territorio']
+            #df_con_farmacia_base['Factor'] = 1.0
+            #df_con_farmacia_base['Nombre_Mostrar'] = df_con_farmacia_base['Territorio']
             
             # Para cada fila en df_con_farmacia_base, buscar la correspondiente en df_farmacias
-            for idx, row in df_con_farmacia_base.iterrows():
-                territorio_norm = row['Territorio_normalizado']
-                territorio_orig = row['Territorio']
+            #for idx, row in df_con_farmacia_base.iterrows():
+                #territorio_norm = row['Territorio_normalizado']
+                #territorio_orig = row['Territorio']
                 
                 # Buscar en df_farmacias las filas que coincidan
-                matches = df_farmacias[df_farmacias['Territorio_normalizado'] == territorio_norm]
+                #matches = df_farmacias[df_farmacias['Territorio_normalizado'] == territorio_norm]
                 
-                if not matches.empty:
+                #if not matches.empty:
                     # Si hay múltiples matches, usar el primero (o implementar lógica más sofisticada)
-                    match = matches.iloc[0]
-                    df_con_farmacia_base.at[idx, 'Factor'] = match['Factor']
-                    df_con_farmacia_base.at[idx, 'Nombre_Mostrar'] = match['Nombre_Mostrar']
+                    #match = matches.iloc[0]
+                    #df_con_farmacia_base.at[idx, 'Factor'] = match['Factor']
+                    #df_con_farmacia_base.at[idx, 'Nombre_Mostrar'] = match['Nombre_Mostrar']
                     
                     # Agregar otras columnas si existen
-                    if 'Provincia' in df_farmacias.columns:
-                        df_con_farmacia_base.at[idx, 'Provincia'] = match['Provincia']
-                    if 'Ldo' in df_farmacias.columns:
-                        df_con_farmacia_base.at[idx, 'Ldo'] = match['Ldo']
-        else:
-            df_con_farmacia_base['Factor'] = 1.0
-            df_con_farmacia_base['Nombre_Mostrar'] = df_con_farmacia_base['Territorio']
+                    #if 'Provincia' in df_farmacias.columns:
+                        #df_con_farmacia_base.at[idx, 'Provincia'] = match['Provincia']
+                    #if 'Ldo' in df_farmacias.columns:
+                        #df_con_farmacia_base.at[idx, 'Ldo'] = match['Ldo']
+        #else:
+            #df_con_farmacia_base['Factor'] = 1.0
+            #df_con_farmacia_base['Nombre_Mostrar'] = df_con_farmacia_base['Territorio']
 
         df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_coords, on="Territorio", how="left")
         df_sin_farmacia_base = pd.merge(df_sin_farmacia_base, df_coords, on="Territorio", how="left")
