@@ -745,9 +745,15 @@ df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
 
 # -------------------
 # Display ranking table and allow selection
-df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
+#df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
+#df_ordenado.index += 1  # Índice 1-based
+df_ordenado = (
+    df_municipios_farmacias
+    .sort_values('PuntuaciónExtendida', ascending=False)
+    .drop_duplicates(subset='Nombre_Mostrar', keep='first')
+    .reset_index(drop=True)
+)
 df_ordenado.index += 1  # Índice 1-based
-
 # Mostrar información sobre normalización
 if metodo_normalizacion != "Sin normalizar":
     if valor_max_personalizado is not None:
