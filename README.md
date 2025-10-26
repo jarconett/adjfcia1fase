@@ -6,8 +6,9 @@ streamlit run C:\Users\Javier\Desktop\adjfcia1fase\coord.py
 
 TO-DO:
 
-actualice primero y segundo en comparardor de pueblos
-
+indicadores despoblacion
+calculo facturacion segun habitantes y rango de edad
+densidad de poblacion 
 enlaces idealista compra alquiler
 cercania playa
 
