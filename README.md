@@ -5,7 +5,7 @@ streamlit run C:\Users\Javier\Desktop\adjfcia1fase\coord.py
 
 
 TO-DO:
-
+dias de consultorio
 indicadores despoblacion
 calculo facturacion segun habitantes y rango de edad
 densidad de poblacion 
