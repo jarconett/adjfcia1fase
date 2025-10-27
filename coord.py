@@ -555,9 +555,54 @@ with tab1:
 
 @st.cache_data
 def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizacion, escala_max, valor_max_personalizado=None, aplicar_factor_antes=False):
-        df_pivot = df_original.pivot_table(
-            index="Territorio", columns="Medida", values="Valor", aggfunc="first"
-        ).reset_index()
+# --- PREPARACIÓN INICIAL DEL DATAFRAME DE INDICADORES ---
+    # Detectar si el DataFrame tiene columna "Singular" (como en Consultorio.csv)
+        if 'Singular' in df_original.columns:
+        # Pivotar por Territorio y Singular → una fila por entidad singular
+            df_pivot = df_original.pivot_table(
+                index=['Territorio', 'Singular'],
+                columns='Medida',
+                values='Valor',
+                aggfunc='first'
+            ).reset_index()
+        else:
+        # Pivot normal por Territorio → una fila por municipio
+            df_pivot = df_original.pivot_table(
+                index='Territorio',
+                columns='Medida',
+                values='Valor',
+                aggfunc='first'
+            ).reset_index()
+
+    # --- Normalizar nombres de columnas ---
+        col_map = {
+            col: normaliza_nombre_indicador(col) if col not in ['Territorio', 'Singular'] else col
+            for col in df_pivot.columns
+        }
+        df_pivot = df_pivot.rename(columns=col_map)
+
+    # --- Crear campo compuesto Territorio_normalizado ---
+        def normalizar_compuesto(row):
+            territorio = normalizar_nombre_municipio(str(row.get('Territorio', '')))
+            singular = normalizar_nombre_municipio(str(row.get('Singular', ''))) if 'Singular' in row else ''
+            return f"{territorio}__{singular}" if singular and singular.strip() else territorio
+
+        df_pivot['Territorio_normalizado'] = df_pivot.apply(normalizar_compuesto, axis=1)
+
+    # --- Filtrar columnas de indicadores válidos (para configuración de pesos) ---
+        columnas_excluir = [
+            'Territorio', 'Singular', 'Territorio_normalizado', 'Latitud', 'Longitud'
+        ]
+        columnas_indicadores = [
+            col for col in df_pivot.columns
+            if col not in columnas_excluir
+            and not col.lower().startswith('consultorio_e_singular')
+            and not col.lower().startswith('farmacia_e_singular')
+        ]
+
+    # Mostrar en sidebar los indicadores cargados
+        st.sidebar.success(f"Indicadores cargados: {len(columnas_indicadores)} columnas numéricas detectadas")
+    # -----------------------------------------------------
         col_map = {col: normaliza_nombre_indicador(col) if col != 'Territorio' else col for col in df_pivot.columns}
         df_pivot = df_pivot.rename(columns=col_map)
         df_pivot["Territorio_normalizado"] = df_pivot["Territorio"].apply(normalizar_nombre_municipio)
