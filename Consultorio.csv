@@ -1,7 +1,7 @@
 ﻿Territorio;Medida;Valor;Singular
 Adamuz;Consultorio;1;E. singular Algallarín
 Adamuz;Dias_abierto;5;E. singular Algallarín
-Adamuz;Horas_consulta_semana_semana;22.5;E. singular Algallarín
+Adamuz;Horas_consulta_semana;22.5;E. singular Algallarín
 Albondón;Consultorio;1;
 Albondón;Dias_abierto;5;
 Albondón;Horas_consulta_semana;35;
@@ -323,5 +323,6 @@ Vélez-Málaga;Horas_consulta_semana;3.75;E. singular Cajiz
 Vícar;Consultorio;0;E. singular Congo-Canal
 Vícar;Dias_abierto;0;E. singular Congo-Canal
 Vícar;Horas_consulta_semana;0;E. singular Congo-Canal
+
 
 
