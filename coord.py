@@ -110,6 +110,7 @@ with tab1:
         "ieca_export_latitud_longuitud.csv",
         "ieca_export_poblacion_edad_nac.csv",
         "ieca_export_renta.csv",
+        "Consultorio.csv",
         "singular_pob_sexo.csv"
     ]
 
