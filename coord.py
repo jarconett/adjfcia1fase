@@ -607,17 +607,25 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
         df_pivot = df_pivot.rename(columns=col_map)
         df_pivot["Territorio_normalizado"] = df_pivot["Territorio"].apply(normalizar_nombre_municipio)
 
+        
         # Aplicar Factor a indicadores individuales antes de normalización si está habilitado
         if aplicar_factor_antes:
-            # Obtener factores de farmacias
-            factores_dict = dict(zip(df_farmacias['Territorio'], df_farmacias['Factor']))
+            # Obtener factores de farmacias con clave Territorio_normalizado (más preciso)
+            factores_dict = dict(zip(df_farmacias['Territorio_normalizado'], df_farmacias['Factor']))
 
-            # Aplicar factor a cada indicador para cada territorio
-            columnas_indicadores = [col for col in df_pivot.columns if col not in ['Territorio', 'Territorio_normalizado']]
+            # Aplicar factor a cada indicador, usando la clave normalizada
+            columnas_indicadores = [
+                col for col in df_pivot.columns
+                if col not in ['Territorio', 'Singular', 'Territorio_normalizado']
+            ]
+
             for col in columnas_indicadores:
                 if col in df_pivot.columns:
                     df_pivot[col] = df_pivot.apply(
-                        lambda row: row[col] * factores_dict.get(row['Territorio'], 1.0) if pd.notna(row[col]) else row[col],
+                        lambda row: (
+                            row[col] * factores_dict.get(row['Territorio_normalizado'], 1.0)
+                            if pd.notna(row[col]) else row[col]
+                        ),
                         axis=1
                     )
 
