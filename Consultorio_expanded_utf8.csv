@@ -1,325 +1,326 @@
 ﻿Territorio;Medida;Valor;Singular
 Adamuz;Consultorio;1;E. singular Algallarín
 Adamuz;Dias_abierto;5;E. singular Algallarín
-Adamuz;Horas_consulta_semana;22.5;E. singular Algallarín
+Adamuz;Horas_consulta_semana_semana;22.5;E. singular Algallarín
 Albondón;Consultorio;1;
 Albondón;Dias_abierto;5;
-Albondón;Horas_consulta;35;
+Albondón;Horas_consulta_semana;35;
 Albox;Consultorio;1;E. singular Llano de los Olleres
 Albox;Dias_abierto;2;E. singular Llano de los Olleres
-Albox;Horas_consulta;3.5;E. singular Llano de los Olleres
+Albox;Horas_consulta_semana;3.5;E. singular Llano de los Olleres
 Albánchez;Consultorio;1;
 Albánchez;Dias_abierto;5;
-Albánchez;Horas_consulta;30;
+Albánchez;Horas_consulta_semana;30;
 Alcalá del Río;Consultorio;1;E. singular San Ignacio del Viar
 Alcalá del Río;Dias_abierto;5;E. singular San Ignacio del Viar
-Alcalá del Río;Horas_consulta;5;E. singular San Ignacio del Viar
+Alcalá del Río;Horas_consulta_semana;5;E. singular San Ignacio del Viar
 Alcolea;Consultorio;1;
 Alcolea;Dias_abierto;5;
-Alcolea;Horas_consulta;35;
+Alcolea;Horas_consulta_semana;35;
 Alcontar;Consultorio;1;
 Alcontar;Dias_abierto;4;
-Alcontar;Horas_consulta;17;
+Alcontar;Horas_consulta_semana;17;
 Aldeaquemada;Consultorio;1;
 Aldeaquemada;Dias_abierto;5;
-Aldeaquemada;Horas_consulta;35;
+Aldeaquemada;Horas_consulta_semana;35;
 Aldeire;Consultorio;1;
 Aldeire;Dias_abierto;5;
-Aldeire;Horas_consulta;35;
+Aldeire;Horas_consulta_semana;35;
 Alfarnatejo;Consultorio;1;
 Alfarnatejo;Dias_abierto;5;
-Alfarnatejo;Horas_consulta;12.5;
+Alfarnatejo;Horas_consulta_semana;12.5;
 Alhabía;Consultorio;1;
 Alhabía;Dias_abierto;5;
-Alhabía;Horas_consulta;15;
+Alhabía;Horas_consulta_semana;15;
 Alhaurín el Grande;Consultorio;0;Núcleo Villafranco del Guadalhorce
 Alhaurín el Grande;Dias_abierto;0;Núcleo Villafranco del Guadalhorce
-Alhaurín el Grande;Horas_consulta;0;Núcleo Villafranco del Guadalhorce
+Alhaurín el Grande;Horas_consulta_semana;0;Núcleo Villafranco del Guadalhorce
 Alicún de Ortega;Consultorio;1;
 Alicún de Ortega;Dias_abierto;5;
-Alicún de Ortega;Horas_consulta;35;
+Alicún de Ortega;Horas_consulta_semana;35;
 Almegíjar;Consultorio;1;
 Almegíjar;Dias_abierto;3;
-Almegíjar;Horas_consulta;10.5;
+Almegíjar;Horas_consulta_semana;10.5;
 Almócita;Consultorio;1;
 Almócita;Dias_abierto;2;
-Almócita;Horas_consulta;5;
+Almócita;Horas_consulta_semana;5;
 Alpujarra de la Sierra;Consultorio;1;E. singular Mecina Bombarón
 Alpujarra de la Sierra;Dias_abierto;5;E. singular Mecina Bombarón
-Alpujarra de la Sierra;Horas_consulta;17.5;E. singular Mecina Bombarón
+Alpujarra de la Sierra;Horas_consulta_semana;17.5;E. singular Mecina Bombarón
 Alquife;Consultorio;1;
 Alquife;Dias_abierto;5;
-Alquife;Horas_consulta;35;
+Alquife;Horas_consulta_semana;35;
 Alsodux;Consultorio;1;
 Alsodux;Dias_abierto;1;
-Alsodux;Horas_consulta;2.5;
+Alsodux;Horas_consulta_semana;2.5;
 Andújar;Consultorio;1;E. singular Los Villares
 Andújar;Dias_abierto;2;E. singular Los Villares
-Andújar;Horas_consulta;4;E. singular Los Villares
+Andújar;Horas_consulta_semana;4;E. singular Los Villares
 Arroyomolinos de León;Consultorio;1;
 Arroyomolinos de León;Dias_abierto;5;
-Arroyomolinos de León;Horas_consulta;35;
+Arroyomolinos de León;Horas_consulta_semana;35;
 Bayarque;Consultorio;1;
 Bayarque;Dias_abierto;5;
-Bayarque;Horas_consulta;20;
+Bayarque;Horas_consulta_semana;20;
 Beas de Guadix;Consultorio;1;
 Beas de Guadix;Dias_abierto;2;
-Beas de Guadix;Horas_consulta;10;
+Beas de Guadix;Horas_consulta_semana;10;
 Benatae;Consultorio;1;
 Benatae;Dias_abierto;5;
-Benatae;Horas_consulta;35;
+Benatae;Horas_consulta_semana;35;
 Bentarique;Consultorio;1;
 Bentarique;Dias_abierto;3;
-Bentarique;Horas_consulta;7.5;
+Bentarique;Horas_consulta_semana;7.5;
 Berrocal;Consultorio;1;
 Berrocal;Dias_abierto;5;
-Berrocal;Horas_consulta;35;
+Berrocal;Horas_consulta_semana;35;
 Cabezas Rubias;Consultorio;1;
 Cabezas Rubias;Dias_abierto;5;
-Cabezas Rubias;Horas_consulta;35;
+Cabezas Rubias;Horas_consulta_semana;35;
 Canillas de Albaida;Consultorio;1;
 Canillas de Albaida;Dias_abierto;5;
-Canillas de Albaida;Horas_consulta;35;
+Canillas de Albaida;Horas_consulta_semana;35;
 Castaño del Robledo;Consultorio;1;
 Castaño del Robledo;Dias_abierto;5;
-Castaño del Robledo;Horas_consulta;35;
+Castaño del Robledo;Horas_consulta_semana;35;
 Castilleja del Campo;Consultorio;1;
 Castilleja del Campo;Dias_abierto;5;
-Castilleja del Campo;Horas_consulta;35;
+Castilleja del Campo;Horas_consulta_semana;35;
 Castillo de Locubín;Consultorio;1;E. singular Ventas del Carrizal
 Castillo de Locubín;Dias_abierto;3;E. singular Ventas del Carrizal
-Castillo de Locubín;Horas_consulta;21;E. singular Ventas del Carrizal
+Castillo de Locubín;Horas_consulta_semana;21;E. singular Ventas del Carrizal
 Castro del Río;Consultorio;1;E. singular Llano del Espinar
 Castro del Río;Dias_abierto;2;E. singular Llano del Espinar
-Castro del Río;Horas_consulta;5;E. singular Llano del Espinar
+Castro del Río;Horas_consulta_semana;5;E. singular Llano del Espinar
 Cazalilla;Consultorio;1;
 Cazalilla;Dias_abierto;5;
-Cazalilla;Horas_consulta;26;
+Cazalilla;Horas_consulta_semana;26;
 Cañaveral de León;Consultorio;1;
 Cañaveral de León;Dias_abierto;5;
-Cañaveral de León;Horas_consulta;35;
+Cañaveral de León;Horas_consulta_semana;35;
 Chercos;Consultorio;0;E. singular Chercos Nuevo
 Chercos;Dias_abierto;0;E. singular Chercos Nuevo
-Chercos;Horas_consulta;0;E. singular Chercos Nuevo
+Chercos;Horas_consulta_semana;0;E. singular Chercos Nuevo
 Cogollos de Guadix;Consultorio;1;
 Cogollos de Guadix;Dias_abierto;3;
-Cogollos de Guadix;Horas_consulta;21;
+Cogollos de Guadix;Horas_consulta_semana;21;
 Conquista;Consultorio;1;
 Conquista;Dias_abierto;5;
-Conquista;Horas_consulta;35;
+Conquista;Horas_consulta_semana;35;
 Cortelazor;Consultorio;1;
 Cortelazor;Dias_abierto;5;
-Cortelazor;Horas_consulta;35;
+Cortelazor;Horas_consulta_semana;35;
 Cóbdar;Consultorio;1;
 Cóbdar;Dias_abierto;4;
-Cóbdar;Horas_consulta;4;
+Cóbdar;Horas_consulta_semana;4;
 Córdoba;Consultorio;1;Núcleo Los Mochos
 Córdoba;Dias_abierto;5;Núcleo Los Mochos
-Córdoba;Horas_consulta;35;Núcleo Los Mochos
+Córdoba;Horas_consulta_semana;35;Núcleo Los Mochos
 Cútar;Consultorio;1;
 Cútar;Dias_abierto;3;
-Cútar;Horas_consulta;9.5;
+Cútar;Horas_consulta_semana;9.5;
 Domingo Pérez de Granada;Consultorio;1;
 Domingo Pérez de Granada;Dias_abierto;5;
-Domingo Pérez de Granada;Horas_consulta;35;
+Domingo Pérez de Granada;Horas_consulta_semana;35;
 El Guijo;Consultorio;1;
 El Guijo;Dias_abierto;5;
-El Guijo;Horas_consulta;35;
+El Guijo;Horas_consulta_semana;35;
 Vejer de la Frontera;Consultorio;1;Núcleo Cantarranas
 Vejer de la Frontera;Dias_abierto;4;Núcleo Cantarranas
-Vejer de la Frontera;Horas_consulta;4.5;Núcleo Cantarranas
+Vejer de la Frontera;Horas_consulta_semana;4.5;Núcleo Cantarranas
 El Valle;Consultorio;1;E. singular Saleres
 El Valle;Dias_abierto;2;E. singular Saleres
-El Valle;Horas_consulta;6;E. singular Saleres
+El Valle;Horas_consulta_semana;6;E. singular Saleres
 Enix;Consultorio;1;
 Enix;Dias_abierto;3;
-Enix;Horas_consulta;7;
+Enix;Horas_consulta_semana;7;
 Faraján;Consultorio;1;
 Faraján;Dias_abierto;5;
-Faraján;Horas_consulta;7.5;
+Faraján;Horas_consulta_semana;7.5;
 Felix;Consultorio;1;
 Felix;Dias_abierto;5;
-Felix;Horas_consulta;16.5;
+Felix;Horas_consulta_semana;16.5;
 Ferreira;Consultorio;1;
 Ferreira;Dias_abierto;2;
-Ferreira;Horas_consulta;7;
+Ferreira;Horas_consulta_semana;7;
 Gor;Consultorio;1;
 Gor;Dias_abierto;4;
-Gor;Horas_consulta;24.5;
+Gor;Horas_consulta_semana;24.5;
 Gorafe;Consultorio;1;
 Gorafe;Dias_abierto;4;
-Gorafe;Horas_consulta;20.5;
+Gorafe;Horas_consulta_semana;20.5;
 Grazalema;Consultorio;1;E. singular Benamahoma
 Grazalema;Dias_abierto;5;E. singular Benamahoma
-Grazalema;Horas_consulta;15;E. singular Benamahoma
+Grazalema;Horas_consulta_semana;15;E. singular Benamahoma
 Higuera de Calatrava;Consultorio;1;
 Higuera de Calatrava;Dias_abierto;5;
-Higuera de Calatrava;Horas_consulta;35;
+Higuera de Calatrava;Horas_consulta_semana;35;
 Hinojales;Consultorio;1;
 Hinojales;Dias_abierto;5;
-Hinojales;Horas_consulta;35;
+Hinojales;Horas_consulta_semana;35;
 Instinción;Consultorio;1;
 Instinción;Dias_abierto;5;
-Instinción;Horas_consulta;16;
+Instinción;Horas_consulta_semana;16;
 Iznájar;Consultorio;1;E. singular El Higueral
 Iznájar;Dias_abierto;1;E. singular El Higueral
-Iznájar;Horas_consulta;4;E. singular El Higueral
+Iznájar;Horas_consulta_semana;4;E. singular El Higueral
 Jaén;Consultorio;1;E. singular Las Infantas
 Jaén;Dias_abierto;3;E. singular Las Infantas
-Jaén;Horas_consulta;6;E. singular Las Infantas
+Jaén;Horas_consulta_semana;6;E. singular Las Infantas
 Jerez de la Frontera;Consultorio;1;E. singular Gibalbín
 Jerez de la Frontera;Dias_abierto;3;E. singular Gibalbín
-Jerez de la Frontera;Horas_consulta;6;E. singular Gibalbín
+Jerez de la Frontera;Horas_consulta_semana;6;E. singular Gibalbín
 Jubrique;Consultorio;1;
 Jubrique;Dias_abierto;5;
-Jubrique;Horas_consulta;20;
+Jubrique;Horas_consulta_semana;20;
 La Calahorra;Consultorio;1;
 La Calahorra;Dias_abierto;5;
-La Calahorra;Horas_consulta;27;
+La Calahorra;Horas_consulta_semana;27;
 La Granada de Río-tinto;Consultorio;1;
 La Granada de Río-tinto;Dias_abierto;1;
-La Granada de Río-tinto;Horas_consulta;7;
+La Granada de Río-tinto;Horas_consulta_semana;7;
 La Iruela;Consultorio;1;E. singular Burunchel
 La Iruela;Dias_abierto;3;E. singular Burunchel
-La Iruela;Horas_consulta;13.5;E. singular Burunchel
+La Iruela;Horas_consulta_semana;13.5;E. singular Burunchel
 La Rinconada;Consultorio;0;Núcleo Urbanización Nueva Jarilla
 La Rinconada;Dias_abierto;0;Núcleo Urbanización Nueva Jarilla
-La Rinconada;Horas_consulta;0;Núcleo Urbanización Nueva Jarilla
+La Rinconada;Horas_consulta_semana;0;Núcleo Urbanización Nueva Jarilla
 Lanteira;Consultorio;1;
 Lanteira;Dias_abierto;5;
-Lanteira;Horas_consulta;35;
+Lanteira;Horas_consulta_semana;35;
 Lentegí;Consultorio;1;
 Lentegí;Dias_abierto;3;
-Lentegí;Horas_consulta;17;
+Lentegí;Horas_consulta_semana;17;
 Loja;Consultorio;1;E. singular Ventorros de San José
 Loja;Dias_abierto;5;E. singular Ventorros de San José
-Loja;Horas_consulta;28;E. singular Ventorros de San José
+Loja;Horas_consulta_semana;28;E. singular Ventorros de San José
 Lora del Río;Consultorio;0;E. singular Setefilla
 Lora del Río;Dias_abierto;0;E. singular Setefilla
-Lora del Río;Horas_consulta;0;E. singular Setefilla
+Lora del Río;Horas_consulta_semana;0;E. singular Setefilla
 Los Blázquez;Consultorio;1;
 Los Blázquez;Dias_abierto;5;
-Los Blázquez;Horas_consulta;35;
+Los Blázquez;Horas_consulta_semana;35;
 Lucainena de las Torres;Consultorio;1;
 Lucainena de las Torres;Dias_abierto;3;
-Lucainena de las Torres;Horas_consulta;21;
+Lucainena de las Torres;Horas_consulta_semana;21;
 Lugros;Consultorio;1;
 Lugros;Dias_abierto;3;
-Lugros;Horas_consulta;15;
+Lugros;Horas_consulta_semana;15;
 Lúcar;Consultorio;1;
 Lúcar;Dias_abierto;4;
-Lúcar;Horas_consulta;28;
+Lúcar;Horas_consulta_semana;28;
 Marchal;Consultorio;1;
 Marchal;Dias_abierto;2;
-Marchal;Horas_consulta;5;
+Marchal;Horas_consulta_semana;5;
 Martos;Consultorio;1;E. singular Las Casillas
 Martos;Dias_abierto;5;E. singular Las Casillas
-Martos;Horas_consulta;25;E. singular Las Casillas
+Martos;Horas_consulta_semana;25;E. singular Las Casillas
 Medina Sidonia;Consultorio;1;E. singular Malcocinado
 Medina Sidonia;Dias_abierto;2;E. singular Malcocinado
-Medina Sidonia;Horas_consulta;4;E. singular Malcocinado
+Medina Sidonia;Horas_consulta_semana;4;E. singular Malcocinado
 Nerja;Consultorio;1;E. singular Maro
 Nerja;Dias_abierto;5;E. singular Maro
-Nerja;Horas_consulta;10.5;E. singular Maro
+Nerja;Horas_consulta_semana;10.5;E. singular Maro
 Obejo;Consultorio;1;E. singular Obejo
 Obejo;Dias_abierto;5;E. singular Obejo
-Obejo;Horas_consulta;35;E. singular Obejo
+Obejo;Horas_consulta_semana;35;E. singular Obejo
 Ohanes;Consultorio;1;
 Ohanes;Dias_abierto;5;
-Ohanes;Horas_consulta;30;
+Ohanes;Horas_consulta_semana;30;
 Padules;Consultorio;1;
 Padules;Dias_abierto;5;
-Padules;Horas_consulta;19;
+Padules;Horas_consulta_semana;19;
 Paterna del Río;Consultorio;1;
 Paterna del Río;Dias_abierto;5;
-Paterna del Río;Horas_consulta;15;
+Paterna del Río;Horas_consulta_semana;15;
 Puerto Moral;Consultorio;1;
 Puerto Moral;Dias_abierto;2;
-Puerto Moral;Horas_consulta;8;
+Puerto Moral;Horas_consulta_semana;8;
 Pujerra;Consultorio;1;
 Pujerra;Dias_abierto;5;
-Pujerra;Horas_consulta;7.5;
+Pujerra;Horas_consulta_semana;7.5;
 Pórtugos;Consultorio;1;
 Pórtugos;Dias_abierto;5;
-Pórtugos;Horas_consulta;18.5;
+Pórtugos;Horas_consulta_semana;18.5;
 Ragol;Consultorio;1;
 Ragol;Dias_abierto;5;
-Ragol;Horas_consulta;12;
+Ragol;Horas_consulta_semana;12;
 Salares;Consultorio;1;
 Salares;Dias_abierto;2;
-Salares;Horas_consulta;10;
+Salares;Horas_consulta_semana;10;
 Salobreña;Consultorio;1;E. singular La Caleta-Guardia
 Salobreña;Dias_abierto;3;E. singular La Caleta-Guardia
-Salobreña;Horas_consulta;6.5;E. singular La Caleta-Guardia
+Salobreña;Horas_consulta_semana;6.5;E. singular La Caleta-Guardia
 San Silvestre de Guzmán;Consultorio;1;
 San Silvestre de Guzmán;Dias_abierto;5;
-San Silvestre de Guzmán;Horas_consulta;35;
+San Silvestre de Guzmán;Horas_consulta_semana;35;
 Sanlúcar de Guadiana;Consultorio;1;
 Sanlúcar de Guadiana;Dias_abierto;3;
-Sanlúcar de Guadiana;Horas_consulta;17.5;
+Sanlúcar de Guadiana;Horas_consulta_semana;17.5;
 Santiago-Pontones;Consultorio;1;E. singular Coto-Rios
 Santiago-Pontones;Dias_abierto;5;E. singular Coto-Rios
-Santiago-Pontones;Horas_consulta;19;E. singular Coto-Rios
+Santiago-Pontones;Horas_consulta_semana;19;E. singular Coto-Rios
 Serrato;Consultorio;1;
 Serrato;Dias_abierto;5;
-Serrato;Horas_consulta;20;
+Serrato;Horas_consulta_semana;20;
 Sierro;Consultorio;1;
 Sierro;Dias_abierto;3;
-Sierro;Horas_consulta;21;
+Sierro;Horas_consulta_semana;21;
 Sorvilán;Consultorio;1;
 Sorvilán;Dias_abierto;5;
-Sorvilán;Horas_consulta;19.5;
+Sorvilán;Horas_consulta_semana;19.5;
 Sufli;Consultorio;1;
 Sufli;Dias_abierto;2;
-Sufli;Horas_consulta;14;
+Sufli;Horas_consulta_semana;14;
 Taberno;Consultorio;1;
 Taberno;Dias_abierto;5;
-Taberno;Horas_consulta;35;
+Taberno;Horas_consulta_semana;35;
 Tahal;Consultorio;1;
 Tahal;Dias_abierto;3;
-Tahal;Horas_consulta;15;
+Tahal;Horas_consulta_semana;15;
 Tarifa;Consultorio;1;E. singular El Lentiscal
 Tarifa;Dias_abierto;1;E. singular El Lentiscal
-Tarifa;Horas_consulta;7;E. singular El Lentiscal
+Tarifa;Horas_consulta_semana;7;E. singular El Lentiscal
 Terque;Consultorio;1;
 Terque;Dias_abierto;5;
-Terque;Horas_consulta;16.5;
+Terque;Horas_consulta_semana;16.5;
 Torre Alháquime;Consultorio;1;
 Torre Alháquime;Dias_abierto;5;
-Torre Alháquime;Horas_consulta;35;
+Torre Alháquime;Horas_consulta_semana;35;
 Trevélez;Consultorio;1;
 Trevélez;Dias_abierto;5;
-Trevélez;Horas_consulta;35;
+Trevélez;Horas_consulta_semana;35;
 Turrillas;Consultorio;1;
 Turrillas;Dias_abierto;2;
-Turrillas;Horas_consulta;9;
+Turrillas;Horas_consulta_semana;9;
 Turón;Consultorio;1;
 Turón;Dias_abierto;2;
-Turón;Horas_consulta;14;
+Turón;Horas_consulta_semana;14;
 Valdelarco;Consultorio;1;
 Valdelarco;Dias_abierto;3;
-Valdelarco;Horas_consulta;9;
+Valdelarco;Horas_consulta_semana;9;
 Velefique;Consultorio;1;
 Velefique;Dias_abierto;2;
-Velefique;Horas_consulta;10;
-Villaluenga del Rosario;Consultorio;;
-Villaluenga del Rosario;Dias_abierto;;
-Villaluenga del Rosario;Horas_consulta;;
-Villanueva de las Cruces;Consultorio;;
-Villanueva de las Cruces;Dias_abierto;;
-Villanueva de las Cruces;Horas_consulta;;
-Villanueva de las Torres;Consultorio;;
-Villanueva de las Torres;Dias_abierto;;
-Villanueva de las Torres;Horas_consulta;;
-Villanueva del Río y Minas;Consultorio;;E. singular Villanueva del Río
-Villanueva del Río y Minas;Dias_abierto;;E. singular Villanueva del Río
-Villanueva del Río y Minas;Horas_consulta;;E. singular Villanueva del Río
-Villarrodrigo;Consultorio;;
-Villarrodrigo;Dias_abierto;;
-Villarrodrigo;Horas_consulta;;
-Vélez-Málaga;Consultorio;;E. singular Cajiz
-Vélez-Málaga;Dias_abierto;;E. singular Cajiz
-Vélez-Málaga;Horas_consulta;;E. singular Cajiz
-Vícar;Consultorio;;E. singular Congo-Canal
-Vícar;Dias_abierto;;E. singular Congo-Canal
-Vícar;Horas_consulta;;E. singular Congo-Canal
+Velefique;Horas_consulta_semana;10;
+Villaluenga del Rosario;Consultorio;1;
+Villaluenga del Rosario;Dias_abierto;5;
+Villaluenga del Rosario;Horas_consulta_semana;14;
+Villanueva de las Cruces;Consultorio;1;
+Villanueva de las Cruces;Dias_abierto;5;
+Villanueva de las Cruces;Horas_consulta_semana;35;
+Villanueva de las Torres;Consultorio;1;
+Villanueva de las Torres;Dias_abierto;5;
+Villanueva de las Torres;Horas_consulta_semana;35;
+Villanueva del Río y Minas;Consultorio;1;E. singular Villanueva del Río
+Villanueva del Río y Minas;Dias_abierto;2;E. singular Villanueva del Río
+Villanueva del Río y Minas;Horas_consulta_semana;3;E. singular Villanueva del Río
+Villarrodrigo;Consultorio;1;
+Villarrodrigo;Dias_abierto;5;
+Villarrodrigo;Horas_consulta_semana;35;
+Vélez-Málaga;Consultorio;1;E. singular Cajiz
+Vélez-Málaga;Dias_abierto;2;E. singular Cajiz
+Vélez-Málaga;Horas_consulta_semana;3.75;E. singular Cajiz
+Vícar;Consultorio;0;E. singular Congo-Canal
+Vícar;Dias_abierto;0;E. singular Congo-Canal
+Vícar;Horas_consulta_semana;0;E. singular Congo-Canal
+
