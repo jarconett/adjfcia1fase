@@ -557,6 +557,16 @@ with tab1:
 def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizacion, escala_max, valor_max_personalizado=None, aplicar_factor_antes=False):
 # --- PREPARACIÓN INICIAL DEL DATAFRAME DE INDICADORES ---
     # Detectar si el DataFrame tiene columna "Singular" (como en Consultorio.csv)
+        # Asegurar que df_farmacias tenga una clave normalizada coherente con df_pivot
+        if not df_farmacias.empty:
+            if 'Territorio_normalizado' not in df_farmacias.columns:
+                if 'Singular' in df_farmacias.columns:
+                    df_farmacias['Territorio_normalizado'] = df_farmacias.apply(normalizar_compuesto, axis=1)
+                else:
+                    df_farmacias['Territorio_normalizado'] = df_farmacias['Territorio'].apply(normalizar_nombre_municipio)
+
+
+    
         if 'Singular' in df_original.columns:
         # Pivotar por Territorio y Singular → una fila por entidad singular
             df_pivot = df_original.pivot_table(
