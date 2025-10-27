@@ -554,165 +554,136 @@ with tab1:
     df_original['Medida'] = df_original.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1)
 
 @st.cache_data
-def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizacion, escala_max, valor_max_personalizado=None, aplicar_factor_antes=False):
-# --- PREPARACIÓN INICIAL DEL DATAFRAME DE INDICADORES ---
-    # Detectar si el DataFrame tiene columna "Singular" (como en Consultorio.csv)
-        # Asegurar que df_farmacias tenga una clave normalizada coherente con df_pivot
-        if not df_farmacias.empty:
-            if 'Territorio_normalizado' not in df_farmacias.columns:
-                if 'Singular' in df_farmacias.columns:
-                    df_farmacias['Territorio_normalizado'] = df_farmacias.apply(normalizar_compuesto, axis=1)
-                else:
-                    df_farmacias['Territorio_normalizado'] = df_farmacias['Territorio'].apply(normalizar_nombre_municipio)
+def preparar_datos_base(
+    df_original,
+    df_coords,
+    df_farmacias,
+    metodo_normalizacion,
+    escala_max,
+    valor_max_personalizado=None,
+    aplicar_factor_antes=False
+):
+    import pandas as pd
+    import numpy as np
+    import streamlit as st
 
+    # --- Función para normalizar nombre compuesto ---
+    def normalizar_compuesto(row):
+        territorio = normalizar_nombre_municipio(str(row.get('Territorio', '')))
+        singular = normalizar_nombre_municipio(str(row.get('Singular', ''))) if 'Singular' in row else ''
+        return f"{territorio}__{singular}" if singular and singular.strip() else territorio
 
-    
-        if 'Singular' in df_original.columns:
-        # Pivotar por Territorio y Singular → una fila por entidad singular
-            df_pivot = df_original.pivot_table(
-                index=['Territorio', 'Singular'],
-                columns='Medida',
-                values='Valor',
-                aggfunc='first'
-            ).reset_index()
-        else:
-        # Pivot normal por Territorio → una fila por municipio
-            df_pivot = df_original.pivot_table(
-                index='Territorio',
-                columns='Medida',
-                values='Valor',
-                aggfunc='first'
-            ).reset_index()
+    # --- PREPARACIÓN INICIAL DE df_farmacias ---
+    if not df_farmacias.empty:
+        if 'Territorio_normalizado' not in df_farmacias.columns:
+            if 'Singular' in df_farmacias.columns:
+                df_farmacias['Territorio_normalizado'] = df_farmacias.apply(normalizar_compuesto, axis=1)
+            else:
+                df_farmacias['Territorio_normalizado'] = df_farmacias['Territorio'].apply(normalizar_nombre_municipio)
+
+    # --- Pivotar df_original ---
+    if 'Singular' in df_original.columns:
+        df_pivot = df_original.pivot_table(
+            index=['Territorio', 'Singular'],
+            columns='Medida',
+            values='Valor',
+            aggfunc='first'
+        ).reset_index()
+    else:
+        df_pivot = df_original.pivot_table(
+            index='Territorio',
+            columns='Medida',
+            values='Valor',
+            aggfunc='first'
+        ).reset_index()
 
     # --- Normalizar nombres de columnas ---
-        col_map = {
-            col: normaliza_nombre_indicador(col) if col not in ['Territorio', 'Singular'] else col
-            for col in df_pivot.columns
-        }
-        df_pivot = df_pivot.rename(columns=col_map)
+    col_map = {
+        col: normaliza_nombre_indicador(col) if col not in ['Territorio', 'Singular'] else col
+        for col in df_pivot.columns
+    }
+    df_pivot = df_pivot.rename(columns=col_map)
 
-    # --- Crear campo compuesto Territorio_normalizado ---
-        def normalizar_compuesto(row):
-            territorio = normalizar_nombre_municipio(str(row.get('Territorio', '')))
-            singular = normalizar_nombre_municipio(str(row.get('Singular', ''))) if 'Singular' in row else ''
-            return f"{territorio}__{singular}" if singular and singular.strip() else territorio
+    # --- Crear Territorio_normalizado en df_pivot ---
+    df_pivot['Territorio_normalizado'] = df_pivot.apply(normalizar_compuesto, axis=1)
 
-        df_pivot['Territorio_normalizado'] = df_pivot.apply(normalizar_compuesto, axis=1)
+    # --- Columnas de indicadores ---
+    columnas_excluir = ['Territorio', 'Singular', 'Territorio_normalizado', 'Latitud', 'Longitud']
+    columnas_indicadores = [
+        col for col in df_pivot.columns
+        if col not in columnas_excluir
+        and not col.lower().startswith('consultorio_e_singular')
+        and not col.lower().startswith('farmacia_e_singular')
+    ]
+    st.sidebar.success(f"Indicadores cargados: {len(columnas_indicadores)} columnas numéricas detectadas")
 
-    # --- Filtrar columnas de indicadores válidos (para configuración de pesos) ---
-        columnas_excluir = [
-            'Territorio', 'Singular', 'Territorio_normalizado', 'Latitud', 'Longitud'
-        ]
-        columnas_indicadores = [
-            col for col in df_pivot.columns
-            if col not in columnas_excluir
-            and not col.lower().startswith('consultorio_e_singular')
-            and not col.lower().startswith('farmacia_e_singular')
-        ]
+    # --- Aplicar factor antes de normalización ---
+    if aplicar_factor_antes and not df_farmacias.empty and 'Factor' in df_farmacias.columns:
+        factores_dict = dict(zip(df_farmacias['Territorio_normalizado'], df_farmacias['Factor']))
+        for col in columnas_indicadores:
+            df_pivot[col] = df_pivot.apply(
+                lambda row: row[col] * factores_dict.get(row['Territorio_normalizado'], 1.0)
+                if pd.notna(row[col]) else row[col],
+                axis=1
+            )
 
-    # Mostrar en sidebar los indicadores cargados
-        st.sidebar.success(f"Indicadores cargados: {len(columnas_indicadores)} columnas numéricas detectadas")
-    # -----------------------------------------------------
-        col_map = {col: normaliza_nombre_indicador(col) if col != 'Territorio' else col for col in df_pivot.columns}
-        df_pivot = df_pivot.rename(columns=col_map)
-        df_pivot["Territorio_normalizado"] = df_pivot["Territorio"].apply(normalizar_nombre_municipio)
+    # --- Normalización de indicadores ---
+    if metodo_normalizacion != "Sin normalizar":
+        df_pivot_normalizado = df_pivot.copy()
+        for col in columnas_indicadores:
+            serie_original = df_pivot[col]
+            serie_limpia = serie_original.dropna()
+            if len(serie_limpia) == 0:
+                df_pivot_normalizado[col] = 0
+                continue
 
-        
-        # Aplicar Factor a indicadores individuales antes de normalización si está habilitado
-        if aplicar_factor_antes:
-            # Obtener factores de farmacias con clave Territorio_normalizado (más preciso)
-            factores_dict = dict(zip(df_farmacias['Territorio_normalizado'], df_farmacias['Factor']))
+            if "Min-Max" in metodo_normalizacion:
+                min_val = serie_limpia.min()
+                max_val = valor_max_personalizado if valor_max_personalizado is not None else serie_limpia.max()
 
-            # Aplicar factor a cada indicador, usando la clave normalizada
-            columnas_indicadores = [
-                col for col in df_pivot.columns
-                if col not in ['Territorio', 'Singular', 'Territorio_normalizado']
-            ]
-
-            for col in columnas_indicadores:
-                if col in df_pivot.columns:
-                    df_pivot[col] = df_pivot.apply(
-                        lambda row: (
-                            row[col] * factores_dict.get(row['Territorio_normalizado'], 1.0)
-                            if pd.notna(row[col]) else row[col]
-                        ),
-                        axis=1
+                if "Logarítmico" in metodo_normalizacion:
+                    df_pivot_normalizado[col] = serie_original.apply(
+                        lambda x: normalizar_indicador_logaritmico(x, min_val, max_val, 'alto_deseable') * escala_max
+                        if pd.notna(x) else 0
                     )
+                else:
+                    df_pivot_normalizado[col] = serie_original.apply(
+                        lambda x: normalizar_indicador(x, min_val, max_val, 'alto_deseable') * escala_max
+                        if pd.notna(x) else 0
+                    )
+            elif metodo_normalizacion == "Z-Score":
+                mean_val = serie_limpia.mean()
+                std_val = serie_limpia.std()
+                if std_val > 0:
+                    z_scores = (serie_original - mean_val) / std_val
+                    df_pivot_normalizado[col] = 1 / (1 + np.exp(-z_scores)) * escala_max
+                else:
+                    df_pivot_normalizado[col] = 0.5 * escala_max
+        df_pivot = df_pivot_normalizado
 
-        # Aplicar normalización si está habilitada
-        if metodo_normalizacion != "Sin normalizar":
-            df_pivot_normalizado = df_pivot.copy()
-
-            # Obtener columnas de indicadores (excluyendo Territorio y Territorio_normalizado)
-            columnas_indicadores = [col for col in df_pivot.columns if col not in ['Territorio', 'Territorio_normalizado']]
-
-            for col in columnas_indicadores:
-                if col in df_pivot.columns:
-                    serie_original = df_pivot[col]
-                    serie_limpia = serie_original.dropna()
-
-                    if len(serie_limpia) > 0:
-                        if "Min-Max" in metodo_normalizacion:
-                            min_val = serie_limpia.min()
-
-                            # Usar valor máximo personalizado si está configurado
-                            if valor_max_personalizado is not None:
-                                max_val = valor_max_personalizado
-                            else:
-                                max_val = serie_limpia.max()
-
-                            # Aplicar normalización Min-Max (direccionalidad se maneja con pesos)
-                            if "Logarítmico" in metodo_normalizacion:
-                                # Usar normalización logarítmica
-                                df_pivot_normalizado[col] = serie_original.apply(
-                                    lambda x: normalizar_indicador_logaritmico(x, min_val, max_val, 'alto_deseable') * escala_max
-                                    if pd.notna(x) else 0
-                                )
-                            else:
-                                # Usar normalización lineal
-                                df_pivot_normalizado[col] = serie_original.apply(
-                                    lambda x: normalizar_indicador(x, min_val, max_val, 'alto_deseable') * escala_max
-                                    if pd.notna(x) else 0
-                                )
-                        elif metodo_normalizacion == "Z-Score":
-                            mean_val = serie_limpia.mean()
-                            std_val = serie_limpia.std()
-
-                            if std_val > 0:
-                                # Normalizar Z-Score y convertir a escala 0-1
-                                z_scores = (serie_original - mean_val) / std_val
-                                # Convertir Z-scores a escala 0-1 usando función sigmoide
-                                df_pivot_normalizado[col] = 1 / (1 + np.exp(-z_scores)) * escala_max
-                            else:
-                                df_pivot_normalizado[col] = 0.5 * escala_max
-
-            df_pivot = df_pivot_normalizado
-        municipios_con_farmacia = set()
-        df_farmacias_factores = pd.DataFrame()
-        if not df_farmacias.empty:
-            if 'Territorio' in df_farmacias.columns and 'Factor' in df_farmacias.columns:
-                # Procesar datos de farmacias
-                df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
-                
-                # Crear un identificador único para cada fila
-                df_farmacias["ID_Unico"] = df_farmacias.index
-                
-                municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
-                # Incluir todas las columnas necesarias del archivo de farmacias
-                columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar", "ID_Unico"]
-                if 'Provincia' in df_farmacias.columns:
-                    columnas_farmacias.append('Provincia')
-                if 'Ldo' in df_farmacias.columns:
-                    columnas_farmacias.append('Ldo')
-
-                df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
-            else:
-                st.sidebar.error(f"Faltan columnas 'Territorio' o 'Factor' en df_farmacias. Columnas disponibles: {list(df_farmacias.columns)}")
+    # --- Preparar farmacias y sets de municipios ---
+    municipios_con_farmacia = set()
+    df_farmacias_factores = pd.DataFrame()
+    if not df_farmacias.empty:
+        if 'Territorio' in df_farmacias.columns and 'Factor' in df_farmacias.columns:
+            df_farmacias["ID_Unico"] = df_farmacias.index
+            municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
+            columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar", "ID_Unico"]
+            for col in ['Provincia', 'Ldo']:
+                if col in df_farmacias.columns:
+                    columnas_farmacias.append(col)
+            df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
         else:
-            st.sidebar.error("df_farmacias está vacío")
+            st.sidebar.error(f"Faltan columnas 'Territorio' o 'Factor' en df_farmacias. Columnas disponibles: {list(df_farmacias.columns)}")
+    else:
+        st.sidebar.error("df_farmacias está vacío")
 
-        df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
-        df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
+    # --- Separar municipios con y sin farmacia ---
+    df_con_farmacia_base = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
+    df_sin_farmacia_base = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
+
+    return df_con_farmacia_base, df_sin_farmacia_base, df_farmacias_factores
+
 
         # Procesamiento de datos completado
 
