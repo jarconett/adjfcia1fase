@@ -33,6 +33,7 @@ class ProyeccionesDemograficas:
         self._territorio_column_candidates: List[str] = [
             'Lugar de residencia',
             'Lugar de origen',
+            'Lugar de destino',
             'Lugar de procedencia',
             'Territorio',
             'Municipio',
@@ -215,6 +216,175 @@ class ProyeccionesDemograficas:
             st.error(f"Error al cargar datos de dependencia: {e}")
             return pd.DataFrame()
     
+    def cargar_datos_emigracion(self, territorio: str) -> pd.DataFrame:
+        """
+        Carga datos de emigración por edad y sexo para un territorio específico
+        
+        Args:
+            territorio: Nombre del territorio
+            
+        Returns:
+            DataFrame con datos de emigración filtrados por territorio
+        """
+        try:
+            provincia = self._determinar_provincia(territorio)
+            
+            # Construir nombre del archivo de emigración
+            archivo_emigracion = f"demografia/ieca_export_emigraciones_edad_sexo_88_09_{provincia}.csv"
+            
+            # Manejar casos especiales (Granada tiene dos archivos)
+            if provincia == "gra":
+                # Intentar cargar ambos archivos y concatenarlos
+                try:
+                    df1 = pd.read_csv("demografia/ieca_export_emigraciones_edad_sexo_88_09_gra1.csv", sep=";", decimal=",")
+                    df2 = pd.read_csv("demografia/ieca_export_emigraciones_edad_sexo_88_09_gra2.csv", sep=";", decimal=",")
+                    df_emigracion = pd.concat([df1, df2], ignore_index=True)
+                except FileNotFoundError:
+                    # Si no existen archivos separados, usar el archivo único
+                    df_emigracion = pd.read_csv(archivo_emigracion, sep=";", decimal=",")
+            else:
+                df_emigracion = pd.read_csv(archivo_emigracion, sep=";", decimal=",")
+            
+            # Filtrar por territorio (comparación robusta normalizada)
+            terr_norm = self._normalizar(territorio)
+            df_emigracion = df_emigracion.copy()
+            col_terr = self._columna_territorio(df_emigracion)
+            if not col_terr:
+                st.error("No se encontró columna de territorio en datos de emigración")
+                return pd.DataFrame()
+            df_emigracion['__terr_norm'] = df_emigracion[col_terr].astype(str).map(self._normalizar)
+            df_territorio = df_emigracion[df_emigracion['__terr_norm'] == terr_norm].drop(columns=['__terr_norm']).copy()
+            
+            # Convertir columnas a numérico
+            df_territorio['Anual'] = pd.to_numeric(df_territorio['Anual'], errors='coerce')
+            df_territorio['Valor'] = pd.to_numeric(df_territorio['Valor'], errors='coerce')
+            
+            # Filtrar valores válidos
+            df_territorio = df_territorio.dropna(subset=['Anual', 'Valor'])
+            
+            return df_territorio
+            
+        except FileNotFoundError:
+            st.warning(f"No se encontró archivo de emigración para {territorio}")
+            return pd.DataFrame()
+        except Exception as e:
+            st.error(f"Error al cargar datos de emigración: {e}")
+            return pd.DataFrame()
+    
+    def cargar_datos_inmigracion(self, territorio: str) -> pd.DataFrame:
+        """
+        Carga datos de inmigración por edad y sexo para un territorio específico
+        
+        Args:
+            territorio: Nombre del territorio
+            
+        Returns:
+            DataFrame con datos de inmigración filtrados por territorio
+        """
+        try:
+            provincia = self._determinar_provincia(territorio)
+            
+            # Construir nombre del archivo de inmigración
+            archivo_inmigracion = f"demografia/ieca_export_inmigraciones_edad_sexo_88_09_{provincia}.csv"
+            
+            # Manejar casos especiales (Granada tiene dos archivos)
+            if provincia == "gra":
+                # Intentar cargar ambos archivos y concatenarlos
+                try:
+                    df1 = pd.read_csv("demografia/ieca_export_inmigraciones_edad_sexo_88_09_gra1.csv", sep=";", decimal=",")
+                    df2 = pd.read_csv("demografia/ieca_export_inmigraciones_edad_sexo_88_09_gra2.csv", sep=";", decimal=",")
+                    df_inmigracion = pd.concat([df1, df2], ignore_index=True)
+                except FileNotFoundError:
+                    # Si no existen archivos separados, usar el archivo único
+                    df_inmigracion = pd.read_csv(archivo_inmigracion, sep=";", decimal=",")
+            else:
+                df_inmigracion = pd.read_csv(archivo_inmigracion, sep=";", decimal=",")
+            
+            # Filtrar por territorio (comparación robusta normalizada)
+            terr_norm = self._normalizar(territorio)
+            df_inmigracion = df_inmigracion.copy()
+            col_terr = self._columna_territorio(df_inmigracion)
+            if not col_terr:
+                st.error("No se encontró columna de territorio en datos de inmigración")
+                return pd.DataFrame()
+            df_inmigracion['__terr_norm'] = df_inmigracion[col_terr].astype(str).map(self._normalizar)
+            df_territorio = df_inmigracion[df_inmigracion['__terr_norm'] == terr_norm].drop(columns=['__terr_norm']).copy()
+            
+            # Convertir columnas a numérico
+            df_territorio['Anual'] = pd.to_numeric(df_territorio['Anual'], errors='coerce')
+            df_territorio['Valor'] = pd.to_numeric(df_territorio['Valor'], errors='coerce')
+            
+            # Filtrar valores válidos
+            df_territorio = df_territorio.dropna(subset=['Anual', 'Valor'])
+            
+            return df_territorio
+            
+        except FileNotFoundError:
+            st.warning(f"No se encontró archivo de inmigración para {territorio}")
+            return pd.DataFrame()
+        except Exception as e:
+            st.error(f"Error al cargar datos de inmigración: {e}")
+            return pd.DataFrame()
+    
+    def cargar_datos_paro(self, territorio: str) -> pd.DataFrame:
+        """
+        Carga datos de paro por edad y sexo para un territorio específico
+        
+        Args:
+            territorio: Nombre del territorio
+            
+        Returns:
+            DataFrame con datos de paro filtrados por territorio
+        """
+        try:
+            # Los archivos de paro tienen diferentes rangos de años
+            archivos_paro = [
+                "demografia/ieca_export_paro_07-09.csv",
+                "demografia/ieca_export_paro_10-12.csv", 
+                "demografia/ieca_export_paro_13-15.csv",
+                "demografia/ieca_export_paro_16-18.csv",
+                "demografia/ieca_export_paro_19-21.csv",
+                "demografia/ieca_export_paro_22-24.csv"
+            ]
+            
+            dfs_paro = []
+            for archivo in archivos_paro:
+                try:
+                    df_temp = pd.read_csv(archivo, sep=";", decimal=",")
+                    dfs_paro.append(df_temp)
+                except FileNotFoundError:
+                    continue
+            
+            if not dfs_paro:
+                st.warning(f"No se encontraron archivos de paro")
+                return pd.DataFrame()
+            
+            # Concatenar todos los archivos disponibles
+            df_paro = pd.concat(dfs_paro, ignore_index=True)
+            
+            # Filtrar por territorio (comparación robusta normalizada)
+            terr_norm = self._normalizar(territorio)
+            df_paro = df_paro.copy()
+            col_terr = self._columna_territorio(df_paro)
+            if not col_terr:
+                st.error("No se encontró columna de territorio en datos de paro")
+                return pd.DataFrame()
+            df_paro['__terr_norm'] = df_paro[col_terr].astype(str).map(self._normalizar)
+            df_territorio = df_paro[df_paro['__terr_norm'] == terr_norm].drop(columns=['__terr_norm']).copy()
+            
+            # Convertir columnas a numérico
+            df_territorio['Anual'] = pd.to_numeric(df_territorio['Anual'], errors='coerce')
+            df_territorio['Valor'] = pd.to_numeric(df_territorio['Valor'], errors='coerce')
+            
+            # Filtrar valores válidos
+            df_territorio = df_territorio.dropna(subset=['Anual', 'Valor'])
+            
+            return df_territorio
+            
+        except Exception as e:
+            st.error(f"Error al cargar datos de paro: {e}")
+            return pd.DataFrame()
+    
     def _determinar_provincia(self, territorio: str) -> str:
         """
         Determina el código de provincia (3 letras) para un territorio usando `Territorios.csv`.
@@ -288,7 +458,7 @@ class ProyeccionesDemograficas:
     
     def analizar_tendencias_demograficas(self, territorio: str) -> Dict:
         """
-        Analiza las tendencias históricas para un territorio específico
+        Analiza las tendencias históricas para un territorio específico incluyendo migración y paro
         
         Args:
             territorio: Nombre del territorio
@@ -299,6 +469,9 @@ class ProyeccionesDemograficas:
         # Cargar datos históricos
         datos_crecimiento = self.cargar_datos_crecimiento_vegetativo(territorio)
         datos_dependencia = self.cargar_datos_dependencia(territorio)
+        datos_emigracion = self.cargar_datos_emigracion(territorio)
+        datos_inmigracion = self.cargar_datos_inmigracion(territorio)
+        datos_paro = self.cargar_datos_paro(territorio)
         
         if datos_crecimiento.empty or datos_dependencia.empty:
             return {}
@@ -311,10 +484,18 @@ class ProyeccionesDemograficas:
         # 2. Análisis de índices de dependencia
         tendencias['dependencia'] = self._calcular_tendencias_dependencia(datos_dependencia)
         
-        # 3. Detectar puntos de inflexión
+        # 3. Análisis de migración si están disponibles
+        if not datos_emigracion.empty and not datos_inmigracion.empty:
+            tendencias['migracion'] = self._analizar_tendencias_migracion(datos_emigracion, datos_inmigracion)
+        
+        # 4. Análisis de paro si están disponibles
+        if not datos_paro.empty:
+            tendencias['paro'] = self._analizar_tendencias_paro(datos_paro)
+        
+        # 5. Detectar puntos de inflexión
         tendencias['puntos_inflexion'] = self._detectar_cambios_tendencia(datos_crecimiento)
         
-        # 4. Calcular estadísticas descriptivas
+        # 6. Calcular estadísticas descriptivas
         tendencias['estadisticas'] = self._calcular_estadisticas_descriptivas(
             datos_crecimiento, datos_dependencia
         )
@@ -355,6 +536,109 @@ class ProyeccionesDemograficas:
                     'valor_primer': y[0],
                     'año_primer': x[0]
                 }
+        
+        return tendencias
+    
+    def _calcular_tendencia_lineal(self, x: np.ndarray, y: np.ndarray) -> Dict:
+        """
+        Calcula la regresión lineal simple para un conjunto de datos
+        
+        Args:
+            x: Valores del eje X (años)
+            y: Valores del eje Y (valores)
+            
+        Returns:
+            Diccionario con pendiente, intercepto y estadísticas
+        """
+        if len(x) < 2 or len(y) < 2:
+            return {'slope': 0, 'intercept': 0, 'r_squared': 0}
+        
+        # Calcular pendiente e intercepto
+        slope, intercept = np.polyfit(x, y, 1)
+        
+        # Calcular R²
+        y_pred = slope * x + intercept
+        r_squared = 1 - (np.sum((y - y_pred) ** 2) / np.sum((y - np.mean(y)) ** 2))
+        
+        return {
+            'slope': slope,
+            'intercept': intercept,
+            'r_squared': r_squared
+        }
+    
+    def _analizar_tendencias_migracion(self, datos_emigracion: pd.DataFrame, datos_inmigracion: pd.DataFrame) -> Dict:
+        """
+        Analiza tendencias de migración neta por edad y sexo
+        """
+        tendencias = {}
+        
+        # Calcular migración neta por año y sexo
+        migracion_neta = {}
+        
+        for sexo in ['Ambos sexos', 'Hombres', 'Mujeres']:
+            emigracion_sexo = datos_emigracion[datos_emigracion['Sexo'] == sexo]
+            inmigracion_sexo = datos_inmigracion[datos_inmigracion['Sexo'] == sexo]
+            
+            if not emigracion_sexo.empty and not inmigracion_sexo.empty:
+                # Agrupar por año y calcular totales
+                emigracion_anual = emigracion_sexo.groupby('Anual')['Valor'].sum()
+                inmigracion_anual = inmigracion_sexo.groupby('Anual')['Valor'].sum()
+                
+                # Calcular migración neta (inmigración - emigración)
+                años_comunes = emigracion_anual.index.intersection(inmigracion_anual.index)
+                migracion_neta_sexo = inmigracion_anual[años_comunes] - emigracion_anual[años_comunes]
+                
+                if len(migracion_neta_sexo) > 1:
+                    # Calcular tendencia de migración neta
+                    x = migracion_neta_sexo.index.values
+                    y = migracion_neta_sexo.values
+                    
+                    tendencia = self._calcular_tendencia_lineal(x, y)
+                    tendencias[sexo.lower().replace(' ', '_')] = tendencia
+                    
+                    # Calcular estadísticas adicionales
+                    tendencias[f"{sexo.lower().replace(' ', '_')}_estadisticas"] = {
+                        'migracion_neta_promedio': migracion_neta_sexo.mean(),
+                        'migracion_neta_ultimo_año': migracion_neta_sexo.iloc[-1] if len(migracion_neta_sexo) > 0 else 0,
+                        'años_datos': len(migracion_neta_sexo)
+                    }
+        
+        return tendencias
+    
+    def _analizar_tendencias_paro(self, datos_paro: pd.DataFrame) -> Dict:
+        """
+        Analiza tendencias de paro por edad y sexo
+        """
+        tendencias = {}
+        
+        # Filtrar solo datos de demandantes de empleo
+        datos_demandantes = datos_paro[datos_paro['Medida'] == 'Demandantes']
+        
+        if datos_demandantes.empty:
+            return tendencias
+        
+        for sexo in ['Ambos sexos', 'Hombres', 'Mujeres']:
+            datos_sexo = datos_demandantes[datos_demandantes['Sexo'] == sexo]
+            
+            if not datos_sexo.empty:
+                # Agrupar por año y calcular totales
+                paro_anual = datos_sexo.groupby('Anual')['Valor'].sum()
+                
+                if len(paro_anual) > 1:
+                    # Calcular tendencia de paro
+                    x = paro_anual.index.values
+                    y = paro_anual.values
+                    
+                    tendencia = self._calcular_tendencia_lineal(x, y)
+                    tendencias[sexo.lower().replace(' ', '_')] = tendencia
+                    
+                    # Calcular estadísticas adicionales
+                    tendencias[f"{sexo.lower().replace(' ', '_')}_estadisticas"] = {
+                        'paro_promedio': paro_anual.mean(),
+                        'paro_ultimo_año': paro_anual.iloc[-1] if len(paro_anual) > 0 else 0,
+                        'años_datos': len(paro_anual),
+                        'tendencia_paro': 'creciente' if tendencia['slope'] > 0 else 'decreciente'
+                    }
         
         return tendencias
     
@@ -582,16 +866,20 @@ class ProyeccionesDemograficas:
     def _proyectar_por_componentes(self, poblacion_actual: float, 
                                  tendencias: Dict, años: int) -> Dict:
         """
-        Proyección desagregando por componentes demográficos
+        Proyección desagregando por componentes demográficos incluyendo migración neta
         """
-        # Esta es una implementación simplificada
-        # En una versión completa, necesitaríamos datos de población por edad
-        
         proyecciones = {}
         
         # Usar tendencias de dependencia para estimar cambios en la estructura
         dependencia_global = tendencias['dependencia']['global']
         dependencia_mayores = tendencias['dependencia']['mayores']
+        
+        # Obtener tendencias de migración si están disponibles
+        migracion_ambos = tendencias.get('migracion', {}).get('ambos_sexos', {})
+        
+        # Calcular población inicial por grupos de edad (estimación)
+        poblacion_activa = poblacion_actual * 0.65  # 15-64 años
+        poblacion_dependiente = poblacion_actual * 0.35  # 0-14 + 65+ años
         
         for año in range(1, años + 1):
             año_proyeccion = dependencia_global['año_ultimo'] + año
@@ -600,32 +888,45 @@ class ProyeccionesDemograficas:
             indice_dep_global = dependencia_global['pendiente'] * año_proyeccion + dependencia_global['intercepto']
             indice_dep_mayores = dependencia_mayores['pendiente'] * año_proyeccion + dependencia_mayores['intercepto']
             
-            # Estimar población por grupos de edad (simplificado)
-            # Población en edad activa (15-64)
-            poblacion_activa = poblacion_actual * 0.65  # Asunción simplificada
+            # Proyectar migración neta si está disponible
+            migracion_neta = 0
+            if migracion_ambos:
+                migracion_neta = migracion_ambos.get('slope', 0) * año + migracion_ambos.get('intercept', 0)
             
-            # Población dependiente total
-            poblacion_dependiente = poblacion_activa * (indice_dep_global / 100)
+            # Aplicar migración neta a la población activa (mayor impacto)
+            poblacion_activa_proy = poblacion_activa + migracion_neta * 0.7
             
-            # Población mayor (65+)
-            poblacion_mayores = poblacion_activa * (indice_dep_mayores / 100)
+            # Población dependiente total basada en índice de dependencia
+            poblacion_dependiente_proy = poblacion_activa_proy * (indice_dep_global / 100)
+            
+            # Población mayor (65+) basada en índice de dependencia de mayores
+            poblacion_mayores_proy = poblacion_activa_proy * (indice_dep_mayores / 100)
             
             # Población joven (0-14)
-            poblacion_jovenes = poblacion_dependiente - poblacion_mayores
+            poblacion_jovenes_proy = poblacion_dependiente_proy - poblacion_mayores_proy
             
             # Población total
-            poblacion_total = poblacion_activa + poblacion_dependiente
+            poblacion_total = poblacion_activa_proy + poblacion_dependiente_proy
+            
+            # Calcular tasa de crecimiento total (incluyendo migración)
+            tasa_crecimiento_total = migracion_neta / poblacion_total * 100 if poblacion_total > 0 else 0
             
             proyecciones[año] = {
                 'año': año_proyeccion,
                 'poblacion_total': poblacion_total,
-                'poblacion_activa': poblacion_activa,
-                'poblacion_jovenes': poblacion_jovenes,
-                'poblacion_mayores': poblacion_mayores,
+                'poblacion_activa': poblacion_activa_proy,
+                'poblacion_jovenes': poblacion_jovenes_proy,
+                'poblacion_mayores': poblacion_mayores_proy,
+                'migracion_neta': migracion_neta,
+                'tasa_crecimiento': tasa_crecimiento_total,
                 'indice_dependencia_global': indice_dep_global,
                 'indice_dependencia_mayores': indice_dep_mayores,
-                'indice_dependencia_jovenes': (poblacion_jovenes / poblacion_activa) * 100
+                'indice_dependencia_jovenes': (poblacion_jovenes_proy / poblacion_activa_proy) * 100 if poblacion_activa_proy > 0 else 0
             }
+            
+            # Actualizar poblaciones para el siguiente año
+            poblacion_activa = poblacion_activa_proy
+            poblacion_dependiente = poblacion_dependiente_proy
         
         return proyecciones
     
@@ -794,7 +1095,7 @@ class ProyeccionesDemograficas:
     
     def _calcular_indicadores_modelo(self, proyecciones: Dict, territorio: str) -> Dict:
         """
-        Calcula indicadores para un modelo específico
+        Calcula indicadores para un modelo específico incluyendo indicadores socioeconómicos
         """
         indicadores = {}
         
@@ -836,6 +1137,29 @@ class ProyeccionesDemograficas:
         if 'indice_dependencia_global' in proyecciones[ultimo_año]:
             indicadores['indice_dependencia_final'] = proyecciones[ultimo_año]['indice_dependencia_global']
             indicadores['indice_envejecimiento'] = proyecciones[ultimo_año]['indice_dependencia_mayores']
+        
+        # Calcular indicadores socioeconómicos si hay datos de migración
+        if 'migracion_neta' in proyecciones[ultimo_año]:
+            migracion_neta_final = proyecciones[ultimo_año]['migracion_neta']
+            indicadores['migracion_neta_final'] = migracion_neta_final
+            indicadores['tipo_migracion'] = 'Inmigración neta' if migracion_neta_final > 0 else 'Emigración neta'
+            
+            # Calcular impacto de migración en el crecimiento
+            crecimiento_vegetativo = proyecciones[ultimo_año].get('crecimiento_vegetativo', 0)
+            indicadores['impacto_migracion'] = abs(migracion_neta_final) / abs(crecimiento_vegetativo) if crecimiento_vegetativo != 0 else 0
+        
+        # Calcular indicadores de sostenibilidad demográfica
+        if 'indice_dependencia_global' in proyecciones[ultimo_año]:
+            indice_dep = proyecciones[ultimo_año]['indice_dependencia_global']
+            if indice_dep > 60:
+                indicadores['sostenibilidad_demografica'] = 'Crítica'
+                indicadores['sostenibilidad_color'] = '#d73027'
+            elif indice_dep > 50:
+                indicadores['sostenibilidad_demografica'] = 'Preocupante'
+                indicadores['sostenibilidad_color'] = '#fc8d59'
+            else:
+                indicadores['sostenibilidad_demografica'] = 'Favorable'
+                indicadores['sostenibilidad_color'] = '#91cf60'
         
         return indicadores
 
@@ -993,6 +1317,33 @@ def mostrar_resultados_proyeccion(resultado: Dict):
         with col4:
             st.metric("Supera 1000 hab", 
                      "SÍ" if indicadores['puede_superar_1000'] else "NO")
+        
+        # Mostrar indicadores socioeconómicos adicionales si están disponibles
+        if 'migracion_neta_final' in indicadores or 'sostenibilidad_demografica' in indicadores:
+            st.subheader("📊 Indicadores Socioeconómicos")
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                if 'migracion_neta_final' in indicadores:
+                    migracion = indicadores['migracion_neta_final']
+                    tipo_mig = indicadores.get('tipo_migracion', 'Sin datos')
+                    st.metric("Migración Neta Final", 
+                             f"{migracion:,.0f}",
+                             tipo_mig)
+            
+            with col2:
+                if 'sostenibilidad_demografica' in indicadores:
+                    sostenibilidad = indicadores['sostenibilidad_demografica']
+                    color = indicadores.get('sostenibilidad_color', '#000000')
+                    st.metric("Sostenibilidad Demográfica", 
+                             sostenibilidad)
+            
+            with col3:
+                if 'impacto_migracion' in indicadores:
+                    impacto = indicadores['impacto_migracion']
+                    st.metric("Impacto Migración", 
+                             f"{impacto:.2f}x")
     
     # Mostrar gráficos
     st.subheader("📈 Visualización de Proyecciones")
