@@ -46,11 +46,11 @@ class ProyeccionesDemograficas:
             archivo_crecimiento = f"demografia/ieca_export_crec_veg_{provincia}.csv"
             
             # Manejar casos especiales (Granada tiene dos archivos)
-            if provincia == "gran":
+            if provincia == "gra":
                 # Intentar cargar ambos archivos y concatenarlos
                 try:
-                    df1 = pd.read_csv("demografia/ieca_export_crec_veg_gran1.csv", sep=";", decimal=",")
-                    df2 = pd.read_csv("demografia/ieca_export_crec_veg_gran2.csv", sep=";", decimal=",")
+                    df1 = pd.read_csv("demografia/ieca_export_crec_veg_gra1.csv", sep=";", decimal=",")
+                    df2 = pd.read_csv("demografia/ieca_export_crec_veg_gra2.csv", sep=";", decimal=",")
                     df_crecimiento = pd.concat([df1, df2], ignore_index=True)
                 except FileNotFoundError:
                     # Si no existen archivos separados, usar el archivo único
@@ -139,8 +139,8 @@ class ProyeccionesDemograficas:
             'Almería': 'alm',
             'Cádiz': 'cad', 
             'Córdoba': 'cor',
-            'Granada': 'gran',
-            'Huelva': 'huel',
+            'Granada': 'gra',
+            'Huelva': 'hue',
             'Jaén': 'jae',
             'Málaga': 'mal',
             'Sevilla': 'sev'
@@ -947,3 +947,4 @@ def mostrar_resultados_proyeccion(resultado: Dict):
         file_name=f"proyeccion_{territorio}_{modelo}.csv",
         mime="text/csv"
     )
+
