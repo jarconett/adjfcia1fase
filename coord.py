@@ -1556,6 +1556,12 @@ with tab3:
                 st.success(f"✅ {len(territorios_disponibles)} territorios con farmacia tienen datos demográficos disponibles")
                 if territorios_sin_datos:
                     st.info(f"ℹ️ {len(territorios_sin_datos)} territorios con farmacia no tienen datos demográficos")
+                    # Mostrar explícitamente cuáles son para facilitar el debug
+                    if len(territorios_sin_datos) == 1:
+                        st.warning(f"🕵️ Territorio sin datos: {territorios_sin_datos[0]}")
+                    else:
+                        with st.expander("Ver lista de territorios sin datos demográficos", expanded=False):
+                            st.write(territorios_sin_datos)
                 # Configuración de proyección
                 st.subheader("🔧 Configuración de Proyección")
                 
