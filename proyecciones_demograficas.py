@@ -15,6 +15,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import warnings
+import unicodedata
 warnings.filterwarnings('ignore')
 
 class ProyeccionesDemograficas:
@@ -27,6 +28,53 @@ class ProyeccionesDemograficas:
         self.datos_dependencia = {}
         self.poblacion_actual = {}
         self.tendencias_calculadas = {}
+        self._mapa_territorio_a_codigo = None  # cache de Territorios.csv -> código provincia
+
+    def _normalizar(self, texto: str) -> str:
+        """Normaliza texto: minúsculas y sin acentos/espacios extra."""
+        if not isinstance(texto, str):
+            return ""
+        texto = unicodedata.normalize('NFKD', texto)
+        texto = ''.join(c for c in texto if not unicodedata.combining(c))
+        return texto.lower().strip()
+
+    def _cargar_mapa_territorios(self) -> Dict[str, str]:
+        """Construye un mapa de territorio normalizado -> código de provincia usando Territorios.csv."""
+        if self._mapa_territorio_a_codigo is not None:
+            return self._mapa_territorio_a_codigo
+
+        # Mapeo de nombre de provincia normalizado a código de fichero
+        provincia_a_codigo = {
+            'almeria': 'alm',
+            'cadiz': 'cad',
+            'cordoba': 'cor',
+            'granada': 'gra',
+            'huelva': 'hue',
+            'jaen': 'jae',  # dependencia usa 'jae'; crecimiento tiene 'jaen' (se maneja fallback)
+            'malaga': 'mal',
+            'sevilla': 'sev',
+        }
+
+        try:
+            df_terr = pd.read_csv('Territorios.csv', sep=';')
+        except Exception:
+            # Si no existe, dejar el mapa vacío para usar heurística posterior
+            self._mapa_territorio_a_codigo = {}
+            return self._mapa_territorio_a_codigo
+
+        mapa: Dict[str, str] = {}
+        # Asegurar columnas esperadas
+        if 'Territorio' in df_terr.columns and 'Provincia' in df_terr.columns:
+            for _, fila in df_terr.iterrows():
+                terr_norm = self._normalizar(str(fila['Territorio']))
+                prov_norm = self._normalizar(str(fila['Provincia']))
+                codigo = provincia_a_codigo.get(prov_norm)
+                if terr_norm and codigo:
+                    # La última asignación gana; las duplicadas comparten provincia
+                    mapa[terr_norm] = codigo
+
+        self._mapa_territorio_a_codigo = mapa
+        return self._mapa_territorio_a_codigo
         
     def cargar_datos_crecimiento_vegetativo(self, territorio: str) -> pd.DataFrame:
         """
@@ -66,10 +114,11 @@ class ProyeccionesDemograficas:
                     else:
                         raise
             
-            # Filtrar por territorio
-            df_territorio = df_crecimiento[
-                df_crecimiento['Lugar de residencia'] == territorio
-            ].copy()
+            # Filtrar por territorio (comparación robusta normalizada)
+            terr_norm = self._normalizar(territorio)
+            df_crecimiento = df_crecimiento.copy()
+            df_crecimiento['__terr_norm'] = df_crecimiento['Lugar de residencia'].astype(str).map(self._normalizar)
+            df_territorio = df_crecimiento[df_crecimiento['__terr_norm'] == terr_norm].drop(columns=['__terr_norm']).copy()
             
             # Convertir columna Anual a numérico
             df_territorio['Anual'] = pd.to_numeric(df_territorio['Anual'], errors='coerce')
@@ -111,10 +160,11 @@ class ProyeccionesDemograficas:
             # Concatenar ambos archivos
             df_dependencia = pd.concat([df_dep1, df_dep2], ignore_index=True)
             
-            # Filtrar por territorio
-            df_territorio = df_dependencia[
-                df_dependencia['Lugar de residencia'] == territorio
-            ].copy()
+            # Filtrar por territorio (comparación robusta normalizada)
+            terr_norm = self._normalizar(territorio)
+            df_dependencia = df_dependencia.copy()
+            df_dependencia['__terr_norm'] = df_dependencia['Lugar de residencia'].astype(str).map(self._normalizar)
+            df_territorio = df_dependencia[df_dependencia['__terr_norm'] == terr_norm].drop(columns=['__terr_norm']).copy()
             
             # Convertir columnas a numérico
             df_territorio['Anual'] = pd.to_numeric(df_territorio['Anual'], errors='coerce')
@@ -134,37 +184,40 @@ class ProyeccionesDemograficas:
     
     def _determinar_provincia(self, territorio: str) -> str:
         """
-        Determina la provincia basándose en el territorio
-        
-        Args:
-            territorio: Nombre del territorio
-            
-        Returns:
-            Código de provincia (3 letras)
+        Determina el código de provincia (3 letras) para un territorio usando `Territorios.csv`.
+        Fallback: si no se encuentra, usa heurísticas y por defecto primeros 3 caracteres.
         """
-        # Mapeo de territorios a provincias basado en el archivo Territorios.csv
-        mapeo_provincias = {
-            'Almería': 'alm',
-            'Cádiz': 'cad', 
-            'Córdoba': 'cor',
-            'Granada': 'gra',
-            'Huelva': 'hue',
-            'Jaén': 'jae',
-            'Málaga': 'mal',
-            'Sevilla': 'sev'
+        # Soportar nombres de provincias directamente (con o sin acento)
+        provincia_a_codigo = {
+            'almeria': 'alm', 'almería': 'alm',
+            'cadiz': 'cad', 'cádiz': 'cad',
+            'cordoba': 'cor', 'córdoba': 'cor',
+            'granada': 'gra',
+            'huelva': 'hue',
+            'jaen': 'jae', 'jaén': 'jae',
+            'malaga': 'mal', 'málaga': 'mal',
+            'sevilla': 'sev',
         }
-        
-        # Buscar coincidencia directa
-        if territorio in mapeo_provincias:
-            return mapeo_provincias[territorio]
-        
-        # Buscar por coincidencia parcial
-        for prov, codigo in mapeo_provincias.items():
-            if territorio.lower() in prov.lower() or prov.lower() in territorio.lower():
-                return codigo
-        
-        # Por defecto, asumir que es el territorio mismo
-        return territorio.lower()[:3]
+
+        terr_norm = self._normalizar(territorio)
+
+        # Coincidencia directa con nombre de provincia
+        if terr_norm in provincia_a_codigo:
+            return provincia_a_codigo[terr_norm]
+
+        # Buscar en el mapeo de Territorios.csv
+        mapa = self._cargar_mapa_territorios()
+        codigo = mapa.get(terr_norm)
+        if codigo:
+            return codigo
+
+        # Heurística: si el nombre del territorio contiene el nombre de provincia
+        for prov_nombre, cod in provincia_a_codigo.items():
+            if terr_norm in prov_nombre or prov_nombre in terr_norm:
+                return cod
+
+        # Por defecto, asumir que es el territorio mismo (nombre corto)
+        return terr_norm[:3]
     
     def obtener_territorios_con_farmacia(self, df_farmacias: pd.DataFrame) -> List[str]:
         """
