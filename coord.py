@@ -27,7 +27,6 @@ except ImportError:
 
 # --------------------
 # Navigation tabs
-
 tab1, tab2, tab3 = st.tabs(["🗺️ Mapa y Ranking", "📊 Comparación de Municipios", "📈 Proyecciones Demográficas"])
 
 # --------------------
@@ -297,7 +296,7 @@ with tab1:
 
     def combinar_medida_y_extras(row, extras):
         parts = [str(row['Medida']).strip()]
-
+        
         # Para Consultorio.csv, no incluir Singular en el nombre del indicador
         # para evitar duplicados. Solo usar la medida base.
         if 'Singular' in extras and str(row.get('Singular', '')).strip():
@@ -310,7 +309,7 @@ with tab1:
                 val = str(row[col]).strip()
                 if val and val.lower() not in ['nan', 'none', 'na', '']:
                     parts.append(val)
-
+        
         clean_parts = [limpiar_texto(p) for p in parts]
         return "_".join(clean_parts)
 
@@ -693,27 +692,27 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
         if not df_farmacias_factores.empty:
             # Merge inteligente entre pivot y farmacias considerando Territorio y Singular
             # Esto es necesario para manejar correctamente las entidades singulares de Consultorio.csv
-
+            
             # Crear una clave compuesta para el merge que considere tanto Territorio como Singular
             df_pivot_con['merge_key'] = df_pivot_con['Territorio']
             df_farmacias_factores['merge_key'] = df_farmacias_factores['Territorio']
-
+            
             # Para cada fila en df_pivot_con, buscar la correspondiente en df_farmacias_factores
             df_con_farmacia_base = pd.DataFrame()
-
+            
             for idx, row_pivot in df_pivot_con.iterrows():
                 territorio = row_pivot['Territorio']
-
+                
                 # Buscar todas las farmacias que coincidan con este territorio
                 matches = df_farmacias_factores[df_farmacias_factores['Territorio'] == territorio]
-
+                
                 if not matches.empty:
                     # Si hay múltiples matches, crear una fila para cada uno
                     for _, match in matches.iterrows():
                         row_result = row_pivot.copy()
                         row_result['Factor'] = match['Factor']
                         row_result['Nombre_Mostrar'] = match['Nombre_Mostrar']
-
+                        
                         # Agregar otras columnas si existen
                         if 'Provincia' in match.index:
                             row_result['Provincia'] = match['Provincia']
@@ -721,7 +720,7 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
                             row_result['Ldo'] = match['Ldo']
                         if 'Singular' in match.index:
                             row_result['Singular'] = match['Singular']
-
+                        
                         df_con_farmacia_base = pd.concat([df_con_farmacia_base, row_result.to_frame().T], ignore_index=True)
                 else:
                     # Si no hay matches, usar valores por defecto
@@ -729,7 +728,7 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
                     row_result['Factor'] = 1.0
                     row_result['Nombre_Mostrar'] = territorio
                     df_con_farmacia_base = pd.concat([df_con_farmacia_base, row_result.to_frame().T], ignore_index=True)
-
+            
             # Asegurar que Factor siempre tenga valor
             df_con_farmacia_base["Factor"] = pd.to_numeric(df_con_farmacia_base["Factor"], errors="coerce").fillna(1.0)
 
@@ -1715,3 +1714,4 @@ with tab3:
 # --------------------
 # Version information in the sidebar
 st.sidebar.subheader("Version 1.9.0")
+
