@@ -56,7 +56,15 @@ class ProyeccionesDemograficas:
                     # Si no existen archivos separados, usar el archivo único
                     df_crecimiento = pd.read_csv(archivo_crecimiento, sep=";", decimal=",")
             else:
-                df_crecimiento = pd.read_csv(archivo_crecimiento, sep=";", decimal=",")
+                # Intentar lectura normal y aplicar fallback para Jaén (jae -> jaen)
+                try:
+                    df_crecimiento = pd.read_csv(archivo_crecimiento, sep=";", decimal=",")
+                except FileNotFoundError:
+                    if provincia == "jae":
+                        archivo_crecimiento_alt = "demografia/ieca_export_crec_veg_jaen.csv"
+                        df_crecimiento = pd.read_csv(archivo_crecimiento_alt, sep=";", decimal=",")
+                    else:
+                        raise
             
             # Filtrar por territorio
             df_territorio = df_crecimiento[
@@ -771,13 +779,13 @@ def ejecutar_proyeccion_demografica(territorio: str, años: int, modelo: str,
     if not resultado:
         return {}
     
-    # Generar gráficos
-    graficos = sistema_proyecciones.generar_graficos_proyeccion(resultado)
-    resultado['graficos'] = graficos
-    
-    # Calcular indicadores derivados
+    # Calcular indicadores derivados (antes de generar gráficos)
     indicadores = sistema_proyecciones.calcular_indicadores_derivados(resultado)
     resultado['indicadores'] = indicadores
+
+    # Generar gráficos (requiere indicadores para colorear y anotar)
+    graficos = sistema_proyecciones.generar_graficos_proyeccion(resultado)
+    resultado['graficos'] = graficos
     
     return resultado
 
