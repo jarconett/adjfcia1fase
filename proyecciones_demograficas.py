@@ -284,21 +284,62 @@ class ProyeccionesDemograficas:
         try:
             provincia = self._determinar_provincia(territorio)
             
-            # Construir nombre del archivo de inmigración
-            archivo_inmigracion = f"demografia/ieca_export_inmigraciones_edad_sexo_88_09_{provincia}.csv"
+            # Casos especiales: territorios que no están en Territorios.csv pero sabemos su provincia
+            casos_especiales = {
+                'canillas de albaida': 'mal',
+                'canillas de aceituno': 'mal'
+            }
             
-            # Manejar casos especiales (Granada tiene dos archivos)
-            if provincia == "gra":
-                # Intentar cargar ambos archivos y concatenarlos
+            territorio_norm = self._normalizar(territorio)
+            if territorio_norm in casos_especiales:
+                provincia = casos_especiales[territorio_norm]
+            
+            # Lista de archivos de inmigración a buscar (ordenados por prioridad - más recientes primero)
+            archivos_inmigracion = [
+                f"demografia/ieca_export_inmigraciones_edad_sexo_21_23_{provincia}.csv",
+                f"demografia/ieca_export_inmigracion_19_21.csv",
+                f"demografia/ieca_export_inmigracion_16_18.csv",
+                f"demografia/ieca_export_inmigracion_13_15.csv",
+                f"demografia/ieca_export_inmigracion_10_12.csv",
+                f"demografia/ieca_export_inmigracion_07_09.csv",
+                f"demografia/ieca_export_inmigracion_04_06.csv",
+                f"demografia/ieca_export_inmigracion_01_03.csv",
+                f"demografia/ieca_export_inmigracion_98_00.csv",
+                f"demografia/ieca_export_inmigracion_95_97.csv",
+                f"demografia/ieca_export_inmigracion_92_94.csv",
+                f"demografia/ieca_export_inmigracion_89_91.csv",
+                f"demografia/ieca_export_inmigracion_88.csv"
+            ]
+            
+            df_inmigracion = None
+            
+            # Cargar y combinar datos de múltiples archivos para tener serie histórica completa
+            dfs_territorio = []
+            
+            for archivo in archivos_inmigracion:
                 try:
-                    df1 = pd.read_csv("demografia/ieca_export_inmigraciones_edad_sexo_88_09_gra1.csv", sep=";", decimal=",")
-                    df2 = pd.read_csv("demografia/ieca_export_inmigraciones_edad_sexo_88_09_gra2.csv", sep=";", decimal=",")
-                    df_inmigracion = pd.concat([df1, df2], ignore_index=True)
+                    df_temp = pd.read_csv(archivo, sep=";", decimal=",")
+                    # Verificar que el territorio existe en este archivo
+                    col_terr = self._columna_territorio(df_temp)
+                    if col_terr:
+                        terr_norm = self._normalizar(territorio)
+                        df_temp['__terr_norm'] = df_temp[col_terr].astype(str).map(self._normalizar)
+                        df_territorio_temp = df_temp[df_temp['__terr_norm'] == terr_norm]
+                        if len(df_territorio_temp) > 0:
+                            # Limpiar la columna temporal y agregar a la lista
+                            df_territorio_temp = df_territorio_temp.drop(columns=['__terr_norm'])
+                            dfs_territorio.append(df_territorio_temp)
                 except FileNotFoundError:
-                    # Si no existen archivos separados, usar el archivo único
-                    df_inmigracion = pd.read_csv(archivo_inmigracion, sep=";", decimal=",")
+                    continue  # Intentar el siguiente archivo
+            
+            # Combinar todos los datos históricos encontrados
+            if dfs_territorio:
+                df_inmigracion = pd.concat(dfs_territorio, ignore_index=True)
             else:
-                df_inmigracion = pd.read_csv(archivo_inmigracion, sep=";", decimal=",")
+                df_inmigracion = None
+            
+            if df_inmigracion is None:
+                raise FileNotFoundError(f"No se encontró ningún archivo de inmigración para {provincia}")
             
             # Filtrar por territorio (comparación robusta normalizada)
             terr_norm = self._normalizar(territorio)
