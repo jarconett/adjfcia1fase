@@ -25,6 +25,14 @@ except ImportError:
     proyecciones_disponibles = False
     st.sidebar.warning("⚠️ Módulo de proyecciones demográficas no disponible")
 
+# Importar módulo de entidades singulares
+try:
+    from proyeccion_entidades_singulares_final import obtener_entidades_singulares, proyectar_entidad_singular
+    entidades_singulares_disponibles = True
+except ImportError:
+    entidades_singulares_disponibles = False
+    st.sidebar.warning("⚠️ Módulo de entidades singulares no disponible")
+
 # --------------------
 # Navigation tabs
 tab1, tab2, tab3 = st.tabs(["🗺️ Mapa y Ranking", "📊 Comparación de Municipios", "📈 Proyecciones Demográficas"])
@@ -1523,39 +1531,66 @@ with tab3:
         st.error("❌ El módulo de proyecciones demográficas no está disponible.")
         st.info("Asegúrate de que el archivo 'proyecciones_demograficas.py' esté en el directorio correcto.")
     else:
-        # Verificar que tenemos datos cargados
-        if 'df_municipios_farmacias' not in locals() or df_municipios_farmacias.empty:
-            st.warning("⚠️ Primero debes cargar los datos y calcular las puntuaciones en la pestaña 'Mapa y Ranking'.")
-            st.info("Ve a la primera pestaña, configura los pesos y presiona 'Aplicar Cambios y Recalcular'.")
-        else:
-            # Obtener lista de territorios con farmacia que tengan datos demográficos
-            if proyecciones_disponibles:
-                sistema_proyecciones = ProyeccionesDemograficas()
-                territorios_con_farmacia = sistema_proyecciones.obtener_territorios_con_farmacia(df_farmacias)
-            else:
-                territorios_con_farmacia = []
+        # Obtener todos los territorios del archivo Territorios.csv
+        if proyecciones_disponibles:
+            sistema_proyecciones = ProyeccionesDemograficas()
             
-            # Filtrar solo territorios que tengan datos demográficos disponibles
+            # Cargar todos los territorios desde Territorios.csv
+            try:
+                # Cargar el archivo línea por línea para evitar problemas de formato
+                with open('Territorios.csv', 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                
+                todos_los_territorios = []
+                for line in lines[1:]:  # Saltar encabezado
+                    parts = line.strip().split(';')
+                    if len(parts) >= 6:
+                        territorio = parts[0]
+                        todos_los_territorios.append(territorio)
+                
+                todos_los_territorios = sorted(list(set(todos_los_territorios)))  # Eliminar duplicados y ordenar
+                
+                st.info(f"📋 Se encontraron {len(todos_los_territorios)} territorios en el archivo Territorios.csv (todos disponibles para proyecciones)")
+                
+                # Mostrar información sobre distribución de farmacias
+                territorios_con_farmacia_count = 0
+                territorios_sin_farmacia_count = 0
+                
+                for line in lines[1:]:
+                    parts = line.strip().split(';')
+                    if len(parts) >= 7:
+                        ldo = parts[6]  # Columna Ldo (farmacia)
+                        if ldo and ldo.strip() != '':
+                            territorios_con_farmacia_count += 1
+                        else:
+                            territorios_sin_farmacia_count += 1
+                
+                st.info(f"📊 Distribución: {territorios_con_farmacia_count} territorios con farmacia, {territorios_sin_farmacia_count} sin farmacia")
+                
+            except Exception as e:
+                st.error(f"Error cargando Territorios.csv: {e}")
+                todos_los_territorios = []
+            
+            # Filtrar territorios que tengan datos demográficos disponibles
             territorios_disponibles = []
             territorios_sin_datos = []
             
-            if proyecciones_disponibles:
-                for territorio in territorios_con_farmacia:
-                    if sistema_proyecciones.verificar_territorio_tiene_datos_demograficos(territorio):
-                        territorios_disponibles.append(territorio)
-                    else:
-                        territorios_sin_datos.append(territorio)
-                
-                territorios_disponibles = sorted(territorios_disponibles)
+            for territorio in todos_los_territorios:
+                if sistema_proyecciones.verificar_territorio_tiene_datos_demograficos(territorio):
+                    territorios_disponibles.append(territorio)
+                else:
+                    territorios_sin_datos.append(territorio)
+            
+            territorios_disponibles = sorted(territorios_disponibles)
             
             if not territorios_disponibles:
-                st.warning("⚠️ No hay territorios con farmacia que tengan datos demográficos disponibles.")
+                st.warning("⚠️ No hay territorios que tengan datos demográficos disponibles.")
                 if territorios_sin_datos:
-                    st.info(f"Territorios con farmacia sin datos demográficos: {', '.join(territorios_sin_datos[:10])}")
+                    st.info(f"Territorios sin datos demográficos: {', '.join(territorios_sin_datos[:10])}")
             else:
-                st.success(f"✅ {len(territorios_disponibles)} territorios con farmacia tienen datos demográficos disponibles")
+                st.success(f"✅ {len(territorios_disponibles)} territorios tienen datos demográficos disponibles")
                 if territorios_sin_datos:
-                    st.info(f"ℹ️ {len(territorios_sin_datos)} territorios con farmacia no tienen datos demográficos")
+                    st.info(f"ℹ️ {len(territorios_sin_datos)} territorios no tienen datos demográficos")
                     # Mostrar explícitamente cuáles son para facilitar el debug
                     if len(territorios_sin_datos) == 1:
                         st.warning(f"🕵️ Territorio sin datos: {territorios_sin_datos[0]}")
@@ -1594,6 +1629,56 @@ with tab3:
                         }[x],
                         help="Método de proyección a utilizar"
                     )
+                
+                # Opción para incluir entidades singulares
+                if entidades_singulares_disponibles:
+                    incluir_entidades_singulares = st.checkbox(
+                        "📋 Incluir entidades singulares",
+                        value=True,
+                        help="Mostrar proyecciones para las entidades singulares del territorio seleccionado"
+                    )
+                else:
+                    incluir_entidades_singulares = False
+                
+                # Mostrar resumen de territorios con entidades singulares
+                if entidades_singulares_disponibles:
+                    st.markdown("---")
+                    st.subheader("📋 Resumen de Territorios y Entidades Singulares")
+                    
+                    # Contar territorios con entidades singulares
+                    territorios_con_entidades = []
+                    total_entidades = 0
+                    
+                    for territorio in territorios_disponibles:
+                        entidades = obtener_entidades_singulares(territorio)
+                        if entidades:
+                            territorios_con_entidades.append({
+                                'territorio': territorio,
+                                'entidades': entidades,
+                                'cantidad': len(entidades)
+                            })
+                            total_entidades += len(entidades)
+                    
+                    if territorios_con_entidades:
+                        st.info(f"Se encontraron {len(territorios_con_entidades)} territorios con {total_entidades} entidades singulares en total")
+                        
+                        # Mostrar tabla resumen
+                        df_resumen = pd.DataFrame([
+                            {
+                                'Territorio': t['territorio'],
+                                'Entidades Singulares': t['cantidad'],
+                                'Primera Entidad': t['entidades'][0]['entidad_singular'] if t['entidades'] else 'N/A',
+                                'Factor Promedio': f"{sum(e['factor'] for e in t['entidades']) / len(t['entidades']) * 100:.2f}%"
+                            }
+                            for t in territorios_con_entidades[:10]  # Mostrar solo los primeros 10
+                        ])
+                        
+                        st.dataframe(df_resumen, use_container_width=True)
+                        
+                        if len(territorios_con_entidades) > 10:
+                            st.info(f"... y {len(territorios_con_entidades) - 10} territorios más con entidades singulares")
+                    else:
+                        st.info("No se encontraron territorios con entidades singulares")
                 
                 # Obtener población actual del territorio seleccionado
                 poblacion_actual = None
@@ -1645,8 +1730,59 @@ with tab3:
                                 )
                                 
                                 if resultado:
-                                    # Mostrar resultados
+                                    # Mostrar resultados principales
                                     mostrar_resultados_proyeccion(resultado)
+                                    
+                                    # Mostrar entidades singulares si está habilitado
+                                    if incluir_entidades_singulares and entidades_singulares_disponibles:
+                                        try:
+                                            # Obtener entidades singulares del territorio
+                                            entidades = obtener_entidades_singulares(territorio_proyeccion)
+                                            
+                                            if entidades:
+                                                st.markdown("---")
+                                                st.subheader("🏘️ Proyecciones de Entidades Singulares")
+                                                st.info(f"Se encontraron {len(entidades)} entidades singulares para {territorio_proyeccion}")
+                                                
+                                                # Mostrar cada entidad singular
+                                                for entidad in entidades:
+                                                    with st.expander(f"📊 {entidad['entidad_singular']} ({entidad['porcentaje']:.2f}% de la población)", expanded=False):
+                                                        # Crear proyección para la entidad singular
+                                                        proyeccion_singular = proyectar_entidad_singular(
+                                                            territorio_proyeccion,
+                                                            entidad['entidad_singular'],
+                                                            resultado['proyecciones'][modelo_proyeccion],
+                                                            entidad['factor']
+                                                        )
+                                                        
+                                                        # Mostrar tabla de proyección
+                                                        df_proyeccion = pd.DataFrame({
+                                                            'Año': proyeccion_singular['años'],
+                                                            'Población Total': [f"{p:.0f}" for p in proyeccion_singular['poblacion_total']],
+                                                            'Hombres': [f"{p:.0f}" for p in proyeccion_singular['poblacion_hombres']],
+                                                            'Mujeres': [f"{p:.0f}" for p in proyeccion_singular['poblacion_mujeres']],
+                                                            'Crecimiento Vegetativo': [f"{c:.1f}" for c in proyeccion_singular['crecimiento_vegetativo']],
+                                                            'Migración Neta': [f"{m:.1f}" for m in proyeccion_singular['migracion_neta']],
+                                                            'Tasa Crecimiento (%)': [f"{t:.2f}" for t in proyeccion_singular['tasa_crecimiento']]
+                                                        })
+                                                        
+                                                        st.dataframe(df_proyeccion, use_container_width=True)
+                                                        
+                                                        # Mostrar gráfico de población
+                                                        fig = px.line(
+                                                            df_proyeccion, 
+                                                            x='Año', 
+                                                            y='Población Total',
+                                                            title=f"Evolución de Población - {entidad['entidad_singular']}",
+                                                            labels={'Población Total': 'Población', 'Año': 'Año'}
+                                                        )
+                                                        fig.update_traces(line=dict(width=3))
+                                                        st.plotly_chart(fig, use_container_width=True)
+                                            else:
+                                                st.info(f"No se encontraron entidades singulares para {territorio_proyeccion}")
+                                                
+                                        except Exception as e:
+                                            st.warning(f"Error al procesar entidades singulares: {e}")
                                     
                                     # Mostrar información adicional sobre tendencias
                                     if 'tendencias' in resultado:
