@@ -29,6 +29,15 @@ class ProyeccionesDemograficas:
         self.poblacion_actual = {}
         self.tendencias_calculadas = {}
         self._mapa_territorio_a_codigo = None  # cache de Territorios.csv -> código provincia
+        # Candidatos de nombre de columna para territorio en ficheros IECA
+        self._territorio_column_candidates: List[str] = [
+            'Lugar de residencia',
+            'Lugar de origen',
+            'Lugar de procedencia',
+            'Territorio',
+            'Municipio',
+            'Lugar',
+        ]
 
     def _normalizar(self, texto: str) -> str:
         """Normaliza texto: minúsculas y sin acentos/espacios extra."""
@@ -75,6 +84,22 @@ class ProyeccionesDemograficas:
 
         self._mapa_territorio_a_codigo = mapa
         return self._mapa_territorio_a_codigo
+
+    def _columna_territorio(self, df: pd.DataFrame) -> Optional[str]:
+        """Devuelve el nombre real de la columna que representa el territorio.
+        Busca entre candidatos conocidos con comparación normalizada.
+        """
+        if df is None or df.empty:
+            return None
+        # Mapa de nombre normalizado -> nombre real del DataFrame
+        col_norm_to_real: Dict[str, str] = {}
+        for col in df.columns:
+            col_norm_to_real[self._normalizar(str(col))] = col
+        for cand in self._territorio_column_candidates:
+            cand_norm = self._normalizar(cand)
+            if cand_norm in col_norm_to_real:
+                return col_norm_to_real[cand_norm]
+        return None
         
     def cargar_datos_crecimiento_vegetativo(self, territorio: str) -> pd.DataFrame:
         """
@@ -117,7 +142,11 @@ class ProyeccionesDemograficas:
             # Filtrar por territorio (comparación robusta normalizada)
             terr_norm = self._normalizar(territorio)
             df_crecimiento = df_crecimiento.copy()
-            df_crecimiento['__terr_norm'] = df_crecimiento['Lugar de residencia'].astype(str).map(self._normalizar)
+            col_terr = self._columna_territorio(df_crecimiento)
+            if not col_terr:
+                st.error("No se encontró columna de territorio en datos de crecimiento")
+                return pd.DataFrame()
+            df_crecimiento['__terr_norm'] = df_crecimiento[col_terr].astype(str).map(self._normalizar)
             df_territorio = df_crecimiento[df_crecimiento['__terr_norm'] == terr_norm].drop(columns=['__terr_norm']).copy()
             
             # Convertir columna Anual a numérico
@@ -163,7 +192,11 @@ class ProyeccionesDemograficas:
             # Filtrar por territorio (comparación robusta normalizada)
             terr_norm = self._normalizar(territorio)
             df_dependencia = df_dependencia.copy()
-            df_dependencia['__terr_norm'] = df_dependencia['Lugar de residencia'].astype(str).map(self._normalizar)
+            col_terr = self._columna_territorio(df_dependencia)
+            if not col_terr:
+                st.error("No se encontró columna de territorio en datos de dependencia")
+                return pd.DataFrame()
+            df_dependencia['__terr_norm'] = df_dependencia[col_terr].astype(str).map(self._normalizar)
             df_territorio = df_dependencia[df_dependencia['__terr_norm'] == terr_norm].drop(columns=['__terr_norm']).copy()
             
             # Convertir columnas a numérico
