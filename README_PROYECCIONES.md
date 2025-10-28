@@ -23,18 +23,33 @@ Este módulo proporciona funcionalidades avanzadas para calcular proyecciones de
 - **Columnas**: `Lugar de residencia`, `Anual`, `Edad`, `Medida`, `Valor`
 - **Indicadores**: Índice de dependencia global, jóvenes, mayores
 
+### Archivos de Migración
+- **Emigración**: `demografia/ieca_export_emigraciones_edad_sexo_88_09_[provincia].csv`
+- **Inmigración**: `demografia/ieca_export_inmigraciones_edad_sexo_88_09_[provincia].csv`
+- **Período**: 1988-2009
+- **Columnas**: `Lugar de origen`/`Lugar de destino`, `Anual`, `Sexo`, `Edad`, `Medida`, `Valor`
+- **Desagregación**: Por grupos de edad y sexo
+
+### Archivos de Paro
+- **Ubicación**: `demografia/ieca_export_paro_[rango_años].csv`
+- **Período**: 2007-2024 (archivos por rangos de 3 años)
+- **Columnas**: `Territorio`, `Anual`, `Medida`, `Sexo`, `Edad`, `Valor`
+- **Indicadores**: Demandantes de empleo por edad y sexo
+
 ## Funcionalidades Implementadas
 
 ### 1. Análisis de Tendencias Históricas
 - Regresión lineal para crecimiento vegetativo por sexo
 - Análisis de tendencias de índices de dependencia
+- Análisis de tendencias de migración neta por edad y sexo
+- Análisis de tendencias de paro por edad y sexo
 - Detección de puntos de inflexión
 - Cálculo de estadísticas descriptivas
 
 ### 2. Modelos de Proyección
 - **Tendencia Lineal**: Proyección basada en regresión lineal simple
 - **Tendencia Exponencial**: Crecimiento proporcional a la población
-- **Por Componentes**: Desagregación por grupos de edad
+- **Por Componentes**: Desagregación por grupos de edad incluyendo migración neta
 - **Comparar Todos**: Ejecuta todos los modelos para comparación
 
 ### 3. Indicadores Calculados
@@ -42,6 +57,9 @@ Este módulo proporciona funcionalidades avanzadas para calcular proyecciones de
 - Tasa de crecimiento anual promedio
 - Índices de dependencia proyectados
 - Riesgo de despoblación
+- Migración neta proyectada
+- Sostenibilidad demográfica
+- Impacto de migración en el crecimiento
 - Coeficientes de determinación (R²)
 
 ### 4. Visualizaciones
@@ -162,3 +180,38 @@ Para problemas o mejoras, revisar:
 - **Riesgo de Despoblación**: Basado en tasa de crecimiento anual promedio
 - **Umbral 1000 Habitantes**: Población máxima proyectada en el período
 - **Indicadores Derivados**: Cálculo automático de todos los indicadores relevantes
+
+## Nuevas Funcionalidades de Migración y Paro
+
+### Integración de Datos de Migración
+- **Migración Neta**: Cálculo automático de inmigración - emigración por año
+- **Tendencias de Migración**: Análisis de patrones migratorios por edad y sexo
+- **Impacto en Proyecciones**: Los modelos de componentes incluyen migración neta
+- **Indicadores de Migración**: Tipo de migración (neta positiva/negativa) y su impacto
+
+### Integración de Datos de Paro
+- **Tendencias de Empleo**: Análisis de evolución del paro por edad y sexo
+- **Indicadores Socioeconómicos**: Cálculo de sostenibilidad demográfica
+- **Correlación con Migración**: Análisis de relación entre paro y flujos migratorios
+
+### Mejoras en la Precisión
+- **Modelo de Componentes Mejorado**: Incluye migración neta en proyecciones
+- **Indicadores Socioeconómicos**: Sostenibilidad demográfica basada en dependencia
+- **Análisis Multidimensional**: Combina datos demográficos, migratorios y laborales
+- **Proyecciones Más Realistas**: Considera factores económicos y sociales
+
+### Estructura de Archivos Actualizada
+```
+demografia/
+├── ieca_export_crec_veg_[provincia].csv
+├── ieca_export_dep_[provincia]1.csv
+├── ieca_export_dep_[provincia]2.csv
+├── ieca_export_emigraciones_edad_sexo_88_09_[provincia].csv
+├── ieca_export_inmigraciones_edad_sexo_88_09_[provincia].csv
+├── ieca_export_paro_07-09.csv
+├── ieca_export_paro_10-12.csv
+├── ieca_export_paro_13-15.csv
+├── ieca_export_paro_16-18.csv
+├── ieca_export_paro_19-21.csv
+└── ieca_export_paro_22-24.csv
+```
