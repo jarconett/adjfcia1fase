@@ -53,9 +53,16 @@ def _cargar_territorios_csv() -> pd.DataFrame:
     try:
         df = pd.read_csv("Territorios.csv", sep=";")
         # Limpieza básica
-        for col in ["Territorio", "Provincia", "Singular"]:
+        # Territorio y Provincia como texto limpio
+        for col in ["Territorio", "Provincia"]:
             if col in df.columns:
                 df[col] = df[col].astype(str).str.strip()
+        # Singular: preservar NaN reales y convertir cadenas vacías o 'nan'/'None' en NaN
+        if "Singular" in df.columns:
+            # No convertir NaN a string; limpiar valores atípicos
+            df["Singular"] = df["Singular"].where(pd.notna(df["Singular"]))
+            df["Singular"] = df["Singular"].apply(lambda x: x if pd.isna(x) or str(x).strip().lower() not in ("", "nan", "none") else np.nan)
+            df.loc[df["Singular"].notna(), "Singular"] = df.loc[df["Singular"].notna(), "Singular"].astype(str).str.strip()
         return df
     except Exception:
         return pd.DataFrame()
@@ -536,7 +543,12 @@ def render_proyeccion_entidades_singulares():
         if not singpares:
             st.warning("No hay entidades singulares en Territorios.csv")
             return
-        opciones = [f"{s} — [{m}]" for (m, s) in singpares]
+        def _fmt_opcion(m: str, s: Optional[str]) -> str:
+            s_str = (s or "").strip()
+            if not s_str or s_str.lower() == "nan":
+                return f"[{m}]"
+            return f"{s_str} — [{m}]"
+        opciones = [_fmt_opcion(m, s) for (m, s) in singpares]
         sel = st.selectbox("Entidad singular", options=opciones)
         idx = opciones.index(sel)
         municipio, singular = singpares[idx]
