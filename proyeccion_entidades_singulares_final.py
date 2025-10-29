@@ -191,6 +191,53 @@ def _cargar_dependencia(territorio: str) -> pd.DataFrame:
     return df
 
 
+def _cargar_paro(territorio: str) -> pd.DataFrame:
+    """Carga datos de paro (demandantes de empleo) para el territorio.
+    Consolida datos de todos los archivos de paro disponibles por períodos.
+    """
+    archivos_paro = [
+        "demografia/ieca_export_paro_07-09.csv",
+        "demografia/ieca_export_paro_10-12.csv",
+        "demografia/ieca_export_paro_13-15.csv",
+        "demografia/ieca_export_paro_16-18.csv",
+        "demografia/ieca_export_paro_19-21.csv",
+        "demografia/ieca_export_paro_22-24.csv",
+    ]
+    
+    dfs = []
+    for archivo in archivos_paro:
+        try:
+            df_temp = pd.read_csv(archivo, sep=";", decimal=",")
+            dfs.append(df_temp)
+        except (FileNotFoundError, Exception):
+            continue
+    
+    if not dfs:
+        return pd.DataFrame()
+    
+    df = pd.concat(dfs, ignore_index=True)
+    col_terr = _columna_territorio(df)
+    if not col_terr:
+        return pd.DataFrame()
+    
+    df = df.copy()
+    df["__t_norm"] = df[col_terr].astype(str).map(_normalizar_texto)
+    t_norm = _normalizar_texto(territorio)
+    df = df[df["__t_norm"] == t_norm].drop(columns=["__t_norm"], errors="ignore").copy()
+    
+    # Filtrar solo "Demandantes" y "Ambos sexos" para el total
+    if "Medida" in df.columns:
+        df = df[df["Medida"].str.contains("Demandantes", case=False, na=False)].copy()
+    
+    if "Anual" in df.columns:
+        df["Anual"] = pd.to_numeric(df["Anual"], errors="coerce")
+    if "Valor" in df.columns:
+        df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce")
+    
+    df = df.dropna(subset=["Anual", "Valor"]).copy()
+    return df
+
+
 # -----------------------------
 # Población actual
 # -----------------------------
@@ -327,6 +374,59 @@ def _tendencias_dependencia(df: pd.DataFrame) -> Dict[str, Dict[str, float]]:
     return tendencias
 
 
+def _tendencias_paro(df: pd.DataFrame) -> Dict[str, Dict[str, float]]:
+    """Calcula tendencias de paro por grupos de edad y total.
+    Retorna tendencias lineales del número de demandantes de empleo.
+    """
+    tendencias: Dict[str, Dict[str, float]] = {}
+    
+    if df.empty or "Edad" not in df.columns or "Sexo" not in df.columns:
+        return tendencias
+    
+    # Filtrar solo "Ambos sexos" para el análisis principal
+    df_total = df[df["Sexo"] == "Ambos sexos"].copy()
+    
+    # Grupos de edad y total
+    grupos = {
+        "De 16 a 29 años": "jovenes",
+        "De 30 a 44 años": "adultos",
+        "De 45 a 64 años": "maduros",
+        "TOTAL": "total",
+    }
+    
+    for edad_label, clave in grupos.items():
+        datos = df_total[df_total["Edad"] == edad_label].copy()
+        if datos.empty:
+            continue
+        
+        x = datos["Anual"].values
+        y = datos["Valor"].values
+        
+        if len(x) < 2:
+            continue
+        
+        try:
+            pendiente, intercepto = np.polyfit(x, y, 1)
+        except Exception:
+            continue
+        
+        y_pred = pendiente * x + intercepto
+        r2 = 1 - (np.sum((y - y_pred) ** 2) / np.sum((y - np.mean(y)) ** 2) if np.sum((y - np.mean(y)) ** 2) != 0 else 1)
+        
+        tendencias[clave] = {
+            "pendiente": float(pendiente),
+            "intercepto": float(intercepto),
+            "r_squared": float(r2),
+            "cambio_anual_promedio": float(pendiente),
+            "valor_ultimo": float(y[-1]),
+            "año_ultimo": int(x[-1]),
+            "valor_primer": float(y[0]),
+            "año_primer": int(x[0]),
+        }
+    
+    return tendencias
+
+
 def _proyectar_lineal(poblacion_actual: float, tendencias: Dict, años: int) -> Dict[int, Dict[str, float]]:
     crec = tendencias.get("crecimiento", {}).get("ambos_sexos")
     if not crec:
@@ -370,21 +470,71 @@ def _proyectar_exponencial(poblacion_actual: float, tendencias: Dict, años: int
 
 
 def _proyectar_componentes(poblacion_actual: float, tendencias: Dict, años: int) -> Dict[int, Dict[str, float]]:
+    """Proyecta población por componentes usando dependencia y paro.
+    Si hay datos de paro, calcula población activa real ajustando por tasa de paro.
+    Si no hay datos de paro, usa el modelo tradicional con 65% fijo.
+    """
     dep_glob = tendencias.get("dependencia", {}).get("global")
     dep_may = tendencias.get("dependencia", {}).get("mayores")
     if not dep_glob or not dep_may:
         return {}
+    
+    # Intentar usar datos de paro si están disponibles
+    paro_total = tendencias.get("paro", {}).get("total")
+    usar_paro = paro_total is not None and paro_total.get("valor_ultimo", 0) > 0
+    
     out: Dict[int, Dict[str, float]] = {}
     for i in range(1, años + 1):
         a = dep_glob["año_ultimo"] + i
         idx_g = dep_glob["pendiente"] * a + dep_glob["intercepto"]
         idx_m = dep_may["pendiente"] * a + dep_may["intercepto"]
-        pob_activa = poblacion_actual * 0.65 if poblacion_actual else 0.0
+        
+        # Calcular población activa
+        if usar_paro:
+            # Proyectar número de parados
+            parados_proj = paro_total["pendiente"] * a + paro_total["intercepto"]
+            parados_proj = max(parados_proj, 0.0)  # No puede ser negativo
+            
+            # Estimar población activa total a partir de parados
+            # Tasa de paro aproximada (asumiendo que parados representan ~15-30% de activos típicamente)
+            # Si no hay datos históricos suficientes, usar tasa de paro del último año
+            if poblacion_actual > 0:
+                # Intentar estimar población activa desde población total
+                # Rango típico: 50-70% de población total es activa (16-64 años)
+                tasa_actividad_base = 0.65  # Por defecto 65%
+                
+                # Si conocemos parados y estimamos tasa de paro, podemos calcular activos
+                # tasa_paro = parados / activos_total => activos_total = parados / tasa_paro
+                # Usar tasa de paro del último año si está disponible
+                tasa_paro_estimada = 0.15  # Por defecto 15%
+                if paro_total.get("valor_ultimo", 0) > 0 and poblacion_actual > 0:
+                    # Estimar tasa de paro basada en datos últimos
+                    pob_activa_base = poblacion_actual * tasa_actividad_base
+                    tasa_paro_ultima = paro_total["valor_ultimo"] / pob_activa_base if pob_activa_base > 0 else 0.15
+                    tasa_paro_estimada = max(min(tasa_paro_ultima, 0.35), 0.05)  # Limitar entre 5% y 35%
+                
+                # Calcular población activa desde parados proyectados
+                if tasa_paro_estimada > 0:
+                    pob_activa = parados_proj / tasa_paro_estimada
+                    # Limitar a un rango razonable (45-75% de población total)
+                    pob_activa = max(min(pob_activa, poblacion_actual * 0.75), poblacion_actual * 0.45)
+                else:
+                    pob_activa = poblacion_actual * tasa_actividad_base
+            else:
+                pob_activa = 0.0
+            
+            parados_proyectados = parados_proj
+        else:
+            # Modelo tradicional sin paro: usar 65% fijo
+            pob_activa = poblacion_actual * 0.65 if poblacion_actual else 0.0
+            parados_proyectados = None
+        
         pob_dep = pob_activa * (idx_g / 100.0)
         pob_may = pob_activa * (idx_m / 100.0)
         pob_jov = max(pob_dep - pob_may, 0.0)
         pob_total = pob_activa + pob_dep
-        out[i] = {
+        
+        resultado = {
             "año": a,
             "poblacion_total": float(pob_total),
             "poblacion_activa": float(pob_activa),
@@ -394,6 +544,13 @@ def _proyectar_componentes(poblacion_actual: float, tendencias: Dict, años: int
             "indice_dependencia_mayores": float(idx_m),
             "indice_dependencia_jovenes": float((pob_jov / pob_activa) * 100 if pob_activa else 0.0),
         }
+        
+        # Añadir datos de paro si están disponibles
+        if usar_paro and parados_proyectados is not None:
+            resultado["parados_proyectados"] = float(parados_proyectados)
+            resultado["tasa_paro_estimada"] = float((parados_proyectados / pob_activa) * 100) if pob_activa > 0 else 0.0
+        
+        out[i] = resultado
     return out
 
 
@@ -464,10 +621,18 @@ def ejecutar_proyeccion_entidades_singulares(
     df_dep = _cargar_dependencia(territorio_municipal)
     if df_crec.empty or df_dep.empty:
         return {}
+    
+    # Cargar datos de paro (opcional, usado en modelo por componentes)
+    df_paro = _cargar_paro(territorio_municipal)
+    
     tendencias = {
         "crecimiento": _tendencias_crecimiento(df_crec),
         "dependencia": _tendencias_dependencia(df_dep),
     }
+    
+    # Añadir tendencias de paro si hay datos disponibles
+    if not df_paro.empty:
+        tendencias["paro"] = _tendencias_paro(df_paro)
     if not poblacion_actual or poblacion_actual <= 0:
         # fallback: aproximar con último valor positivo si existiera
         pob_fallback = max(float(tendencias["crecimiento"].get("ambos_sexos", {}).get("valor_ultimo", 0.0)), 1.0)
@@ -599,11 +764,20 @@ def _render_resultado(res: Dict):
     filas = []
     for k in sorted(res["proyecciones"].keys()):
         d = res["proyecciones"][k]
-        filas.append({
+        fila = {
             "Año": d.get("año"),
             "Población Total": f"{d.get('poblacion_total', 0):,.0f}",
             "Crec. Vegetativo": f"{d.get('crecimiento_vegetativo', 0):,.0f}",
             "Tasa Crec.%": f"{d.get('tasa_crecimiento', 0):.2f}%",
-        })
+        }
+        # Añadir columnas específicas del modelo por componentes si existen
+        if "poblacion_activa" in d:
+            fila["Pob. Activa"] = f"{d.get('poblacion_activa', 0):,.0f}"
+        if "parados_proyectados" in d:
+            fila["Parados"] = f"{d.get('parados_proyectados', 0):,.0f}"
+            fila["Tasa Paro%"] = f"{d.get('tasa_paro_estimada', 0):.2f}%"
+        if "indice_dependencia_global" in d:
+            fila["Índ. Dep. Global"] = f"{d.get('indice_dependencia_global', 0):.2f}"
+        filas.append(fila)
     if filas:
         st.dataframe(pd.DataFrame(filas), use_container_width=True)
