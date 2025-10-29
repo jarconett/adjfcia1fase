@@ -1071,7 +1071,16 @@ if metodo_normalizacion != "Sin normalizar":
         territorio_original_para_desglose = fila_farmacia.iloc[0]['Territorio'] if not fila_farmacia.empty else None
 
         if territorio_original_para_desglose:
-            df_territorio = df_original[df_original["Territorio"] == territorio_original_para_desglose]
+            # Coincidencia robusta por nombre normalizado e incluir variantes como "(capital)" o "Municipio de ..."
+            df_tmp = df_original.copy()
+            df_tmp['__terr_norm'] = df_tmp['Territorio'].astype(str).apply(normalizar_nombre_municipio)
+            t_base = territorio_original_para_desglose
+            targets = {
+                normalizar_nombre_municipio(t_base),
+                normalizar_nombre_municipio(f"{t_base} (capital)"),
+                normalizar_nombre_municipio(f"Municipio de {t_base}"),
+            }
+            df_territorio = df_tmp[df_tmp['__terr_norm'].isin(targets)].drop(columns=['__terr_norm'])
         else:
             df_territorio = pd.DataFrame()
 
