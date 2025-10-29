@@ -296,21 +296,54 @@ with tab1:
         return texto
 
     def combinar_medida_y_extras(row, extras):
-        parts = [str(row['Medida']).strip()]
-        
-        # Para Consultorio.csv, no incluir Singular en el nombre del indicador
-        # para evitar duplicados. Solo usar la medida base.
-        if 'Singular' in extras and str(row.get('Singular', '')).strip():
-            # Para Consultorio.csv, solo usar la medida sin Singular
-            # Esto evita crear indicadores duplicados como "Consultorio_E_Singular_Algallarin"
-            pass  # No agregar Singular a los indicadores
-        else:
-            # Para otros archivos, mantener el comportamiento original
-            for col in extras:
-                val = str(row[col]).strip()
-                if val and val.lower() not in ['nan', 'none', 'na', '']:
-                    parts.append(val)
-        
+        """Construye el nombre del indicador combinando Medida y columnas extra.
+        Regla: si 'Medida' es genérica (p.ej. 'Centros', 'Nº de oficinas', 'Espacios deportivos')
+        o si en el archivo solo hay una 'Medida', priorizar valores de columnas extra como base del nombre.
+        Además, evitar incluir 'Singular' en Consultorio.
+        """
+        # Definir medidas genéricas conocidas (normalizadas)
+        medidas_genericas = {
+            'centros', 'n_de_oficinas', 'numero_de_oficinas', 'número_de_oficinas',
+            'numero_de_centros', 'número_de_centros', 'espacios_deportivos', 'establecimientos',
+        }
+
+        medida_raw = str(row.get('Medida', '')).strip()
+        medida_norm = normaliza_nombre_indicador(medida_raw)
+
+        # Preparar lista de columnas extra priorizadas
+        prioridad_extras = [
+            'Tipo de centro', 'Tipo de instalación', 'Nivel educativo',
+            'Titularidad', 'Tipo', 'Categoría', 'Sexo', 'Edad'
+        ]
+        # Ordenar las extras colocando primero las que estén en prioridad_extras
+        extras_ordenadas = sorted(
+            extras,
+            key=lambda c: (0 if c in prioridad_extras else 1, prioridad_extras.index(c) if c in prioridad_extras else 999, c)
+        )
+
+        # Consultorio: no incluir 'Singular' en el nombre
+        omitir_singular = ('Singular' in extras) and bool(str(row.get('Singular', '')).strip())
+
+        # Decidir si priorizamos extras sobre medida
+        priorizar_extras = (medida_norm in medidas_genericas)
+
+        parts = []
+
+        if not priorizar_extras:
+            if medida_raw:
+                parts.append(medida_raw)
+
+        for col in extras_ordenadas:
+            if omitir_singular and col == 'Singular':
+                continue
+            val = str(row.get(col, '')).strip()
+            if val and val.lower() not in ['nan', 'none', 'na', '']:
+                parts.append(val)
+
+        # Si no agregamos nada (p.ej., valores vacíos), volver a medida
+        if not parts and medida_raw:
+            parts = [medida_raw]
+
         clean_parts = [limpiar_texto(p) for p in parts]
         return "_".join(clean_parts)
 
