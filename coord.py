@@ -512,11 +512,19 @@ with tab1:
             df_singular_pob['__terr_norm'] = df_singular_pob['Territorio'].astype(str).apply(normalizar_nombre_municipio)
             target_norm = normalizar_nombre_municipio(nombre_a_buscar)
 
-            poblacion_data = df_singular_pob[
+            # Intentar orden estándar (Sexo='Ambos sexos', Medida='Población')
+            match_std = df_singular_pob[
                 (df_singular_pob['__terr_norm'] == target_norm) &
-                (df_singular_pob['Sexo'] == 'Ambos sexos') &
-                (df_singular_pob['Medida'] == 'Población')
+                (df_singular_pob.get('Sexo', '') == 'Ambos sexos') &
+                (df_singular_pob.get('Medida', '') == 'Población')
             ]
+            # Intentar orden alternativo (Medida='Ambos sexos', Sexo='Población')
+            match_alt = df_singular_pob[
+                (df_singular_pob['__terr_norm'] == target_norm) &
+                (df_singular_pob.get('Medida', '') == 'Ambos sexos') &
+                (df_singular_pob.get('Sexo', '') == 'Población')
+            ]
+            poblacion_data = match_std if not match_std.empty else match_alt
             if poblacion_data.empty:
                 return "N/A"
 
@@ -770,9 +778,13 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
             
             for idx, row_pivot in df_pivot_con.iterrows():
                 territorio = row_pivot['Territorio']
+                terr_norm = row_pivot.get('Territorio_normalizado', normalizar_nombre_municipio(territorio))
                 
-                # Buscar todas las farmacias que coincidan con este territorio
-                matches = df_farmacias_factores[df_farmacias_factores['Territorio'] == territorio]
+                # Buscar todas las farmacias que coincidan con este territorio (match por nombre normalizado)
+                if 'Territorio_normalizado' in df_farmacias_factores.columns:
+                    matches = df_farmacias_factores[df_farmacias_factores['Territorio_normalizado'] == terr_norm]
+                else:
+                    matches = df_farmacias_factores[df_farmacias_factores['Territorio'] == territorio]
                 
                 if not matches.empty:
                     # Si hay múltiples matches, crear una fila para cada uno
