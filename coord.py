@@ -500,50 +500,35 @@ with tab1:
             return "N/A"
 
     def obtener_poblacion_territorio_con_factor(territorio, singular=None, factor=None):
-        """Obtiene la población de un territorio desde singular_pob_sexo.csv y la multiplica por el factor"""
+        """Obtiene población para el Territorio desde singular_pob_sexo.csv.
+        Regla: si la fila tiene 'Singular' (no vacío), usar SIEMPRE el Territorio para buscar y multiplicar por Factor.
+        Si no hay 'Singular', devolver solo la población del Territorio sin factor.
+        """
         try:
-            # Cargar el archivo singular_pob_sexo.csv
             df_singular_pob = pd.read_csv("singular_pob_sexo.csv", sep=";", na_values=["-", "", "NA"])
+            nombre_a_buscar = str(territorio).strip()
 
-            # Determinar el nombre a buscar
-            nombre_a_buscar = None
-            if singular and pd.notna(singular) and str(singular).strip() != '':
-                # Si Singular tiene valor, usar ese
-                nombre_a_buscar = str(singular).strip()
+            poblacion_data = df_singular_pob[
+                (df_singular_pob['Territorio'] == nombre_a_buscar) &
+                (df_singular_pob['Sexo'] == 'Ambos sexos') &
+                (df_singular_pob['Medida'] == 'Población')
+            ]
+            if poblacion_data.empty:
+                return "N/A"
+
+            valor = poblacion_data.iloc[0]['Valor']
+            if pd.isna(valor):
+                return "N/A"
+
+            tiene_singular = bool(singular) and pd.notna(singular) and str(singular).strip() != ''
+            if tiene_singular and factor is not None and pd.notna(factor):
+                try:
+                    return f"{(float(valor) * float(factor)):.0f}"
+                except Exception:
+                    return f"{float(valor):.0f}"
             else:
-                # Si Singular está vacío, usar Territorio
-                nombre_a_buscar = str(territorio).strip()
-
-
-            # Buscar población para "Ambos sexos"
-            # Buscar población para "Ambos sexos" - manejar ambos órdenes de columnas
-            if nombre_a_buscar:
-                # Intentar con el orden estándar: Territorio, Medida, Sexo, Valor
-                poblacion_data = df_singular_pob[
-                    (df_singular_pob['Territorio'] == nombre_a_buscar) & 
-                    (df_singular_pob['Sexo'] == 'Ambos sexos') &
-                    (df_singular_pob['Medida'] == 'Población')
-                ]
-
-                # Si no encuentra nada, intentar con el orden alternativo: Territorio, Sexo, Medida, Valor
-                if poblacion_data.empty:
-                    poblacion_data = df_singular_pob[
-                        (df_singular_pob['Territorio'] == nombre_a_buscar) & 
-                        (df_singular_pob['Medida'] == 'Ambos sexos') &
-                        (df_singular_pob['Sexo'] == 'Población')
-                    ]
-
-                if not poblacion_data.empty:
-                    valor = poblacion_data.iloc[0]['Valor']
-                    if pd.notna(valor) and factor and pd.notna(factor):
-                        # Multiplicar por el factor
-                        valor_con_factor = valor * factor
-                        return f"{valor_con_factor:.0f}"
-                    else:
-                        return f"{valor:.0f}" if pd.notna(valor) else "N/A"
-
-            return "N/A"
-        except Exception as e:
+                return f"{float(valor):.0f}"
+        except Exception:
             return "N/A"
 
     # Configuración de normalización ya definida fuera de los tabs
@@ -791,6 +776,9 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
                         row_result = row_pivot.copy()
                         row_result['Factor'] = match['Factor']
                         row_result['Nombre_Mostrar'] = match['Nombre_Mostrar']
+                        # Mantener el identificador único de la farmacia
+                        if 'ID_Unico' in match.index:
+                            row_result['ID_Unico'] = match['ID_Unico']
                         
                         # Agregar otras columnas si existen
                         if 'Provincia' in match.index:
@@ -915,14 +903,13 @@ df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
 
 # -------------------
 # Display ranking table and allow selection
-#df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
-#df_ordenado.index += 1  # Índice 1-based
-df_ordenado = (
-    df_municipios_farmacias
-    .sort_values('PuntuaciónExtendida', ascending=False)
-    .drop_duplicates(subset='Nombre_Mostrar', keep='first')
-    .reset_index(drop=True)
-)
+df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False)
+# Deduplicar de forma estable por ID de farmacia si existe, si no por Nombre_Mostrar
+if 'ID_Unico' in df_ordenado.columns:
+    df_ordenado = df_ordenado.drop_duplicates(subset='ID_Unico', keep='first')
+else:
+    df_ordenado = df_ordenado.drop_duplicates(subset='Nombre_Mostrar', keep='first')
+df_ordenado = df_ordenado.reset_index(drop=True)
 df_ordenado.index += 1  # Índice 1-based
 # Mostrar información sobre normalización
 if metodo_normalizacion != "Sin normalizar":
@@ -1021,13 +1008,13 @@ if metodo_normalizacion != "Sin normalizar":
     #st.write(f"Debug: Columnas disponibles en df_ordenado_filtrado: {list(df_ordenado_filtrado.columns)}")
 
     if 'Territorio' in df_ordenado_filtrado.columns:
-        # Calcular población para cada territorio en el dataframe filtrado (con factor aplicado)
+        # Calcular población: si hay Singular, tomar población del Territorio y multiplicar por Factor
         df_ordenado_filtrado['Población'] = df_ordenado_filtrado.apply(
             lambda row: obtener_poblacion_territorio_con_factor(
-                row['Territorio'], 
+                row['Territorio'],
                 row.get('Singular', None) if 'Singular' in df_ordenado_filtrado.columns else None,
                 row.get('Factor', None) if 'Factor' in df_ordenado_filtrado.columns else None
-            ), 
+            ),
             axis=1
         )
         columnas_mostrar.insert(3, 'Población')  # Insertar después de Provincia
