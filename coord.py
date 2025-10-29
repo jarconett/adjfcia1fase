@@ -507,9 +507,13 @@ with tab1:
         try:
             df_singular_pob = pd.read_csv("singular_pob_sexo.csv", sep=";", na_values=["-", "", "NA"])
             nombre_a_buscar = str(territorio).strip()
+            # Coincidencia robusta: normalizar ambos lados para manejar acentos/guiones
+            df_singular_pob = df_singular_pob.copy()
+            df_singular_pob['__terr_norm'] = df_singular_pob['Territorio'].astype(str).apply(normalizar_nombre_municipio)
+            target_norm = normalizar_nombre_municipio(nombre_a_buscar)
 
             poblacion_data = df_singular_pob[
-                (df_singular_pob['Territorio'] == nombre_a_buscar) &
+                (df_singular_pob['__terr_norm'] == target_norm) &
                 (df_singular_pob['Sexo'] == 'Ambos sexos') &
                 (df_singular_pob['Medida'] == 'Población')
             ]
