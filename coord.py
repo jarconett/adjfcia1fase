@@ -574,6 +574,11 @@ with tab1:
                     st.session_state[f"{archivo}-{clave_norm}"] = valor_global
                 st.rerun()
 
+            # Mostrar indicadores detectados para depuración opcional
+            with st.expander("Indicadores detectados", expanded=False):
+                st.caption(f"Se han detectado {len(indicadores_combinados)} indicadores únicos")
+                st.write(indicadores_combinados)
+
             # Sliders individuales
             for indicador_completo in sorted(indicadores_combinados):
                 clave_norm = normaliza_nombre_indicador(indicador_completo)
