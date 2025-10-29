@@ -213,6 +213,47 @@ def obtener_poblacion_actual(territorio: str, ambito: str = "municipio", singula
         return None
 
 
+def _obtener_factor_singular(municipio: str, singular: str) -> Optional[float]:
+    """Obtiene Factor desde Territorios.csv para el par (municipio, singular)."""
+    df = _cargar_territorios_csv()
+    if df.empty:
+        return None
+    df = df.copy()
+    df["__terr_norm"] = df.get("Territorio", "").astype(str).map(_normalizar_texto)
+    df["__sing_norm"] = df.get("Singular", "").astype(str).map(_normalizar_texto)
+    t_norm = _normalizar_texto(municipio)
+    s_norm = _normalizar_texto(singular)
+    filas = df[(df["__terr_norm"] == t_norm) & (df["__sing_norm"] == s_norm)]
+    if filas.empty:
+        return None
+    try:
+        return float(pd.to_numeric(filas.iloc[0].get("Factor", 1.0), errors="coerce"))
+    except Exception:
+        return None
+
+
+def _obtener_poblacion_municipio_normalizada(municipio: str) -> Optional[float]:
+    """Busca población del municipio normalizando nombres y probando órdenes de columnas."""
+    try:
+        df = pd.read_csv("singular_pob_sexo.csv", sep=";")
+    except Exception:
+        return None
+    df = df.copy()
+    df["__terr_norm"] = df.get("Territorio", "").astype(str).map(_normalizar_texto)
+    t_norm = _normalizar_texto(municipio)
+    # estándar
+    m1 = df[(df["__terr_norm"] == t_norm) & (df.get("Sexo", "") == "Ambos sexos") & (df.get("Medida", "") == "Población")]
+    # alterno
+    m2 = df[(df["__terr_norm"] == t_norm) & (df.get("Medida", "") == "Ambos sexos") & (df.get("Sexo", "") == "Población")]
+    m = m1 if not m1.empty else m2
+    if m.empty:
+        return None
+    try:
+        return float(m.iloc[0]["Valor"])
+    except Exception:
+        return None
+
+
 # -----------------------------
 # Tendencias y Proyecciones
 # -----------------------------
@@ -496,8 +537,14 @@ def render_proyeccion_entidades_singulares():
         sel = st.selectbox("Entidad singular", options=opciones)
         idx = opciones.index(sel)
         municipio, singular = singpares[idx]
-        pobl_actual = obtener_poblacion_actual(municipio, ambito="singular", singular=singular)
-        st.info(f"Población actual (Ambos sexos) de {singular}: {pobl_actual:,.0f}" if pobl_actual else f"No se pudo obtener población de {singular}")
+        # Metodología: usar población del Territorio (municipio) multiplicada por Factor de Territorios.csv
+        pob_muni = _obtener_poblacion_municipio_normalizada(municipio) or 0.0
+        factor = _obtener_factor_singular(municipio, singular) or 1.0
+        pobl_actual = float(pob_muni) * float(factor)
+        if pobl_actual > 0:
+            st.info(f"Población estimada de {singular} = Población {municipio} × Factor ({factor:.4f}) → {pobl_actual:,.0f}")
+        else:
+            st.warning(f"No se pudo obtener la población del municipio {municipio} o factor para {singular}")
         años = st.selectbox("Horizonte (años)", [5, 10, 15, 20], index=1, key="años_sing")
         modelo = st.selectbox("Modelo", ["lineal", "exponencial", "componentes"], index=0, key="modelo_sing")
         if st.button("Calcular proyección para entidad singular", use_container_width=True):
