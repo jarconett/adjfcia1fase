@@ -27,7 +27,7 @@ except Exception as e:
 
 # --------------------
 # Navigation tabs
-tab1, tab2, tab3 = st.tabs(["🗺️ Mapa y Ranking", "📊 Comparación de Municipios", "📈 Proyecciones Demográficas"])
+tab1, tab2, tab3 = st.tabs(["🗺️ Mapa y Ranking", "📊 Comparación de Municipios", "📈 Proyecciones Demográficas (Entidades singulares)"])
 
 # --------------------
 # Configuración de Normalización (FUERA de los tabs)
@@ -1600,7 +1600,7 @@ with tab2:
 # --------------------
 # TAB 3: Proyecciones Demográficas
 with tab3:
-    st.header("📈 Proyecciones Demográficas")
+    st.header("📈 Proyecciones Demográficas (Entidades singulares)")
     if not motor_entidades_disponible:
         st.error("❌ El motor de entidades singulares no está disponible.")
         st.info("Asegúrate de que 'proyeccion_entidades_singulares_final.py' esté en el directorio raíz.")

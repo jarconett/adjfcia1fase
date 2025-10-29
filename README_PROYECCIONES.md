@@ -1,27 +1,23 @@
-# Módulo de Proyecciones Demográficas
+# Motor de Proyecciones Demográficas (Entidades Singulares)
 
 ## Descripción
 
-Este módulo proporciona funcionalidades avanzadas para calcular proyecciones demográficas usando datos históricos de crecimiento vegetativo e índices de dependencia de los territorios de Andalucía.
+Este motor calcula proyecciones demográficas usando datos históricos de crecimiento vegetativo e índices de dependencia. Es el único motor vigente y soporta municipios y entidades singulares.
 
 ## Archivos del Módulo
 
-- `proyecciones_demograficas.py`: Módulo principal con la clase `ProyeccionesDemograficas`
-- `coord.py`: Archivo principal actualizado con la nueva pestaña de proyecciones
+- `proyeccion_entidades_singulares_final.py`: Motor principal de proyecciones
+- `coord.py`: Integra la pestaña de proyecciones en la app
 
 ## Estructura de Datos Requerida
 
-### Archivos de Crecimiento Vegetativo
-- **Ubicación**: `demografia/ieca_export_crec_veg_[provincia].csv`
-- **Período**: 1996-2023
-- **Columnas**: `Lugar de residencia`, `Anual`, `Sexo`, `Medida`, `Valor`
-- **Desagregación**: Ambos sexos, Hombres, Mujeres
+### Crecimiento Vegetativo
+- Ubicación: `demografia/ieca_export_crec_veg_[provincia].csv` (Granada: `gra1`/`gra2`; Jaén: fallback `jaen`)
+- Columnas: `Lugar de residencia`/`Lugar de origen`/`Territorio`/`Municipio`/`Lugar`, `Anual`, `Sexo`, `Medida`, `Valor`
 
-### Archivos de Índices de Dependencia
-- **Ubicación**: `demografia/ieca_export_dep_[provincia]1.csv` (1996-2009)
-- **Ubicación**: `demografia/ieca_export_dep_[provincia]2.csv` (2010-actualidad)
-- **Columnas**: `Lugar de residencia`, `Anual`, `Edad`, `Medida`, `Valor`
-- **Indicadores**: Índice de dependencia global, jóvenes, mayores
+### Índices de Dependencia
+- Ubicación: `demografia/ieca_export_dep_[provincia]{1,2}.csv`
+- Columnas: `Lugar de residencia`/`Lugar de origen`/`Territorio`/`Municipio`/`Lugar`, `Anual`, `Edad`, `Medida`, `Valor`
 
 ## Funcionalidades Implementadas
 
@@ -32,10 +28,7 @@ Este módulo proporciona funcionalidades avanzadas para calcular proyecciones de
 - Cálculo de estadísticas descriptivas
 
 ### 2. Modelos de Proyección
-- **Tendencia Lineal**: Proyección basada en regresión lineal simple
-- **Tendencia Exponencial**: Crecimiento proporcional a la población
-- **Por Componentes**: Desagregación por grupos de edad
-- **Comparar Todos**: Ejecuta todos los modelos para comparación
+- Tendencia Lineal, Exponencial y Por Componentes
 
 ### 3. Indicadores Calculados
 - Población total proyectada
@@ -45,22 +38,20 @@ Este módulo proporciona funcionalidades avanzadas para calcular proyecciones de
 - Coeficientes de determinación (R²)
 
 ### 4. Visualizaciones
-- Gráficos interactivos con Plotly
-- Comparación de modelos
-- Tablas de datos detalladas
-- Exportación a CSV
+- Gráficos interactivos con Plotly (umbral 1000 hab)
+- Tablas de datos detalladas y exportación a CSV
 
 ## Uso en Streamlit
 
 ### Acceso a la Funcionalidad
-1. Ir a la pestaña "📈 Proyecciones Demográficas"
+1. Ir a la pestaña "📈 Proyecciones Demográficas (Entidades singulares)"
 2. Seleccionar territorio, horizonte temporal y modelo
 3. Presionar "🚀 Calcular Proyección Demográfica"
 
 ### Configuración Disponible
 - **Territorio**: Lista de territorios disponibles
 - **Horizonte temporal**: 5, 10, 15, 20 años
-- **Modelo**: Lineal, Exponencial, Componentes, Comparar Todos
+- **Modelo**: Lineal, Exponencial, Componentes
 
 ## Indicadores Adicionales Recomendados
 
@@ -124,8 +115,7 @@ Para mejorar la precisión de las proyecciones, se recomienda incluir:
 El módulo se integra automáticamente en el sistema principal. Solo requiere:
 
 1. Archivos de datos en la carpeta `demografia/`
-2. Archivo `proyecciones_demograficas.py` en el directorio raíz
-3. Importación en `coord.py`
+2. Importación en `coord.py`
 
 ## Soporte
 
@@ -159,6 +149,6 @@ Para problemas o mejoras, revisar:
 - Métricas destacadas con colores específicos
 
 ### Criterios de Evaluación
-- **Riesgo de Despoblación**: Basado en tasa de crecimiento anual promedio
-- **Umbral 1000 Habitantes**: Población máxima proyectada en el período
-- **Indicadores Derivados**: Cálculo automático de todos los indicadores relevantes
+- Riesgo de Despoblación: basado en tasa de crecimiento anual promedio
+- Umbral 1000 Habitantes: población máxima proyectada en el período
+- Indicadores Derivados: cálculo automático de todos los indicadores relevantes
