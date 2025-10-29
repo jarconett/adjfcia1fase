@@ -518,8 +518,11 @@ def render_proyeccion_entidades_singulares():
     ambito = st.radio("Ámbito de proyección", ["Municipio", "Entidad singular"], index=0, horizontal=True)
     if ambito == "Municipio":
         municipio = st.selectbox("Municipio", options=municipios)
-        pobl_actual = obtener_poblacion_actual(municipio, ambito="municipio")
-        st.info(f"Población actual (Ambos sexos) de {municipio}: {pobl_actual:,.0f}" if pobl_actual else f"No se pudo obtener población de {municipio}")
+        # Usar búsqueda robusta (normalización y doble orden de columnas)
+        pobl_actual = _obtener_poblacion_municipio_normalizada(municipio)
+        st.info(
+            f"Población actual (Ambos sexos) de {municipio}: {pobl_actual:,.0f}" if pobl_actual else f"No se pudo obtener población de {municipio}"
+        )
         años = st.selectbox("Horizonte (años)", [5, 10, 15, 20], index=1)
         modelo = st.selectbox("Modelo", ["lineal", "exponencial", "componentes"], index=0)
         if st.button("Calcular proyección", use_container_width=True):
