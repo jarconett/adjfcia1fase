@@ -314,6 +314,30 @@ with tab1:
         clean_parts = [limpiar_texto(p) for p in parts]
         return "_".join(clean_parts)
 
+    def obtener_indicadores_unicos_por_archivo(df_archivo: pd.DataFrame) -> list:
+        """Genera la lista de indicadores únicos (human-readable) para un archivo.
+        Usa combinación de Medida + columnas extra relevantes, deduplicando por todas ellas.
+        """
+        if df_archivo is None or df_archivo.empty:
+            return []
+
+        columnas_basicas = {'Territorio', 'Medida', 'Valor', '__archivo__'}
+        columnas_extra = [col for col in df_archivo.columns if col not in columnas_basicas]
+
+        # Trabajar solo con columnas relevantes y deduplicar combinaciones
+        cols_para_unicos = ['Medida'] + columnas_extra
+        df_tmp = df_archivo[cols_para_unicos].copy()
+
+        # Normalizar valores a texto para deduplicación estable
+        for col in cols_para_unicos:
+            df_tmp[col] = df_tmp[col].astype(str).str.strip()
+
+        df_tmp = df_tmp.drop_duplicates()
+
+        # Construir etiqueta usando la misma función que usa la UI
+        indicadores = df_tmp.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1).unique().tolist()
+        return sorted(indicadores)
+
     def normaliza_nombre_indicador(nombre):
         nombre = str(nombre)
         nombre = unicodedata.normalize('NFKD', nombre)
@@ -529,9 +553,7 @@ with tab1:
     for archivo in nombres_archivos:
         with st.sidebar.expander(f"⚙️ {archivo}", expanded=False):
             df_archivo = df_original[df_original['__archivo__'] == archivo]
-            columnas_basicas = {'Territorio', 'Medida', 'Valor', '__archivo__'}
-            columnas_extra = [col for col in df_archivo.columns if col not in columnas_basicas]
-            indicadores_combinados = df_archivo.apply(lambda row: combinar_medida_y_extras(row, columnas_extra), axis=1).unique()
+            indicadores_combinados = obtener_indicadores_unicos_por_archivo(df_archivo)
 
             # Campo para valor global y botón fuera del form (permitido)
             col1, col2 = st.columns([0.7, 0.3])
