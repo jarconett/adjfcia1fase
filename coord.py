@@ -12,6 +12,7 @@ from math import radians, cos, sin, asin, sqrt
 from io import BytesIO
 import numpy as np
 from types import SimpleNamespace
+import os
 
 # Set the title of the Streamlit application
 st.title("Mapa Interactivo de las Farmacias de la Primera fase de Adjudicaciones de Andalucía")
@@ -490,6 +491,17 @@ with tab1:
         "Sube un archivo CSV con pesos guardados", type="csv", key="weights_uploader"
     )
     loaded_pesos_dict = {}
+    # Cargar automáticamente desde pesos_guardados.csv en la raíz si existe
+    try:
+        if os.path.exists("pesos_guardados.csv"):
+            df_loaded_pesos = pd.read_csv("pesos_guardados.csv", sep=';')
+            if 'Indicador' in df_loaded_pesos.columns and 'Peso' in df_loaded_pesos.columns:
+                loaded_pesos_dict = pd.Series(df_loaded_pesos.Peso.values, index=df_loaded_pesos.Indicador).to_dict()
+                st.sidebar.success("Pesos cargados automáticamente desde pesos_guardados.csv")
+            else:
+                st.sidebar.warning("pesos_guardados.csv no contiene las columnas 'Indicador' y 'Peso'.")
+    except Exception as e:
+        st.sidebar.error(f"Error cargando pesos_guardados.csv: {e}")
     if uploaded_weights_file is not None:
         try:
             df_loaded_pesos = pd.read_csv(uploaded_weights_file, sep=';')
