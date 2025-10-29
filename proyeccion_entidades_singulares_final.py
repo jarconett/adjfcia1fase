@@ -656,6 +656,7 @@ def ejecutar_proyeccion_entidades_singulares(
         "tendencias": tendencias,
         "indicadores": indicadores,
         "graficos": _graficos(territorio_municipal, modelo, proy, indicadores),
+        "poblacion_actual": poblacion_actual,
     }
 
 
@@ -696,7 +697,7 @@ def render_proyeccion_entidades_singulares():
             f"Población actual (Ambos sexos) de {municipio}: {pobl_actual:,.0f}" if pobl_actual else f"No se pudo obtener población de {municipio}"
         )
         años = st.selectbox("Horizonte (años)", [5, 10, 15, 20], index=1)
-        modelo = st.selectbox("Modelo", ["lineal", "exponencial", "componentes"], index=0)
+        modelo = st.selectbox("Modelo", ["lineal", "exponencial", "componentes"], index=2)
         if st.button("Calcular proyección", use_container_width=True):
             with st.spinner("Calculando proyección..."):
                 res = ejecutar_proyeccion_entidades_singulares(municipio, años, modelo, pobl_actual)
@@ -726,7 +727,7 @@ def render_proyeccion_entidades_singulares():
         else:
             st.warning(f"No se pudo obtener la población del municipio {municipio} o factor para {singular}")
         años = st.selectbox("Horizonte (años)", [5, 10, 15, 20], index=1, key="años_sing")
-        modelo = st.selectbox("Modelo", ["lineal", "exponencial", "componentes"], index=0, key="modelo_sing")
+        modelo = st.selectbox("Modelo", ["lineal", "exponencial", "componentes"], index=2, key="modelo_sing")
         if st.button("Calcular proyección para entidad singular", use_container_width=True):
             with st.spinner("Calculando proyección..."):
                 # Tendencias por municipio, población del singular
@@ -759,7 +760,7 @@ def _render_resultado(res: Dict):
     if "principal" in gra:
         st.plotly_chart(gra["principal"], use_container_width=True)
 
-    # Tabla
+    # Tabla de proyección
     st.subheader("📋 Datos de proyección")
     filas = []
     for k in sorted(res["proyecciones"].keys()):
@@ -781,3 +782,67 @@ def _render_resultado(res: Dict):
         filas.append(fila)
     if filas:
         st.dataframe(pd.DataFrame(filas), use_container_width=True)
+    
+    # Tabla de datos históricos reales
+    st.subheader("📊 Datos históricos reales")
+    territorio = res.get("territorio", "?")
+    
+    # Cargar datos históricos reales de crecimiento vegetativo desde demografia
+    df_crec_hist = _cargar_crecimiento_vegetativo(territorio)
+    if not df_crec_hist.empty:
+        # Filtrar solo "Ambos sexos" para el total
+        df_crec_total = df_crec_hist[df_crec_hist.get("Sexo", "") == "Ambos sexos"].copy()
+        if not df_crec_total.empty:
+            # Ordenar por año
+            df_crec_total = df_crec_total.sort_values("Anual")
+            
+            # Buscar datos reales de población histórica
+            # Intentar cargar desde singular_pob_sexo si tiene datos por año
+            # Si no, mostrar solo crecimiento vegetativo real con población del último año conocido
+            poblacion_actual = res.get("poblacion_actual", 0)
+            
+            # Crear tabla histórica con datos reales
+            filas_hist = []
+            for _, row in df_crec_total.iterrows():
+                año = int(row["Anual"])
+                crec_veg = row["Valor"]
+                
+                # Calcular población histórica real usando crecimiento vegetativo acumulado desde el inicio
+                # Método: si conocemos población actual, calculamos hacia atrás año por año
+                if poblacion_actual > 0:
+                    # Obtener índice de este año en la serie ordenada
+                    df_sorted = df_crec_total.sort_values("Anual")
+                    idx_actual = df_sorted.index.get_loc(row.name)
+                    # Calcular crecimiento acumulado desde este año hasta el último
+                    crecimiento_desde_este_año = df_sorted.iloc[idx_actual:]["Valor"].sum()
+                    # Población en este año = población actual - crecimiento acumulado desde este año
+                    pob_hist = poblacion_actual - crecimiento_desde_este_año + crec_veg
+                    # Calcular tasa de crecimiento (usando población del año anterior si está disponible)
+                    if idx_actual > 0:
+                        crec_año_anterior = df_sorted.iloc[idx_actual - 1]["Valor"]
+                        pob_año_anterior = poblacion_actual - crecimiento_desde_este_año - crec_año_anterior + crec_veg
+                        tasa_crec = (crec_veg / pob_año_anterior * 100) if pob_año_anterior > 0 else 0.0
+                    else:
+                        # Primer año: usar población del mismo año
+                        tasa_crec = (crec_veg / pob_hist * 100) if pob_hist > 0 else 0.0
+                else:
+                    pob_hist = None
+                    tasa_crec = None
+                
+                fila_hist = {
+                    "Año": año,
+                    "Población Total": f"{pob_hist:,.0f}" if pob_hist is not None and pob_hist > 0 else "N/A",
+                    "Crec. Vegetativo": f"{crec_veg:,.0f}",
+                    "Tasa Crec.%": f"{tasa_crec:.2f}%" if tasa_crec is not None else "N/A",
+                }
+                filas_hist.append(fila_hist)
+            
+            if filas_hist:
+                df_hist = pd.DataFrame(filas_hist)
+                st.dataframe(df_hist, use_container_width=True)
+            else:
+                st.info("No hay datos históricos de crecimiento vegetativo disponibles.")
+        else:
+            st.info("No hay datos históricos de crecimiento vegetativo para 'Ambos sexos'.")
+    else:
+        st.info("No se pudieron cargar datos históricos de crecimiento vegetativo desde demografia.")
