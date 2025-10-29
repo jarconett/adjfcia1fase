@@ -17,17 +17,8 @@ from types import SimpleNamespace
 st.title("Mapa Interactivo de las Farmacias de la Primera fase de Adjudicaciones de Andalucía")
 
 # --------------------
-# Importar módulo de proyecciones demográficas
-try:
-    from proyecciones_demograficas import ejecutar_proyeccion_demografica, mostrar_resultados_proyeccion, ProyeccionesDemograficas
-    proyecciones_disponibles = True
-except ImportError:
-    proyecciones_disponibles = False
-    st.sidebar.warning("⚠️ Módulo de proyecciones demográficas no disponible")
-
-# --------------------
 # Navigation tabs
-tab1, tab2, tab3 = st.tabs(["🗺️ Mapa y Ranking", "📊 Comparación de Municipios", "📈 Proyecciones Demográficas"])
+tab1, tab2 = st.tabs(["🗺️ Mapa y Ranking", "📊 Comparación de Municipios"])
 
 # --------------------
 # Configuración de Normalización (FUERA de los tabs)
@@ -119,7 +110,6 @@ with tab1:
         "ieca_export_latitud_longuitud.csv",
         "ieca_export_poblacion_edad_nac.csv",
         "ieca_export_renta.csv",
-        "Consultorio.csv",
         "singular_pob_sexo.csv"
     ]
 
@@ -205,20 +195,14 @@ with tab1:
             st.sidebar.success(f"✅ Archivo Territorios.csv cargado correctamente")
 
             if 'Singular' in df_farmacias.columns:
-                # Crear Nombre_Mostrar único combinando Territorio + Singular
+                # Crear Nombre_Mostrar único combinando Territorio y Singular
                 df_farmacias['Nombre_Mostrar'] = df_farmacias.apply(
-                    lambda row: f"{row['Territorio']} ({row['Singular'].strip()})" if pd.notna(row['Singular']) and str(row['Singular']).strip() != ''
+                    lambda row: f"{row['Singular']}" if pd.notna(row['Singular']) and str(row['Singular']).strip() != '' 
                     else f"{row['Territorio']}", axis=1
                 )
             else:
                 df_farmacias['Nombre_Mostrar'] = df_farmacias['Territorio']
-            # 🔧 Asegurar unicidad absoluta de Nombre_Mostrar (por si hay duplicados exactos)
-            df_farmacias['Nombre_Mostrar'] = df_farmacias['Nombre_Mostrar'].astype(str)
-            df_farmacias['Nombre_Mostrar'] = df_farmacias['Nombre_Mostrar'] + \
-                df_farmacias.groupby('Nombre_Mostrar').cumcount().replace(0, '').astype(str)
-
             st.sidebar.success(f"Farmacias cargadas: {len(df_farmacias)} registros")
-
         except Exception as e:
             st.sidebar.error(f"Error al leer Territorios.csv: {e}")
     else:
@@ -296,20 +280,10 @@ with tab1:
 
     def combinar_medida_y_extras(row, extras):
         parts = [str(row['Medida']).strip()]
-        
-        # Para Consultorio.csv, no incluir Singular en el nombre del indicador
-        # para evitar duplicados. Solo usar la medida base.
-        if 'Singular' in extras and str(row.get('Singular', '')).strip():
-            # Para Consultorio.csv, solo usar la medida sin Singular
-            # Esto evita crear indicadores duplicados como "Consultorio_E_Singular_Algallarin"
-            pass  # No agregar Singular a los indicadores
-        else:
-            # Para otros archivos, mantener el comportamiento original
-            for col in extras:
-                val = str(row[col]).strip()
-                if val and val.lower() not in ['nan', 'none', 'na', '']:
-                    parts.append(val)
-        
+        for col in extras:
+            val = str(row[col]).strip()
+            if val and val.lower() not in ['nan', 'none', 'na', '']:
+                parts.append(val)
         clean_parts = [limpiar_texto(p) for p in parts]
         return "_".join(clean_parts)
 
@@ -648,20 +622,20 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
         if not df_farmacias.empty:
             if 'Territorio' in df_farmacias.columns and 'Factor' in df_farmacias.columns:
                 # Procesar datos de farmacias
-                df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
 
+                df_farmacias["Territorio_normalizado"] = df_farmacias["Territorio"].apply(normalizar_nombre_municipio)
+                
                 # Crear un identificador único para cada fila
                 df_farmacias["ID_Unico"] = df_farmacias.index
-
+                
                 municipios_con_farmacia = set(df_farmacias["Territorio_normalizado"])
                 # Incluir todas las columnas necesarias del archivo de farmacias
-                columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar", "ID_Unico", "Territorio"]
+                columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
+                columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar", "ID_Unico"]
                 if 'Provincia' in df_farmacias.columns:
                     columnas_farmacias.append('Provincia')
                 if 'Ldo' in df_farmacias.columns:
                     columnas_farmacias.append('Ldo')
-                if 'Singular' in df_farmacias.columns:
-                    columnas_farmacias.append('Singular')
 
                 df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
             else:
@@ -683,97 +657,44 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
             # Información de diagnóstico simplificada
             st.sidebar.write(f"Municipios con farmacia: {len(municipios_con_farmacia)}")
             st.sidebar.write(f"Municipios en datos: {len(df_pivot)}")
-        # -----------------------------
-        # NUEVO BLOQUE: generar df_con_farmacia_base con múltiples filas por Territorio
-        # -----------------------------
-        df_pivot_con = df_pivot[df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
-        df_pivot_sin = df_pivot[~df_pivot["Territorio_normalizado"].isin(municipios_con_farmacia)].copy()
 
         if not df_farmacias_factores.empty:
-            # Merge inteligente entre pivot y farmacias considerando Territorio y Singular
-            # Esto es necesario para manejar correctamente las entidades singulares de Consultorio.csv
+            # Incluir todas las columnas necesarias del archivo de farmacias
+            columnas_farmacias = ["Territorio_normalizado", "Factor", "Nombre_Mostrar"]
+            if 'Provincia' in df_farmacias.columns:
+                columnas_farmacias.append('Provincia')
+            if 'Ldo' in df_farmacias.columns:
+                columnas_farmacias.append('Ldo')
+
+            df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
+            df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_farmacias_factores, on="Territorio_normalizado", how="left")
+            df_con_farmacia_base['Factor'] = df_con_farmacia_base['Factor'].fillna(1.0)
+            # Hacer merge manual para manejar duplicados correctamente
+            df_con_farmacia_base['Factor'] = 1.0
+            df_con_farmacia_base['Nombre_Mostrar'] = df_con_farmacia_base['Territorio']
             
-            # Crear una clave compuesta para el merge que considere tanto Territorio como Singular
-            df_pivot_con['merge_key'] = df_pivot_con['Territorio']
-            df_farmacias_factores['merge_key'] = df_farmacias_factores['Territorio']
-            
-            # Para cada fila en df_pivot_con, buscar la correspondiente en df_farmacias_factores
-            df_con_farmacia_base = pd.DataFrame()
-            
-            for idx, row_pivot in df_pivot_con.iterrows():
-                territorio = row_pivot['Territorio']
+            # Para cada fila en df_con_farmacia_base, buscar la correspondiente en df_farmacias
+            for idx, row in df_con_farmacia_base.iterrows():
+                territorio_norm = row['Territorio_normalizado']
+                territorio_orig = row['Territorio']
                 
-                # Buscar todas las farmacias que coincidan con este territorio
-                matches = df_farmacias_factores[df_farmacias_factores['Territorio'] == territorio]
+                # Buscar en df_farmacias las filas que coincidan
+                matches = df_farmacias[df_farmacias['Territorio_normalizado'] == territorio_norm]
                 
                 if not matches.empty:
-                    # Si hay múltiples matches, crear una fila para cada uno
-                    for _, match in matches.iterrows():
-                        row_result = row_pivot.copy()
-                        row_result['Factor'] = match['Factor']
-                        row_result['Nombre_Mostrar'] = match['Nombre_Mostrar']
-                        
-                        # Agregar otras columnas si existen
-                        if 'Provincia' in match.index:
-                            row_result['Provincia'] = match['Provincia']
-                        if 'Ldo' in match.index:
-                            row_result['Ldo'] = match['Ldo']
-                        if 'Singular' in match.index:
-                            row_result['Singular'] = match['Singular']
-                        
-                        df_con_farmacia_base = pd.concat([df_con_farmacia_base, row_result.to_frame().T], ignore_index=True)
-                else:
-                    # Si no hay matches, usar valores por defecto
-                    row_result = row_pivot.copy()
-                    row_result['Factor'] = 1.0
-                    row_result['Nombre_Mostrar'] = territorio
-                    df_con_farmacia_base = pd.concat([df_con_farmacia_base, row_result.to_frame().T], ignore_index=True)
-            
-            # Asegurar que Factor siempre tenga valor
-            df_con_farmacia_base["Factor"] = pd.to_numeric(df_con_farmacia_base["Factor"], errors="coerce").fillna(1.0)
-
-            # Si por algún motivo Nombre_Mostrar está vacío, usar Territorio como respaldo
-            df_con_farmacia_base["Nombre_Mostrar"] = df_con_farmacia_base["Nombre_Mostrar"].fillna(df_con_farmacia_base["Territorio"])
-
-            # Añadir coordenadas (merge final con df_coords)
-            df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_coords, on="Territorio", how="left")
-        else:
-            # Si no hay farmacias, mantener lógica previa
-            df_con_farmacia_base = df_pivot_con.copy()
-            df_con_farmacia_base["Factor"] = 1.0
-            df_con_farmacia_base["Nombre_Mostrar"] = df_con_farmacia_base["Territorio"]
-            df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_coords, on="Territorio", how="left")
-        # Municipios sin farmacia igual que antes
-        df_sin_farmacia_base = pd.merge(df_pivot_sin, df_coords, on="Territorio", how="left")
-        return df_con_farmacia_base, df_sin_farmacia_base
-
-        #if not df_farmacias_factores.empty:
-            # Hacer merge manual para manejar duplicados correctamente
-            #df_con_farmacia_base['Factor'] = 1.0
-            #df_con_farmacia_base['Nombre_Mostrar'] = df_con_farmacia_base['Territorio']
-
-            # Para cada fila en df_con_farmacia_base, buscar la correspondiente en df_farmacias
-            #for idx, row in df_con_farmacia_base.iterrows():
-                #territorio_norm = row['Territorio_normalizado']
-                #territorio_orig = row['Territorio']
-
-                # Buscar en df_farmacias las filas que coincidan
-                #matches = df_farmacias[df_farmacias['Territorio_normalizado'] == territorio_norm]
-
-                #if not matches.empty:
                     # Si hay múltiples matches, usar el primero (o implementar lógica más sofisticada)
-                    #match = matches.iloc[0]
-                    #df_con_farmacia_base.at[idx, 'Factor'] = match['Factor']
-                    #df_con_farmacia_base.at[idx, 'Nombre_Mostrar'] = match['Nombre_Mostrar']
-
+                    match = matches.iloc[0]
+                    df_con_farmacia_base.at[idx, 'Factor'] = match['Factor']
+                    df_con_farmacia_base.at[idx, 'Nombre_Mostrar'] = match['Nombre_Mostrar']
+                    
                     # Agregar otras columnas si existen
-                    #if 'Provincia' in df_farmacias.columns:
-                        #df_con_farmacia_base.at[idx, 'Provincia'] = match['Provincia']
-                    #if 'Ldo' in df_farmacias.columns:
-                        #df_con_farmacia_base.at[idx, 'Ldo'] = match['Ldo']
-        #else:
-            #df_con_farmacia_base['Factor'] = 1.0
-            #df_con_farmacia_base['Nombre_Mostrar'] = df_con_farmacia_base['Territorio']
+                    if 'Provincia' in df_farmacias.columns:
+                        df_con_farmacia_base.at[idx, 'Provincia'] = match['Provincia']
+                    if 'Ldo' in df_farmacias.columns:
+                        df_con_farmacia_base.at[idx, 'Ldo'] = match['Ldo']
+        else:
+            df_con_farmacia_base['Factor'] = 1.0
+            df_con_farmacia_base['Nombre_Mostrar'] = df_con_farmacia_base['Territorio']
 
         df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_coords, on="Territorio", how="left")
         df_sin_farmacia_base = pd.merge(df_sin_farmacia_base, df_coords, on="Territorio", how="left")
@@ -836,15 +757,9 @@ df_municipios_farmacias, df_municipios_sin = calcular_puntuaciones(
 
 # -------------------
 # Display ranking table and allow selection
-#df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
-#df_ordenado.index += 1  # Índice 1-based
-df_ordenado = (
-    df_municipios_farmacias
-    .sort_values('PuntuaciónExtendida', ascending=False)
-    .drop_duplicates(subset='Nombre_Mostrar', keep='first')
-    .reset_index(drop=True)
-)
+df_ordenado = df_municipios_farmacias.sort_values('PuntuaciónExtendida', ascending=False).reset_index(drop=True)
 df_ordenado.index += 1  # Índice 1-based
+
 # Mostrar información sobre normalización
 if metodo_normalizacion != "Sin normalizar":
     if valor_max_personalizado is not None:
@@ -1515,203 +1430,5 @@ with tab2:
             )
 
 # --------------------
-# TAB 3: Proyecciones Demográficas
-with tab3:
-    st.header("📈 Proyecciones Demográficas")
-    
-    if not proyecciones_disponibles:
-        st.error("❌ El módulo de proyecciones demográficas no está disponible.")
-        st.info("Asegúrate de que el archivo 'proyecciones_demograficas.py' esté en el directorio correcto.")
-    else:
-        # Verificar que tenemos datos cargados
-        if 'df_municipios_farmacias' not in locals() or df_municipios_farmacias.empty:
-            st.warning("⚠️ Primero debes cargar los datos y calcular las puntuaciones en la pestaña 'Mapa y Ranking'.")
-            st.info("Ve a la primera pestaña, configura los pesos y presiona 'Aplicar Cambios y Recalcular'.")
-        else:
-            # Obtener lista de territorios con farmacia que tengan datos demográficos
-            if proyecciones_disponibles:
-                sistema_proyecciones = ProyeccionesDemograficas()
-                territorios_con_farmacia = sistema_proyecciones.obtener_territorios_con_farmacia(df_farmacias)
-            else:
-                territorios_con_farmacia = []
-            
-            # Filtrar solo territorios que tengan datos demográficos disponibles
-            territorios_disponibles = []
-            territorios_sin_datos = []
-            
-            if proyecciones_disponibles:
-                for territorio in territorios_con_farmacia:
-                    if sistema_proyecciones.verificar_territorio_tiene_datos_demograficos(territorio):
-                        territorios_disponibles.append(territorio)
-                    else:
-                        territorios_sin_datos.append(territorio)
-                
-                territorios_disponibles = sorted(territorios_disponibles)
-            
-            if not territorios_disponibles:
-                st.warning("⚠️ No hay territorios con farmacia que tengan datos demográficos disponibles.")
-                if territorios_sin_datos:
-                    st.info(f"Territorios con farmacia sin datos demográficos: {', '.join(territorios_sin_datos[:10])}")
-            else:
-                st.success(f"✅ {len(territorios_disponibles)} territorios con farmacia tienen datos demográficos disponibles")
-                if territorios_sin_datos:
-                    st.info(f"ℹ️ {len(territorios_sin_datos)} territorios con farmacia no tienen datos demográficos")
-                # Configuración de proyección
-                st.subheader("🔧 Configuración de Proyección")
-                
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    territorio_proyeccion = st.selectbox(
-                        "Seleccionar territorio:",
-                        options=territorios_disponibles,
-                        help="Selecciona el territorio para el cual calcular las proyecciones demográficas"
-                    )
-                
-                with col2:
-                    años_proyeccion = st.selectbox(
-                        "Horizonte temporal:",
-                        options=[5, 10, 15, 20],
-                        index=1,
-                        help="Número de años hacia el futuro para proyectar"
-                    )
-                
-                with col3:
-                    modelo_proyeccion = st.selectbox(
-                        "Modelo de proyección:",
-                        options=["lineal", "exponencial", "componentes", "comparar_todos"],
-                        format_func=lambda x: {
-                            "lineal": "Tendencia Lineal",
-                            "exponencial": "Tendencia Exponencial", 
-                            "componentes": "Por Componentes",
-                            "comparar_todos": "Comparar Todos los Modelos"
-                        }[x],
-                        help="Método de proyección a utilizar"
-                    )
-                
-                # Obtener población actual del territorio seleccionado
-                poblacion_actual = None
-                if territorio_proyeccion:
-                    # Buscar población en los datos disponibles
-                    territorio_data = df_municipios_farmacias[df_municipios_farmacias['Territorio'] == territorio_proyeccion]
-                    
-                    if not territorio_data.empty:
-                        # Intentar obtener población desde singular_pob_sexo.csv
-                        try:
-                            poblacion_actual = obtener_poblacion_territorio_con_factor(
-                                territorio_proyeccion,
-                                territorio_data.iloc[0].get('Singular', None) if 'Singular' in territorio_data.columns else None,
-                                territorio_data.iloc[0].get('Factor', None) if 'Factor' in territorio_data.columns else None
-                            )
-                            
-                            # Convertir a número si es posible
-                            if poblacion_actual and poblacion_actual != "N/A":
-                                poblacion_actual = float(poblacion_actual.replace(',', ''))
-                            else:
-                                poblacion_actual = None
-                                
-                        except Exception as e:
-                            st.warning(f"No se pudo obtener la población actual para {territorio_proyeccion}: {e}")
-                            poblacion_actual = None
-                
-                # Mostrar información de población actual
-                if poblacion_actual:
-                    st.info(f"📊 **Población actual de {territorio_proyeccion}**: {poblacion_actual:,.0f} habitantes")
-                else:
-                    st.warning(f"⚠️ No se pudo determinar la población actual de {territorio_proyeccion}")
-                    st.info("Las proyecciones se realizarán usando valores estimados.")
-                    # Usar un valor por defecto razonable
-                    poblacion_actual = 10000  # Valor por defecto
-                
-                # Botón para ejecutar proyección
-                st.markdown("---")
-                
-                if st.button("🚀 Calcular Proyección Demográfica", type="primary", use_container_width=True):
-                    if territorio_proyeccion and años_proyeccion and modelo_proyeccion:
-                        with st.spinner("🔄 Calculando proyección demográfica... Esto puede tardar unos momentos."):
-                            try:
-                                # Ejecutar proyección
-                                resultado = ejecutar_proyeccion_demografica(
-                                    territorio_proyeccion, 
-                                    años_proyeccion, 
-                                    modelo_proyeccion,
-                                    poblacion_actual
-                                )
-                                
-                                if resultado:
-                                    # Mostrar resultados
-                                    mostrar_resultados_proyeccion(resultado)
-                                    
-                                    # Mostrar información adicional sobre tendencias
-                                    if 'tendencias' in resultado:
-                                        st.subheader("📈 Análisis de Tendencias Históricas")
-                                        
-                                        tendencias = resultado['tendencias']
-                                        
-                                        col1, col2 = st.columns(2)
-                                        
-                                        with col1:
-                                            if 'crecimiento' in tendencias:
-                                                st.write("**Tendencias de Crecimiento Vegetativo:**")
-                                                crecimiento = tendencias['crecimiento']
-                                                
-                                                if 'ambos_sexos' in crecimiento:
-                                                    datos = crecimiento['ambos_sexos']
-                                                    st.write(f"- Tasa de crecimiento promedio: {datos['tasa_crecimiento_promedio']:.2f}%")
-                                                    st.write(f"- R² del modelo: {datos['r_squared']:.3f}")
-                                                    st.write(f"- Período analizado: {datos['año_primer']:.0f} - {datos['año_ultimo']:.0f}")
-                                        
-                                        with col2:
-                                            if 'dependencia' in tendencias:
-                                                st.write("**Tendencias de Dependencia:**")
-                                                dependencia = tendencias['dependencia']
-                                                
-                                                if 'global' in dependencia:
-                                                    datos = dependencia['global']
-                                                    st.write(f"- Cambio anual promedio: {datos['cambio_anual_promedio']:.2f} puntos")
-                                                    st.write(f"- R² del modelo: {datos['r_squared']:.3f}")
-                                        
-                                        # Mostrar puntos de inflexión si existen
-                                        if 'puntos_inflexion' in tendencias and tendencias['puntos_inflexion']:
-                                            st.write("**Puntos de Inflexión Detectados:**")
-                                            for punto in tendencias['puntos_inflexion']:
-                                                st.write(f"- {punto['año']:.0f}: {punto['tipo']} (cambio: {punto['cambio']:.2f})")
-                                
-                            except Exception as e:
-                                st.error(f"❌ Error al calcular la proyección: {e}")
-                                st.info("Verifica que los archivos de datos demográficos estén disponibles en la carpeta 'demografia/'")
-                    else:
-                        st.warning("⚠️ Por favor, completa todos los campos de configuración antes de calcular la proyección.")
-                
-                # Información adicional sobre la metodología
-                with st.expander("ℹ️ Información sobre la Metodología", expanded=False):
-                    st.markdown("""
-                    ### Metodología de Proyecciones Demográficas
-                    
-                    **Datos utilizados:**
-                    - Crecimiento vegetativo histórico (1996-2023)
-                    - Índices de dependencia (1996-actualidad)
-                    - Población actual del territorio
-                    
-                    **Modelos disponibles:**
-                    - **Tendencia Lineal**: Proyección basada en regresión lineal simple
-                    - **Tendencia Exponencial**: Crecimiento proporcional a la población actual
-                    - **Por Componentes**: Desagregación por grupos de edad usando índices de dependencia
-                    - **Comparar Todos**: Ejecuta todos los modelos para comparación
-                    
-                    **Indicadores calculados:**
-                    - Población total proyectada
-                    - Tasa de crecimiento anual promedio
-                    - Índices de dependencia proyectados
-                    - Riesgo de despoblación
-                    
-                    **Limitaciones:**
-                    - Las proyecciones son estimaciones basadas en tendencias históricas
-                    - No consideran eventos imprevistos o cambios estructurales
-                    - La precisión disminuye con el horizonte temporal
-                    """)
-
-# --------------------
 # Version information in the sidebar
 st.sidebar.subheader("Version 1.9.0")
-
