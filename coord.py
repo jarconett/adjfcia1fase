@@ -23,6 +23,7 @@ try:
     motor_entidades_disponible = True
 except Exception as e:
     motor_entidades_disponible = False
+    st.sidebar.error(f"Error importando motor de proyecciones nuevo: {e}")
 
 # --------------------
 # Navigation tabs
@@ -1604,7 +1605,10 @@ with tab3:
         st.error("❌ El motor de entidades singulares no está disponible.")
         st.info("Asegúrate de que 'proyeccion_entidades_singulares_final.py' esté en el directorio raíz.")
     else:
-        render_proyeccion_entidades_singulares()
+        try:
+            render_proyeccion_entidades_singulares()
+        except Exception as e:
+            st.error(f"❌ Error al renderizar el motor de proyecciones: {e}")
 
 # --------------------
 # Version information in the sidebar
