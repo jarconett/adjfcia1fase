@@ -17,15 +17,6 @@ import os
 # Set the title of the Streamlit application
 st.title("Mapa Interactivo de las Farmacias de la Primera fase de Adjudicaciones de Andalucía")
 
-# --------------------
-# Importar módulo de proyecciones demográficas
-try:
-    from proyecciones_demograficas import ejecutar_proyeccion_demografica, mostrar_resultados_proyeccion, ProyeccionesDemograficas
-    proyecciones_disponibles = True
-except ImportError:
-    proyecciones_disponibles = False
-    st.sidebar.warning("⚠️ Módulo de proyecciones demográficas no disponible")
-
 # Importar NUEVO motor de proyecciones (entidades singulares)
 try:
     from proyeccion_entidades_singulares_final import render_proyeccion_entidades_singulares
@@ -1609,161 +1600,11 @@ with tab2:
 # TAB 3: Proyecciones Demográficas
 with tab3:
     st.header("📈 Proyecciones Demográficas")
-    # Selector de motor
-    motor = st.radio(
-        "Selecciona el motor de proyecciones",
-        options=["Entidades singulares (nuevo)", "Clásico"],
-        index=0,
-        horizontal=True,
-    )
-
-    if motor == "Entidades singulares (nuevo)":
-        if not motor_entidades_disponible:
-            st.error("❌ El motor de entidades singulares no está disponible.")
-            st.info("Asegúrate de que 'proyeccion_entidades_singulares_final.py' esté en el directorio raíz.")
-        else:
-            # Render UI y lógica completamente independiente
-            render_proyeccion_entidades_singulares()
+    if not motor_entidades_disponible:
+        st.error("❌ El motor de entidades singulares no está disponible.")
+        st.info("Asegúrate de que 'proyeccion_entidades_singulares_final.py' esté en el directorio raíz.")
     else:
-        # Ruta clásica existente
-        if not proyecciones_disponibles:
-            st.error("❌ El módulo de proyecciones demográficas no está disponible.")
-            st.info("Asegúrate de que el archivo 'proyecciones_demograficas.py' esté en el directorio correcto.")
-        else:
-            # Mantener la ruta clásica: se requiere df_municipios_farmacias de Tab 1
-            if 'df_municipios_farmacias' not in locals() or df_municipios_farmacias.empty:
-                st.warning("⚠️ Primero debes cargar los datos y calcular las puntuaciones en la pestaña 'Mapa y Ranking'.")
-                st.info("Ve a la primera pestaña, configura los pesos y presiona 'Aplicar Cambios y Recalcular'.")
-            else:
-                # Reutilizar la lógica previa intacta
-                if proyecciones_disponibles:
-                    sistema_proyecciones = ProyeccionesDemograficas()
-                    territorios_con_farmacia = sistema_proyecciones.obtener_territorios_con_farmacia(df_farmacias)
-                else:
-                    territorios_con_farmacia = []
-
-                territorios_disponibles = []
-                territorios_sin_datos = []
-
-                if proyecciones_disponibles:
-                    for territorio in territorios_con_farmacia:
-                        if sistema_proyecciones.verificar_territorio_tiene_datos_demograficos(territorio):
-                            territorios_disponibles.append(territorio)
-                        else:
-                            territorios_sin_datos.append(territorio)
-                    territorios_disponibles = sorted(territorios_disponibles)
-
-                if not territorios_disponibles:
-                    st.warning("⚠️ No hay territorios con farmacia que tengan datos demográficos disponibles.")
-                    if territorios_sin_datos:
-                        st.info(f"Territorios con farmacia sin datos demográficos: {', '.join(territorios_sin_datos[:10])}")
-                else:
-                    st.success(f"✅ {len(territorios_disponibles)} territorios con farmacia tienen datos demográficos disponibles")
-                    if territorios_sin_datos:
-                        st.info(f"ℹ️ {len(territorios_sin_datos)} territorios con farmacia no tienen datos demográficos")
-                        if len(territorios_sin_datos) == 1:
-                            st.warning(f"🕵️ Territorio sin datos: {territorios_sin_datos[0]}")
-                        else:
-                            with st.expander("Ver lista de territorios sin datos demográficos", expanded=False):
-                                st.write(territorios_sin_datos)
-
-                    st.subheader("🔧 Configuración de Proyección")
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        territorio_proyeccion = st.selectbox(
-                            "Seleccionar territorio:",
-                            options=territorios_disponibles,
-                            help="Selecciona el territorio para el cual calcular las proyecciones demográficas",
-                        )
-                    with col2:
-                        años_proyeccion = st.selectbox(
-                            "Horizonte temporal:", options=[5, 10, 15, 20], index=1,
-                            help="Número de años hacia el futuro para proyectar",
-                        )
-                    with col3:
-                        modelo_proyeccion = st.selectbox(
-                            "Modelo de proyección:",
-                            options=["lineal", "exponencial", "componentes", "comparar_todos"],
-                            format_func=lambda x: {
-                                "lineal": "Tendencia Lineal",
-                                "exponencial": "Tendencia Exponencial",
-                                "componentes": "Por Componentes",
-                                "comparar_todos": "Comparar Todos los Modelos",
-                            }[x],
-                            help="Método de proyección a utilizar",
-                        )
-
-                    poblacion_actual = None
-                    if territorio_proyeccion:
-                        territorio_data = df_municipios_farmacias[df_municipios_farmacias['Territorio'] == territorio_proyeccion]
-                        if not territorio_data.empty:
-                            try:
-                                poblacion_actual = obtener_poblacion_territorio_con_factor(
-                                    territorio_proyeccion,
-                                    territorio_data.iloc[0].get('Singular', None) if 'Singular' in territorio_data.columns else None,
-                                    territorio_data.iloc[0].get('Factor', None) if 'Factor' in territorio_data.columns else None,
-                                )
-                                if poblacion_actual and poblacion_actual != "N/A":
-                                    poblacion_actual = float(poblacion_actual.replace(',', ''))
-                                else:
-                                    poblacion_actual = None
-                            except Exception as e:
-                                st.warning(f"No se pudo obtener la población actual para {territorio_proyeccion}: {e}")
-                                poblacion_actual = None
-
-                    if poblacion_actual:
-                        st.info(f"📊 **Población actual de {territorio_proyeccion}**: {poblacion_actual:,.0f} habitantes")
-                    else:
-                        st.warning(f"⚠️ No se pudo determinar la población actual de {territorio_proyeccion}")
-                        st.info("Las proyecciones se realizarán usando valores estimados.")
-                        poblacion_actual = 10000
-
-                    st.markdown("---")
-                    if st.button("🚀 Calcular Proyección Demográfica", type="primary", use_container_width=True):
-                        if territorio_proyeccion and años_proyeccion and modelo_proyeccion:
-                            with st.spinner("🔄 Calculando proyección demográfica... Esto puede tardar unos momentos."):
-                                try:
-                                    resultado = ejecutar_proyeccion_demografica(
-                                        territorio_proyeccion,
-                                        años_proyeccion,
-                                        modelo_proyeccion,
-                                        poblacion_actual,
-                                    )
-                                    if resultado:
-                                        mostrar_resultados_proyeccion(resultado)
-                                except Exception as e:
-                                    st.error(f"❌ Error al calcular la proyección: {e}")
-                                    st.info("Verifica que los archivos de datos demográficos estén disponibles en la carpeta 'demografia/'")
-                        else:
-                            st.warning("⚠️ Por favor, completa todos los campos de configuración antes de calcular la proyección.")
-                
-                # Información adicional sobre la metodología
-                with st.expander("ℹ️ Información sobre la Metodología", expanded=False):
-                    st.markdown("""
-                    ### Metodología de Proyecciones Demográficas
-                    
-                    **Datos utilizados:**
-                    - Crecimiento vegetativo histórico (1996-2023)
-                    - Índices de dependencia (1996-actualidad)
-                    - Población actual del territorio
-                    
-                    **Modelos disponibles:**
-                    - **Tendencia Lineal**: Proyección basada en regresión lineal simple
-                    - **Tendencia Exponencial**: Crecimiento proporcional a la población actual
-                    - **Por Componentes**: Desagregación por grupos de edad usando índices de dependencia
-                    - **Comparar Todos**: Ejecuta todos los modelos para comparación
-                    
-                    **Indicadores calculados:**
-                    - Población total proyectada
-                    - Tasa de crecimiento anual promedio
-                    - Índices de dependencia proyectados
-                    - Riesgo de despoblación
-                    
-                    **Limitaciones:**
-                    - Las proyecciones son estimaciones basadas en tendencias históricas
-                    - No consideran eventos imprevistos o cambios estructurales
-                    - La precisión disminuye con el horizonte temporal
-                    """)
+        render_proyeccion_entidades_singulares()
 
 # --------------------
 # Version information in the sidebar
