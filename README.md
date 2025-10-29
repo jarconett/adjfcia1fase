@@ -5,8 +5,7 @@ streamlit run C:\Users\Javier\Desktop\adjfcia1fase\coord.py
 
 
 TO-DO:
-dias de consultorio
-indicadores despoblacion
+arreglar coordenadas de las entidades singulares.
 calculo facturacion segun habitantes y rango de edad
 densidad de poblacion 
 enlaces idealista compra alquiler
