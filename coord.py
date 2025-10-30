@@ -760,6 +760,10 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
                     columnas_farmacias.append('Ldo')
                 if 'Singular' in df_farmacias.columns:
                     columnas_farmacias.append('Singular')
+                if 'Latitud' in df_farmacias.columns:
+                    columnas_farmacias.append('Latitud')
+                if 'Longitud' in df_farmacias.columns:
+                    columnas_farmacias.append('Longitud')
 
                 df_farmacias_factores = df_farmacias[columnas_farmacias].copy()
             else:
@@ -825,6 +829,11 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
                             row_result['Ldo'] = match['Ldo']
                         if 'Singular' in match.index:
                             row_result['Singular'] = match['Singular']
+                        # Coordenadas específicas por entidad singular (si existen en Territorios.csv)
+                        if 'Latitud' in match.index:
+                            row_result['Latitud'] = match['Latitud']
+                        if 'Longitud' in match.index:
+                            row_result['Longitud'] = match['Longitud']
                         
                         df_con_farmacia_base = pd.concat([df_con_farmacia_base, row_result.to_frame().T], ignore_index=True)
                 else:
@@ -840,8 +849,14 @@ def preparar_datos_base(df_original, df_coords, df_farmacias, metodo_normalizaci
             # Si por algún motivo Nombre_Mostrar está vacío, usar Territorio como respaldo
             df_con_farmacia_base["Nombre_Mostrar"] = df_con_farmacia_base["Nombre_Mostrar"].fillna(df_con_farmacia_base["Territorio"])
 
-            # Añadir coordenadas (merge final con df_coords)
-            df_con_farmacia_base = pd.merge(df_con_farmacia_base, df_coords, on="Territorio", how="left")
+            # Añadir coordenadas: preferir las de Territorios.csv por entidad singular y completar con df_coords si faltan
+            df_con_farmacia_base = pd.merge(
+                df_con_farmacia_base, df_coords, on="Territorio", how="left", suffixes=("", "_coord")
+            )
+            if 'Latitud_coord' in df_con_farmacia_base.columns:
+                df_con_farmacia_base['Latitud'] = df_con_farmacia_base['Latitud'].combine_first(df_con_farmacia_base['Latitud_coord'])
+                df_con_farmacia_base['Longitud'] = df_con_farmacia_base['Longitud'].combine_first(df_con_farmacia_base['Longitud_coord'])
+                df_con_farmacia_base = df_con_farmacia_base.drop(columns=[c for c in ['Latitud_coord','Longitud_coord'] if c in df_con_farmacia_base.columns])
         else:
             # Si no hay farmacias, mantener lógica previa
             df_con_farmacia_base = df_pivot_con.copy()
