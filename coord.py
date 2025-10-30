@@ -1179,77 +1179,86 @@ if metodo_normalizacion != "Sin normalizar":
     m = folium.Map(location=[lat_centro, lon_centro], zoom_start=zoom_nivel)
     marker_cluster = MarkerCluster().add_to(m)
 
-    for idx, row in df_ordenado.iterrows():
-        lat, lon = row['Latitud'], row['Longitud']
-        if pd.isna(lat) or pd.isna(lon):
-            continue
+    # Agrupar filas que comparten las mismas coordenadas (y territorio) para no duplicar marcadores
+    if not df_ordenado.empty:
+        columnas_group = [col for col in ['Territorio', 'Latitud', 'Longitud'] if col in df_ordenado.columns]
+        for (territorio_g, lat, lon), grupo in df_ordenado.groupby(columnas_group):
+            # Manejar casos en los que el groupby devuelva tupla distinta si faltan columnas
+            if isinstance(territorio_g, (float, int)) and len(columnas_group) == 2:
+                # No hay 'Territorio' en el índice del groupby
+                lat, lon = territorio_g, lat
+                territorio = None
+            else:
+                territorio = territorio_g
 
-        color = "#777777"
-        puntuacion = row['PuntuaciónExtendida']
-        for (minv, maxv, col) in rango_colores:
-            if minv <= puntuacion < maxv:
-                color = col
-                break
-        if puntuacion >= rango_colores[-1][1]:
-            color = rango_colores[-1][2]
+            if pd.isna(lat) or pd.isna(lon):
+                continue
 
-        popup_html = f"""
-        <b>{row['Nombre_Mostrar']}</b><br>
-        """
+            # Color representativo por la puntuación extendida (usar la máxima)
+            puntuacion_rep = grupo['PuntuaciónExtendida'].max() if 'PuntuaciónExtendida' in grupo.columns else None
+            color = "#777777"
+            if puntuacion_rep is not None and not pd.isna(puntuacion_rep):
+                for (minv, maxv, col) in rango_colores:
+                    if minv <= puntuacion_rep < maxv:
+                        color = col
+                        break
+                if puntuacion_rep >= rango_colores[-1][1]:
+                    color = rango_colores[-1][2]
 
-        # Añadir Provincia y Ldo si están disponibles
-        if 'Provincia' in row and pd.notna(row['Provincia']):
-            popup_html += f"Provincia: {row['Provincia']}<br>"
-        if 'Ldo' in row and pd.notna(row['Ldo']):
-            popup_html += f"Ldo: {row['Ldo']}<br>"
+            # Encabezado del popup: usar Territorio si está, si no, el primero de Nombre_Mostrar
+            encabezado = str(territorio) if territorio is not None else str(grupo.iloc[0].get('Nombre_Mostrar', 'Entidad'))
+            popup_html = f"""
+            <b>{encabezado}</b><br>
+            """
 
-        # Buscar valor de población sin normalizar desde singular_pob_sexo.csv
-        poblacion_original = "N/A"
+            # Provincia/Ldo si todos en el grupo coinciden (para no repetir en cada ítem)
+            if 'Provincia' in grupo.columns and grupo['Provincia'].notna().any():
+                provincias = grupo['Provincia'].dropna().unique().tolist()
+                if len(provincias) == 1:
+                    popup_html += f"Provincia: {provincias[0]}<br>"
+            if 'Ldo' in grupo.columns and grupo['Ldo'].notna().any():
+                ldos = grupo['Ldo'].dropna().unique().tolist()
+                if len(ldos) == 1:
+                    popup_html += f"Ldo: {ldos[0]}<br>"
 
-        # Determinar el nombre a buscar
-        nombre_a_buscar = None
-        if 'Singular' in row and pd.notna(row['Singular']) and str(row['Singular']).strip() != '':
-            # Si Singular tiene valor, usar ese
-            nombre_a_buscar = str(row['Singular']).strip()
-        else:
-            # Si Singular está vacío, usar Territorio
-            nombre_a_buscar = str(row['Territorio']).strip()
-
-        # Buscar en singular_pob_sexo.csv
-        if nombre_a_buscar:
-            # Cargar el archivo singular_pob_sexo.csv si no está cargado
+            # Población del territorio (única por marcador)
+            poblacion_original = "N/A"
             try:
+                nombre_a_buscar = str(encabezado).strip()
                 df_singular_pob = pd.read_csv("singular_pob_sexo.csv", sep=";", na_values=["-", "", "NA"])
-
-                # Buscar población para "Ambos sexos"
                 poblacion_data = df_singular_pob[
-                    (df_singular_pob['Territorio'] == nombre_a_buscar) & 
+                    (df_singular_pob['Territorio'] == nombre_a_buscar) &
                     (df_singular_pob['Sexo'] == 'Ambos sexos') &
                     (df_singular_pob['Medida'] == 'Población')
                 ]
+                if not poblacion_data.empty and pd.notna(poblacion_data.iloc[0]['Valor']):
+                    poblacion_original = f"{poblacion_data.iloc[0]['Valor']:.0f}"
+            except Exception:
+                pass
 
-                if not poblacion_data.empty:
-                    poblacion_original = f"{poblacion_data.iloc[0]['Valor']:.0f}" if pd.notna(poblacion_data.iloc[0]['Valor']) else "N/A"
-            except Exception as e:
-                poblacion_original = "Error al cargar datos"
+            popup_html += f"<b>Población:</b> {poblacion_original}<hr style=\"margin:6px 0\">"
 
-        popup_html += f"""
-        <b>Población:</b> {poblacion_original}<br>
-        Puntuación base: {row['Puntuación']:.2f}<br>
-        Factor: {row['Factor']:.2f}<br>
-        Puntuación con factor: {row['PuntuaciónFinal']:.2f}<br>
-        Suma municipios cercanos sin farmacia (≤ {radio_km} km): {row['SumaMunicipiosCercanos']:.2f}<br>
-        <b>Total combinado:</b> {row['PuntuaciónExtendida']:.2f}
-        """
-        folium.CircleMarker(
-            location=(lat, lon),
-            radius=7,
-            popup=folium.Popup(popup_html, max_width=300),
-            color=color,
-            fill=True,
-            fill_color=color,
-            fill_opacity=0.7,
-        ).add_to(marker_cluster)
+            # Listar las entidades que comparten el mismo punto
+            popup_html += "<b>Entidades en este punto:</b><br>"
+            for _, row in grupo.iterrows():
+                nombre_item = str(row.get('Nombre_Mostrar', 'Entidad')).strip()
+                factor_item = row.get('Factor', None)
+                punt_item = row.get('PuntuaciónFinal', None)
+                punt_tot = row.get('PuntuaciónExtendida', None)
+                popup_html += (
+                    f"- {nombre_item} | Factor: {factor_item:.2f} | "
+                    f"PF: {punt_item:.2f} | Total: {punt_tot:.2f}<br>"
+                )
+
+            folium.CircleMarker(
+                location=(lat, lon),
+                radius=7,
+                popup=folium.Popup(popup_html, max_width=360),
+                color=color,
+                fill=True,
+                fill_color=color,
+                fill_opacity=0.7,
+            ).add_to(marker_cluster)
 
     Fullscreen().add_to(m)
     st_data = st_folium(m, width=1200, height=700, returned_objects=["last_clicked"])
@@ -1643,4 +1652,3 @@ with tab3:
 # --------------------
 # Version information in the sidebar
 st.sidebar.subheader("Version 1.9.0")
-
