@@ -219,6 +219,36 @@ with tab1:
 
             st.sidebar.success(f"Farmacias cargadas: {len(df_farmacias)} registros")
 
+            # --- Integrar coordenadas desde Territorios.csv con prioridad ---
+            try:
+                coords_territorios = df_farmacias[["Territorio", "Latitud", "Longitud"]].copy()
+                # Usar solo filas con coordenadas válidas y una por territorio
+                coords_territorios = coords_territorios.dropna(subset=["Latitud", "Longitud"])\
+                                                 .drop_duplicates(subset=["Territorio"], keep="first")
+
+                if not coords_territorios.empty:
+                    if df_coords_existentes.empty:
+                        # Si no hay coordenadas IECA, usar las de Territorios.csv directamente
+                        df_coords_existentes = coords_territorios.copy()
+                    else:
+                        # Actualizar coordenadas existentes y añadir las que falten
+                        base_idx = df_coords_existentes.set_index("Territorio")
+                        terr_idx = coords_territorios.set_index("Territorio")
+
+                        # Sobrescribir Latitud/Longitud donde Territorios.csv tenga valores
+                        base_idx.update(terr_idx[["Latitud", "Longitud"]])
+
+                        # Añadir territorios nuevos que solo están en Territorios.csv
+                        missing = terr_idx.index.difference(base_idx.index)
+                        if len(missing) > 0:
+                            base_idx = pd.concat([base_idx, terr_idx.loc[missing]], axis=0)
+
+                        df_coords_existentes = base_idx.reset_index()
+
+                    st.sidebar.info("Coordenadas de Territorios.csv priorizadas sobre IECA para territorios incluidos.")
+            except Exception as e:
+                st.sidebar.warning(f"No se pudieron integrar coordenadas de Territorios.csv: {e}")
+
         except Exception as e:
             st.sidebar.error(f"Error al leer Territorios.csv: {e}")
     else:
