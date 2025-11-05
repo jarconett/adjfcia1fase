@@ -1,6 +1,6 @@
 pip install streamlit pandas streamlit_folium folium geopy plotly numpy 
 
-
+https://www.juntadeandalucia.es/institutodeestadisticaycartografia/badea/informe/anual?CodOper=b3_151&idNode=23204
 streamlit run C:\Users\Javier\Desktop\adjfcia1fase\coord.py 
 
 
