@@ -1,6 +1,6 @@
 pandas
 folium
-streamlit
+streamlit>=1.23.0
 streamlit_folium
 geopy
 plotly
