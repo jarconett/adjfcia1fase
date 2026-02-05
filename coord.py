@@ -1982,4 +1982,4 @@ with tab3:
 
 # --------------------
 # Version information in the sidebar
-st.sidebar.subheader("Version 1.9.0")
+st.sidebar.subheader("Version 1.9.1")
