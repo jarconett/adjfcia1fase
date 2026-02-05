@@ -623,16 +623,78 @@ with tab1:
             return None
 
     def obtener_coordenadas_destino(destino_texto):
-        """Obtiene coordenadas de una localidad usando geocodificación."""
+        """Obtiene coordenadas de una localidad usando geocodificación.
+        Primero intenta con coordenadas conocidas, luego con geocodificación.
+        """
+        # Diccionario de coordenadas conocidas para ciudades comunes en Andalucía
+        coordenadas_conocidas = {
+            'granada': (37.1773, -3.5986),
+            'granada, españa': (37.1773, -3.5986),
+            'granada españa': (37.1773, -3.5986),
+            'sevilla': (37.3891, -5.9845),
+            'sevilla, españa': (37.3891, -5.9845),
+            'sevilla españa': (37.3891, -5.9845),
+            'málaga': (36.7213, -4.4214),
+            'málaga, españa': (36.7213, -4.4214),
+            'malaga': (36.7213, -4.4214),
+            'malaga, españa': (36.7213, -4.4214),
+            'córdoba': (37.8882, -4.7794),
+            'córdoba, españa': (37.8882, -4.7794),
+            'cordoba': (37.8882, -4.7794),
+            'cordoba, españa': (37.8882, -4.7794),
+            'cádiz': (36.5270, -6.2886),
+            'cádiz, españa': (36.5270, -6.2886),
+            'cadiz': (36.5270, -6.2886),
+            'cadiz, españa': (36.5270, -6.2886),
+            'jaén': (37.7796, -3.7849),
+            'jaén, españa': (37.7796, -3.7849),
+            'jaen': (37.7796, -3.7849),
+            'jaen, españa': (37.7796, -3.7849),
+            'almería': (36.8381, -2.4597),
+            'almería, españa': (36.8381, -2.4597),
+            'almeria': (36.8381, -2.4597),
+            'almeria, españa': (36.8381, -2.4597),
+            'huelva': (37.2574, -6.9499),
+            'huelva, españa': (37.2574, -6.9499),
+            'marbella': (36.5102, -4.8860),
+            'marbella, españa': (36.5102, -4.8860),
+            'algeciras': (36.1276, -5.4509),
+            'algeciras, españa': (36.1276, -5.4509),
+            'ronda': (36.7423, -5.1667),
+            'ronda, españa': (36.7423, -5.1667),
+            'ronda españa': (36.7423, -5.1667),
+        }
+        
+        # Normalizar el texto de búsqueda
+        destino_normalizado = destino_texto.lower().strip()
+        
+        # Primero intentar con coordenadas conocidas
+        if destino_normalizado in coordenadas_conocidas:
+            return coordenadas_conocidas[destino_normalizado]
+        
+        # Si no está en las conocidas, intentar geocodificación
         try:
-            geolocator = Nominatim(user_agent="andalucia-mapa-rutas")
-            geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=2, error_wait_seconds=2)
+            geolocator = Nominatim(user_agent="andalucia-mapa-rutas-v2")
+            # Aumentar timeout y reintentos
+            geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=3, error_wait_seconds=3)
             
-            location = geocode(destino_texto, timeout=10)
+            # Intentar con el texto original
+            location = geocode(destino_texto, timeout=15, language='es')
             if location:
                 return location.latitude, location.longitude
-        except Exception:
-            pass
+            
+            # Si falla, intentar agregando "España" si no está presente
+            if 'españa' not in destino_normalizado and 'spain' not in destino_normalizado:
+                destino_con_pais = f"{destino_texto}, España"
+                location = geocode(destino_con_pais, timeout=15, language='es')
+                if location:
+                    return location.latitude, location.longitude
+            
+        except Exception as e:
+            # Si falla la geocodificación, intentar con coordenadas conocidas por nombre parcial
+            for ciudad, coords in coordenadas_conocidas.items():
+                if ciudad.replace(',', '').replace(' ', '') in destino_normalizado.replace(',', '').replace(' ', ''):
+                    return coords
         
         return None, None
 
