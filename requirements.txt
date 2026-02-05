@@ -5,3 +5,5 @@ streamlit_folium
 geopy
 plotly
 numpy
+altair>=5.0.0
+requests
