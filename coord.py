@@ -673,28 +673,64 @@ with tab1:
             return coordenadas_conocidas[destino_normalizado]
         
         # Si no está en las conocidas, intentar geocodificación
+        geolocator = None
         try:
             geolocator = Nominatim(user_agent="andalucia-mapa-rutas-v2")
             # Aumentar timeout y reintentos
             geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=3, error_wait_seconds=3)
             
-            # Intentar con el texto original
-            location = geocode(destino_texto, timeout=15, language='es')
-            if location:
-                return location.latitude, location.longitude
+            # Lista de variaciones a intentar
+            variaciones = []
             
-            # Si falla, intentar agregando "España" si no está presente
+            # Agregar el texto original
+            variaciones.append(destino_texto)
+            
+            # Si no tiene "España", agregar variaciones con país
             if 'españa' not in destino_normalizado and 'spain' not in destino_normalizado:
-                destino_con_pais = f"{destino_texto}, España"
-                location = geocode(destino_con_pais, timeout=15, language='es')
-                if location:
-                    return location.latitude, location.longitude
+                variaciones.append(f"{destino_texto}, España")
+                variaciones.append(f"{destino_texto}, Andalucía, España")
+                variaciones.append(f"{destino_texto}, Spain")
+            
+            # Intentar cada variación
+            for variacion in variaciones:
+                try:
+                    location = geocode(variacion, timeout=20, language='es')
+                    if location and hasattr(location, 'latitude') and hasattr(location, 'longitude'):
+                        if location.latitude and location.longitude:
+                            return location.latitude, location.longitude
+                except Exception as e:
+                    # Continuar con la siguiente variación si esta falla
+                    continue
             
         except Exception as e:
-            # Si falla la geocodificación, intentar con coordenadas conocidas por nombre parcial
+            # Si hay un error general con el geolocator, continuar con búsqueda parcial
+            pass
+        finally:
+            # Limpiar recursos si es necesario
+            pass
+        
+        # Si todas las variaciones fallan, intentar búsqueda parcial en coordenadas conocidas
+        try:
             for ciudad, coords in coordenadas_conocidas.items():
-                if ciudad.replace(',', '').replace(' ', '') in destino_normalizado.replace(',', '').replace(' ', ''):
+                ciudad_limpia = ciudad.replace(',', '').replace(' ', '').replace('españa', '').replace('spain', '').strip()
+                destino_limpio = destino_normalizado.replace(',', '').replace(' ', '').replace('españa', '').replace('spain', '').strip()
+                
+                # Buscar coincidencias parciales (al menos 4 caracteres en común)
+                if len(ciudad_limpia) >= 4 and len(destino_limpio) >= 4:
+                    if ciudad_limpia in destino_limpio or destino_limpio in ciudad_limpia:
+                        return coords
+            
+            # Último intento: búsqueda parcial más flexible por palabras
+            for ciudad, coords in coordenadas_conocidas.items():
+                ciudad_palabras = set(ciudad.lower().replace(',', '').split())
+                destino_palabras = set(destino_normalizado.replace(',', '').split())
+                
+                # Si hay al menos una palabra en común (mínimo 3 caracteres)
+                palabras_comunes = [p for p in ciudad_palabras if len(p) >= 3 and p in destino_palabras]
+                if palabras_comunes:
                     return coords
+        except Exception:
+            pass
         
         return None, None
 
@@ -1223,6 +1259,7 @@ if metodo_normalizacion != "Sin normalizar":
                                     metodo_usado = "Estimación basada en distancia geodésica"
                                 else:
                                     distancia_km, tiempo_minutos, ruta_coordenadas = None, None, None
+                                    st.error("No se pudo calcular la distancia. Verifica que las coordenadas sean válidas.")
                             
                             if distancia_km and tiempo_minutos:
                                 # Mostrar resultados
@@ -1267,8 +1304,20 @@ if metodo_normalizacion != "Sin normalizar":
                             else:
                                 st.error("No se pudo calcular la ruta. Por favor, verifica las coordenadas.")
                         else:
-                            st.error(f"No se pudieron obtener las coordenadas para: {destino_texto}")
-                            st.info("💡 Intenta ser más específico, por ejemplo: 'Granada, España' o 'Sevilla, Andalucía, España'")
+                            st.error(f"❌ No se pudieron obtener las coordenadas para: **{destino_texto}**")
+                            st.warning("**Posibles soluciones:**")
+                            st.markdown("""
+                            - Intenta ser más específico, por ejemplo:
+                              - 'Granada, España'
+                              - 'Sevilla, Andalucía, España'
+                              - 'Málaga, Málaga, España'
+                            - Verifica la ortografía del nombre de la ciudad
+                            - Asegúrate de incluir el país (España) si es necesario
+                            - Prueba con el nombre completo de la ciudad
+                            """)
+                            
+                            # Mostrar sugerencias basadas en ciudades conocidas
+                            st.info("💡 **Ciudades disponibles en el diccionario:** Granada, Sevilla, Málaga, Córdoba, Cádiz, Jaén, Almería, Huelva, Marbella, Algeciras, Ronda")
                 else:
                     st.warning(f"No hay coordenadas disponibles para {territorio_seleccionado}")
             else:
