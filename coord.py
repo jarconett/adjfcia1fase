@@ -6,6 +6,7 @@ from streamlit_folium import st_folium
 import plotly.express as px
 from geopy.geocoders import Nominatim
 from geopy.extra.rate_limiter import RateLimiter
+from geopy.distance import geodesic
 import unicodedata
 import re
 from math import radians, cos, sin, asin, sqrt
@@ -13,6 +14,8 @@ from io import BytesIO
 import numpy as np
 from types import SimpleNamespace
 import os
+import requests
+import json
 
 # Set the title of the Streamlit application
 st.title("Mapa Interactivo de las Farmacias de la Primera fase de Adjudicaciones de Andalucía")
@@ -565,6 +568,74 @@ with tab1:
         except Exception:
             return "N/A"
 
+    def calcular_ruta_osrm(lat_origen, lon_origen, lat_destino, lon_destino):
+        """Calcula distancia y tiempo de ruta usando OSRM (Open Source Routing Machine).
+        Retorna: (distancia_km, tiempo_minutos, ruta_coordenadas) o None si falla.
+        """
+        try:
+            # Usar el servicio público de OSRM para routing
+            url = f"http://router.project-osrm.org/route/v1/driving/{lon_origen},{lat_origen};{lon_destino},{lat_destino}?overview=full&geometries=geojson"
+            response = requests.get(url, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('code') == 'Ok' and len(data.get('routes', [])) > 0:
+                    route = data['routes'][0]
+                    distancia_metros = route['distance']
+                    tiempo_segundos = route['duration']
+                    
+                    distancia_km = distancia_metros / 1000.0
+                    tiempo_minutos = tiempo_segundos / 60.0
+                    
+                    # Extraer coordenadas de la ruta
+                    ruta_coordenadas = route['geometry']['coordinates']
+                    # Convertir de [lon, lat] a [lat, lon] para folium
+                    ruta_coordenadas = [[coord[1], coord[0]] for coord in ruta_coordenadas]
+                    
+                    return distancia_km, tiempo_minutos, ruta_coordenadas
+        except Exception:
+            pass
+        
+        return None
+
+    def calcular_ruta_estimada(lat_origen, lon_origen, lat_destino, lon_destino):
+        """Calcula distancia y tiempo estimado basado en distancia geodésica.
+        Usa un factor de corrección para rutas por carretera (1.4x) y velocidad promedio de 80 km/h.
+        Retorna: (distancia_km, tiempo_minutos, None)
+        """
+        try:
+            # Calcular distancia geodésica en línea recta
+            distancia_recta_km = geodesic((lat_origen, lon_origen), (lat_destino, lon_destino)).kilometers
+            
+            # Factor de corrección para rutas por carretera (típicamente 1.3-1.5x más largo)
+            factor_carretera = 1.4
+            distancia_carretera_km = distancia_recta_km * factor_carretera
+            
+            # Velocidad promedio en carretera (km/h)
+            velocidad_promedio = 80.0
+            
+            # Calcular tiempo en minutos
+            tiempo_horas = distancia_carretera_km / velocidad_promedio
+            tiempo_minutos = tiempo_horas * 60.0
+            
+            return distancia_carretera_km, tiempo_minutos, None
+        except Exception:
+            return None
+
+    def obtener_coordenadas_destino(destino_texto):
+        """Obtiene coordenadas de una localidad usando geocodificación."""
+        try:
+            geolocator = Nominatim(user_agent="andalucia-mapa-rutas")
+            geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=2, error_wait_seconds=2)
+            
+            location = geocode(destino_texto, timeout=10)
+            if location:
+                return location.latitude, location.longitude
+        except Exception:
+            pass
+        
+        return None, None
+
     # Configuración de normalización ya definida fuera de los tabs
 
     # --------------------
@@ -1046,6 +1117,102 @@ if metodo_normalizacion != "Sin normalizar":
             "Selecciona un municipio del ranking para centrar el mapa:",
             options=df_ordenado_filtrado['Nombre_Mostrar'].tolist()
         )
+        
+        # -------------------
+        # Sistema de GPS - Cálculo de ruta por carretera
+        st.markdown("---")
+        st.subheader("🗺️ Calculadora de Rutas por Carretera")
+        
+        # Campo de texto para destino con valor por defecto
+        destino_texto = st.text_input(
+            "Localidad de destino:",
+            value="Granada, España",
+            help="Escribe el nombre de la localidad de destino (ej: Granada, España, Sevilla, Málaga, etc.)"
+        )
+        
+        # Botón para calcular ruta
+        calcular_ruta = st.button("🚗 Calcular Ruta y Tiempo de Viaje", type="primary")
+        
+        if calcular_ruta and territorio_seleccionado:
+            # Obtener coordenadas del municipio seleccionado
+            fila_municipio = df_ordenado_filtrado[df_ordenado_filtrado['Nombre_Mostrar'] == territorio_seleccionado]
+            
+            if not fila_municipio.empty:
+                lat_origen = fila_municipio.iloc[0].get('Latitud')
+                lon_origen = fila_municipio.iloc[0].get('Longitud')
+                
+                if pd.notna(lat_origen) and pd.notna(lon_origen):
+                    with st.spinner(f"Calculando ruta desde {territorio_seleccionado} hasta {destino_texto}..."):
+                        # Obtener coordenadas del destino
+                        lat_destino, lon_destino = obtener_coordenadas_destino(destino_texto)
+                        
+                        if lat_destino and lon_destino:
+                            # Intentar calcular con OSRM primero
+                            resultado_osrm = calcular_ruta_osrm(lat_origen, lon_origen, lat_destino, lon_destino)
+                            
+                            if resultado_osrm:
+                                distancia_km, tiempo_minutos, ruta_coordenadas = resultado_osrm
+                                metodo_usado = "OSRM (ruta real por carretera)"
+                            else:
+                                # Usar cálculo estimado como respaldo
+                                resultado_estimado = calcular_ruta_estimada(lat_origen, lon_origen, lat_destino, lon_destino)
+                                if resultado_estimado:
+                                    distancia_km, tiempo_minutos, ruta_coordenadas = resultado_estimado
+                                    metodo_usado = "Estimación basada en distancia geodésica"
+                                else:
+                                    distancia_km, tiempo_minutos, ruta_coordenadas = None, None, None
+                            
+                            if distancia_km and tiempo_minutos:
+                                # Mostrar resultados
+                                col1, col2, col3 = st.columns(3)
+                                
+                                with col1:
+                                    st.metric(
+                                        label="📍 Distancia",
+                                        value=f"{distancia_km:.1f} km"
+                                    )
+                                
+                                with col2:
+                                    horas = int(tiempo_minutos // 60)
+                                    minutos_restantes = int(tiempo_minutos % 60)
+                                    tiempo_formato = f"{horas}h {minutos_restantes}min" if horas > 0 else f"{minutos_restantes}min"
+                                    st.metric(
+                                        label="⏱️ Tiempo estimado",
+                                        value=tiempo_formato
+                                    )
+                                
+                                with col3:
+                                    velocidad_promedio = distancia_km / (tiempo_minutos / 60) if tiempo_minutos > 0 else 0
+                                    st.metric(
+                                        label="🚗 Velocidad promedio",
+                                        value=f"{velocidad_promedio:.0f} km/h"
+                                    )
+                                
+                                st.info(f"💡 Método de cálculo: {metodo_usado}")
+                                
+                                # Guardar información de ruta en session_state para usar en el mapa
+                                st.session_state['ruta_calculada'] = {
+                                    'origen': territorio_seleccionado,
+                                    'destino': destino_texto,
+                                    'lat_origen': lat_origen,
+                                    'lon_origen': lon_origen,
+                                    'lat_destino': lat_destino,
+                                    'lon_destino': lon_destino,
+                                    'distancia_km': distancia_km,
+                                    'tiempo_minutos': tiempo_minutos,
+                                    'ruta_coordenadas': ruta_coordenadas
+                                }
+                            else:
+                                st.error("No se pudo calcular la ruta. Por favor, verifica las coordenadas.")
+                        else:
+                            st.error(f"No se pudieron obtener las coordenadas para: {destino_texto}")
+                            st.info("💡 Intenta ser más específico, por ejemplo: 'Granada, España' o 'Sevilla, Andalucía, España'")
+                else:
+                    st.warning(f"No hay coordenadas disponibles para {territorio_seleccionado}")
+            else:
+                st.error("No se encontró el municipio seleccionado")
+        elif calcular_ruta:
+            st.warning("Por favor, selecciona un municipio del ranking primero")
     else:
         territorio_seleccionado = None
         st.info("No hay municipios con farmacia para mostrar en el ranking.")
@@ -1191,8 +1358,46 @@ if metodo_normalizacion != "Sin normalizar":
             lon_centro = fila_sel.iloc[0]['Longitud']
             zoom_nivel = 11
 
+    # Ajustar centro si hay ruta calculada
+    if 'ruta_calculada' in st.session_state and st.session_state['ruta_calculada']:
+        ruta_info = st.session_state['ruta_calculada']
+        if ruta_info.get('lat_origen') and ruta_info.get('lat_destino'):
+            lat_centro_ruta = (ruta_info['lat_origen'] + ruta_info['lat_destino']) / 2
+            lon_centro_ruta = (ruta_info['lon_origen'] + ruta_info['lon_destino']) / 2
+            lat_centro = lat_centro_ruta
+            lon_centro = lon_centro_ruta
+            zoom_nivel = 9
+    
     m = folium.Map(location=[lat_centro, lon_centro], zoom_start=zoom_nivel)
     marker_cluster = MarkerCluster().add_to(m)
+    
+    # Agregar ruta calculada si existe
+    if 'ruta_calculada' in st.session_state and st.session_state['ruta_calculada']:
+        ruta_info = st.session_state['ruta_calculada']
+        
+        # Dibujar la ruta si hay coordenadas
+        if ruta_info.get('ruta_coordenadas'):
+            folium.PolyLine(
+                locations=ruta_info['ruta_coordenadas'],
+                color='blue',
+                weight=4,
+                opacity=0.7,
+                popup=f"Ruta: {ruta_info['distancia_km']:.1f} km, {ruta_info['tiempo_minutos']:.0f} min"
+            ).add_to(m)
+        
+        # Agregar marcador de origen
+        folium.Marker(
+            [ruta_info['lat_origen'], ruta_info['lon_origen']],
+            popup=f"<b>Origen:</b> {ruta_info['origen']}<br>📍 Inicio de ruta",
+            icon=folium.Icon(color='green', icon='play', prefix='fa')
+        ).add_to(m)
+        
+        # Agregar marcador de destino
+        folium.Marker(
+            [ruta_info['lat_destino'], ruta_info['lon_destino']],
+            popup=f"<b>Destino:</b> {ruta_info['destino']}<br>🏁 Fin de ruta<br>📏 {ruta_info['distancia_km']:.1f} km<br>⏱️ {ruta_info['tiempo_minutos']:.0f} min",
+            icon=folium.Icon(color='red', icon='flag', prefix='fa')
+        ).add_to(m)
 
     # Agrupar filas que comparten las mismas coordenadas (y territorio) para no duplicar marcadores
     if not df_ordenado.empty:
